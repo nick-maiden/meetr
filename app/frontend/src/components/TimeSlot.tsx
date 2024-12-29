@@ -4,8 +4,8 @@ import { SelectionContext } from "../util/contexts";
 
 const TimeSlot = () => {
   const ref = React.useRef(null);
-  const selection = React.useContext(SelectionContext);
-  const isSelected = useSelected(ref, selection);
+  const selections = React.useContext(SelectionContext);
+  const isSelected = useSelected(ref, selections);
 
   const timeSlotStyle = {
     backgroundColor: isSelected ? 'green' : '#FFC0CB',

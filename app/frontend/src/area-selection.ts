@@ -24,6 +24,7 @@ export function useAreaSelection({
   const boxElement = boxRef;
   const [mouseDown, setMouseDown] = React.useState<boolean>(false);
   const [selections, setSelections] = React.useState<DOMRect[]>([]);
+  const [currentSelection, setCurrentSelection] = React.useState<DOMRect>();
   const [drawArea, setDrawArea] = React.useState<DrawnArea>({
     start: undefined,
     end: undefined
@@ -33,32 +34,18 @@ export function useAreaSelection({
     document.body.style.userSelect = "none";
     setDrawArea((prev) => ({
       ...prev,
-      end: {
-        x: e.clientX,
-        y: e.clientY
-      }
+      end: { x: e.clientX, y: e.clientY }
     }));
   };
 
   const handleMouseDown = (e: MouseEvent) => {
     const containerElement = container.current;
-
     setMouseDown(true);
-
-    if (
-      containerElement &&
-      containerElement.contains(e.target as HTMLElement)
-    ) {
+    if (containerElement && containerElement.contains(e.target as HTMLElement)) {
       document.addEventListener("mousemove", handleMouseMove);
       setDrawArea({
-        start: {
-          x: e.clientX,
-          y: e.clientY
-        },
-        end: {
-          x: e.clientX,
-          y: e.clientY
-        }
+        start: { x: e.clientX, y: e.clientY },
+        end: { x: e.clientX, y: e.clientY }
       });
     }
   };
@@ -67,8 +54,8 @@ export function useAreaSelection({
   const handleMouseUp = (e: MouseEvent) => {
     document.body.style.userSelect = "initial";
     document.removeEventListener("mousemove", handleMouseMove);
+    setSelections(prevSelections => [...prevSelections, boxElement.current.getBoundingClientRect()]);
     setMouseDown(false);
-    // set selection
   };
 
   React.useEffect(() => {
@@ -88,7 +75,7 @@ export function useAreaSelection({
     const { start, end } = drawArea;
     if (start && end && boxElement.current) {
       drawSelectionBox(boxElement.current, start, end);
-      setSelections(prevSelections => [...prevSelections, boxElement.current.getBoundingClientRect()]);
+      setCurrentSelection(boxElement.current.getBoundingClientRect());
     }
   }, [drawArea, boxElement]);
 
@@ -108,7 +95,7 @@ export function useAreaSelection({
     }
   }, [mouseDown, container, boxElement]);
 
-  return selections;
+  return currentSelection ? [...selections, currentSelection] : selections;
 }
 
 export function useSelected(
