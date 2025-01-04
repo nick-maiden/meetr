@@ -1,14 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-import Calendar from "./components/Calendar";
+import { BrowserRouter } from 'react-router-dom';
+import PageList from './PageList.jsx';
 import './App.css'
-
 
 const App = () => {
   return (
-    <div className="app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Calendar />
-    </div>
+    <BrowserRouter>
+      <PageList />
+    </BrowserRouter>
   );
 };
 
