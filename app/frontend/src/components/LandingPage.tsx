@@ -13,7 +13,7 @@ const LandingPage = () => {
         </article>
         <ThemeToggle />
       </div>
-      <div className="flex flex-col flex-1 px-[20%] mt-10">
+      <div className="flex flex-col flex-1 overflow-auto px-[20%] mt-10">
         <label className="form-control w-[55%] mx-auto mb-10">
           <label className="input input-bordered flex items-center gap-4 font-bold">
             event name
