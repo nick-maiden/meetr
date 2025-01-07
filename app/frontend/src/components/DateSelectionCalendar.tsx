@@ -245,7 +245,7 @@ const DateSelectionCalendar: React.FC<CalendarProps> = ({ className }) => {
           <tbody>{weeks}</tbody>
         </table>
       </div>
-
+{/*
       <div className="mt-4 p-4 bg-base-200 rounded-lg">
         <h3 className="font-semibold">Selected Dates:</h3>
         <div className="mt-2">
@@ -260,6 +260,7 @@ const DateSelectionCalendar: React.FC<CalendarProps> = ({ className }) => {
             .join(', ')}
         </div>
       </div>
+*/}
     </div>
   );
 };
