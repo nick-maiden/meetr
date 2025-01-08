@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef, Dispatch, SetStateAction} from 'react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const DAYS: readonly string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYS: readonly string[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const MONTHS: readonly string[] = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+  'january', 'february', 'march', 'april', 'may', 'june',
+  'july', 'august', 'september', 'october', 'november', 'december'
 ];
 const COLS = 7;
 
@@ -197,7 +197,7 @@ const DateSelectionCalendar: React.FC<CalendarProps> = ({ className, setSelected
       days.push(
         <td key={day} className="p-0">
           <button
-            className={`btn btn-circle w-12 h-12 min-h-0 relative mb-1 ${
+            className={`btn btn-circle md:w-12 md:h-12 w-9 h-9 min-h-0 relative mb-1 ${
               selectedCells.has(cellId)
                 ? 'btn-primary text-primary-content'
                 : 'btn-ghost'

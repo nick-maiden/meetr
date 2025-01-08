@@ -22,11 +22,11 @@ const LandingPage = () => {
   });
 
   return (
-    <div className="flex flex-col w-screen h-screen px-10">
+    <div className="flex flex-col w-screen h-screen sm:px-10 px-5">
 
-      <div className="flex items-center justify-between pt-8 pb-4">
+      <div className="flex items-center justify-between sm:pt-8 sm:pb-4 pt-6 pb-2">
         <article className="prose">
-          <h1 className="text-6xl">meetr.</h1>
+          <h1 className="sm:text-6xl text-5xl">meetr.</h1>
         </article>
         <div className="flex items-center justify-between gap-4">
           <ThemeToggle />
@@ -40,12 +40,12 @@ const LandingPage = () => {
         </div>
       </div>
 
-      <div className="flex flex-col overflow-auto no-scrollbar px-[20%] mt-10">
+      <div className="flex flex-col overflow-auto no-scrollbar sm:px-[20%] px-2 sm:mt-8 mt-6">
         <article className="prose">
           <h2>event name</h2>
         </article>
 
-        <label className="mx-auto mt-6">
+        <label className="mx-auto sm:mt-6 mt-4">
           <input
             type="text"
             placeholder="workplace meeting"
@@ -71,7 +71,7 @@ const LandingPage = () => {
 
         <div className="flex justify-around mt-6">
           <select
-            className="select select-bordered font-bold"
+            className="select select-bordered no-scrollbar font-bold"
             value={earliestTime}
             onChange={(event) => setEarliestTime(event.target.value)}
           >
@@ -80,7 +80,7 @@ const LandingPage = () => {
           </select>
           <div className="divider divider-horizontal"></div>
           <select
-            className="select select-bordered font-bold"
+            className="select select-bordered no-scrollbar font-bold"
             value={latestTime}
             onChange={(event) => setLatestTime(event.target.value)}
           >
