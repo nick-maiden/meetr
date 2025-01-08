@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Dispatch, SetStateAction} from 'react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const DAYS: readonly string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -17,7 +17,7 @@ interface CalendarSelectionHookResult {
   selectedCells: Set<string>;
   isSelecting: boolean;
   handleSelectionStart: (cellId: string) => void;
-  handleSelectionMove: (currentDate: Date, cellId: string) => void;
+  handleSelectionMove: (cellId: string) => void;
   handleSelectionEnd: () => void;
 }
 
@@ -38,10 +38,13 @@ const parseCellId = (cellId: string): CellInfo => {
 
 const formatSelectedDate = (cellId: string): string => {
   const { year, month, day } = parseCellId(cellId);
-  return `${MONTHS[month]} ${day}, ${year}`;
+  return `${day} ${MONTHS[month]} ${year}`;
 };
 
-const useCalendarSelection = (): CalendarSelectionHookResult => {
+const useCalendarSelection = (
+  setSelectedDates: Dispatch<SetStateAction<string[]>>,
+  currentDate: Date
+): CalendarSelectionHookResult => {
   const [selectedCells, setSelectedCells] = useState<Set<string>>(new Set());
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
   const [isDeselecting, setIsDeselecting] = useState<boolean>(false);
@@ -49,38 +52,50 @@ const useCalendarSelection = (): CalendarSelectionHookResult => {
   const startPosRef = useRef<Position>({ row: 0, col: 0 });
   const previousSelectionsRef = useRef<Set<string>>(new Set());
 
+  useEffect(() => {
+    setSelectedDates(Array.from(selectedCells)
+      .sort((a, b) => {
+        const dateA = parseCellId(a);
+        const dateB = parseCellId(b);
+        return new Date(dateA.year, dateA.month, dateA.day).getTime() -
+               new Date(dateB.year, dateB.month, dateB.day).getTime();
+      })
+      .map(formatSelectedDate));
+  }, [selectedCells]);
+
   const getCellPosition = useCallback((cellId: string): Position => {
     const { day } = parseCellId(cellId);
-    const row = Math.floor((day - 1) / COLS);
-    const col = (day - 1) % COLS;
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+    const adjustedDay = day + firstDayOfMonth - 1;
+    const row = Math.floor(adjustedDay / COLS);
+    const col = adjustedDay % COLS;
     return { row, col };
-  }, []);
+  }, [currentDate]);
 
-  const getCellsInRectangle = useCallback((currentDate: Date, startPos: Position, endPos: Position): Set<string> => {
-    // bug in here -> dragging across midpoint of calendar
+  const getCellsInRectangle = useCallback((startPos: Position, endPos: Position): Set<string> => {
     const minRow = Math.min(startPos.row, endPos.row);
     const maxRow = Math.max(startPos.row, endPos.row);
     const minCol = Math.min(startPos.col, endPos.col);
     const maxCol = Math.max(startPos.col, endPos.col);
     const cells = new Set<string>();
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
     const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
 
     for (let row = minRow; row <= maxRow; row++) {
       for (let col = minCol; col <= maxCol; col++) {
-        const day = row * COLS + col + 1;
-        if (day > 0 && day <= daysInMonth) {
+        const adjustedDay = row * COLS + col + 1 - firstDayOfMonth;
+        if (adjustedDay > 0 && adjustedDay <= daysInMonth) {
           const cellId = createCellId(
             currentDate.getFullYear(),
             currentDate.getMonth(),
-            day
+            adjustedDay
           );
           cells.add(cellId);
         }
       }
     }
-    console.log(cells);
     return cells;
-  }, []);
+  }, [currentDate]);
 
   const handleSelectionStart = useCallback((cellId: string): void => {
     const pos = getCellPosition(cellId);
@@ -100,11 +115,11 @@ const useCalendarSelection = (): CalendarSelectionHookResult => {
     });
   }, [selectedCells, getCellPosition]);
 
-  const handleSelectionMove = useCallback((currentDate: Date, cellId: string): void => {
+  const handleSelectionMove = useCallback((cellId: string): void => {
     if (!isSelecting) return;
 
     const currentPos = getCellPosition(cellId);
-    const currentSelectionCells = getCellsInRectangle(currentDate, startPosRef.current, currentPos);
+    const currentSelectionCells = getCellsInRectangle(startPosRef.current, currentPos);
 
     setSelectedCells(() => {
       const next = new Set(previousSelectionsRef.current);
@@ -133,16 +148,17 @@ const useCalendarSelection = (): CalendarSelectionHookResult => {
 
 interface CalendarProps {
   className?: string;
+  setSelectedDates: Dispatch<SetStateAction<string[]>>
 }
 
-const DateSelectionCalendar: React.FC<CalendarProps> = ({ className }) => {
+const DateSelectionCalendar: React.FC<CalendarProps> = ({ className, setSelectedDates }) => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const {
     selectedCells,
     handleSelectionStart,
     handleSelectionMove,
     handleSelectionEnd,
-  } = useCalendarSelection();
+  } = useCalendarSelection(setSelectedDates, currentDate);
 
   const getDaysInMonth = (date: Date): number => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -187,7 +203,7 @@ const DateSelectionCalendar: React.FC<CalendarProps> = ({ className }) => {
                 : 'btn-ghost'
             }`}
             onMouseDown={() => handleSelectionStart(cellId)}
-            onMouseEnter={() => handleSelectionMove(currentDate, cellId)}
+            onMouseEnter={() => handleSelectionMove(cellId)}
             onMouseUp={handleSelectionEnd}
           >
             {day}
@@ -245,22 +261,6 @@ const DateSelectionCalendar: React.FC<CalendarProps> = ({ className }) => {
           <tbody>{weeks}</tbody>
         </table>
       </div>
-{/*
-      <div className="mt-4 p-4 bg-base-200 rounded-lg">
-        <h3 className="font-semibold">Selected Dates:</h3>
-        <div className="mt-2">
-          {Array.from(selectedCells)
-            .sort((a, b) => {
-              const dateA = parseCellId(a);
-              const dateB = parseCellId(b);
-              return new Date(dateA.year, dateA.month, dateA.day).getTime() - 
-                     new Date(dateB.year, dateB.month, dateB.day).getTime();
-            })
-            .map(formatSelectedDate)
-            .join(', ')}
-        </div>
-      </div>
-*/}
     </div>
   );
 };

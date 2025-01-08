@@ -10,3 +10,13 @@ body, html {
   min-height: 100vh;
   font-family: 'Roboto', sans-serif;
 }
+
+@layer utilities {
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .no-scrollbar {
+        -ms-overflow-x: hidden;
+        scrollbar-width: none;
+    }
+}
