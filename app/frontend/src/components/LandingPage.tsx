@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from 'react-router-dom';
 import ThemeToggle from "./ThemeToggle";
 import DateSelectionCalendar from "./DateSelectionCalendar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -9,11 +10,19 @@ const LandingPage = () => {
   const [eventName, setEventName] = React.useState('');
   const [earliestTime, setEarliestTime] = React.useState<string | undefined>(undefined);
   const [latestTime, setLatestTime] = React.useState<string | undefined>(undefined);
+  const [creatingEvent, setCreatingEvent] = React.useState(false);
+  const navigate = useNavigate();
 
   const canCreateEvent = () => {
     return selectedDates.length && eventName && earliestTime && latestTime;
-  }
+  };
 
+  const createEvent = () => {
+    setCreatingEvent(true);
+    setTimeout(() => {
+      navigate("/event");
+    }, 2000);
+  };
 
   const hours = Array.from({ length: 24 }, (_, i) => {
     const period = i < 12 ? "am" : "pm";
@@ -30,9 +39,9 @@ const LandingPage = () => {
         </article>
         <div className="flex items-center justify-between gap-4">
           <ThemeToggle />
-          <a 
-            href="https://github.com/nick-maiden/meetr" 
-            target="_blank" 
+          <a
+            href="https://github.com/nick-maiden/meetr"
+            target="_blank"
             rel="noopener noreferrer"
           >
             <FontAwesomeIcon icon={faGithubAlt} size="xl"/>
@@ -92,8 +101,12 @@ const LandingPage = () => {
         <button
           className="btn btn-primary text-xl mt-14 mb-10"
           disabled={!canCreateEvent()}
+          onClick={createEvent}
         >
-          create event
+          {creatingEvent ?
+            <span className="loading loading-spinner"></span> :
+            <>create event</>
+          }
         </button>
       </div>
     </div>
