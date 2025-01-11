@@ -135,7 +135,7 @@ const Calendar: React.FC<CalendarProps> = () => {
     <div className="w-full max-w-3xl mx-auto p-4">
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-xl font-bold">December 2024</h2>
-        <button 
+        <button
           onClick={clearSelections}
           className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
         >

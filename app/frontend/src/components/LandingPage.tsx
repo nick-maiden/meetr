@@ -1,9 +1,7 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
-import ThemeToggle from "./ThemeToggle";
 import DateSelectionCalendar from "./DateSelectionCalendar";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faGithubAlt } from '@fortawesome/free-brands-svg-icons'
+import Navbar from "./Navbar";
 
 const LandingPage = () => {
   const [selectedDates, setSelectedDates] = React.useState<string[]>([]);
@@ -33,21 +31,7 @@ const LandingPage = () => {
   return (
     <div className="flex flex-col w-screen h-screen sm:px-10 px-5">
 
-      <div className="flex items-center justify-between sm:pt-8 sm:pb-4 pt-6 pb-2">
-        <article className="prose">
-          <h1 className="sm:text-6xl text-5xl">meetr.</h1>
-        </article>
-        <div className="flex items-center justify-between gap-4">
-          <ThemeToggle />
-          <a
-            href="https://github.com/nick-maiden/meetr"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FontAwesomeIcon icon={faGithubAlt} size="xl"/>
-          </a>
-        </div>
-      </div>
+      <Navbar />
 
       <div className="flex flex-col overflow-auto no-scrollbar sm:px-[20%] px-2 sm:mt-8 mt-6">
         <article className="prose">
