@@ -1,7 +1,8 @@
 import React from "react";
-import Navbar from "./Navbar"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLink } from '@fortawesome/free-solid-svg-icons';
+import Navbar from "./Navbar"
+import AvailabilitiesCalendar from "./AvailabilitiesCalendar";
 
 const Event = () => {
   const eventName = "test event"
@@ -32,7 +33,7 @@ const Event = () => {
         <Navbar />
 
         <div className="flex flex-col overflow-auto no-scrollbar sm:px-[10%] px-2 sm:mt-8 mt-6">
-          <div className="flex justify-between">
+          <div className="flex justify-between mb-8">
             <article className="prose">
               <h1>{eventName}</h1>
             </article>
@@ -52,6 +53,8 @@ const Event = () => {
               </button>
             </div>
           </div>
+
+            <AvailabilitiesCalendar />
         </div>
       </div>
       </>
