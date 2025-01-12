@@ -5,8 +5,6 @@ import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <html data-theme="dracula">
-      <App />
-    </html>
+    <App />
   </React.StrictMode>
 )

@@ -9,7 +9,7 @@ const App = () => {
   return (
     <>
       <Context.Provider value={{ theme, setTheme }}>
-        <html data-theme={theme == "light" ? "nord" : "dracula"}>
+        <html data-theme={theme == "light" ? "retro" : "dracula"}>
           <BrowserRouter>
             <PageList />
           </BrowserRouter>
