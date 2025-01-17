@@ -4,7 +4,7 @@ import { faGithubAlt } from '@fortawesome/free-brands-svg-icons'
 
 const Navbar = () => {
   return (
-    <div className="flex items-center justify-between sm:pt-8 sm:pb-4 pt-6 pb-2">
+    <div className="flex items-center justify-between sm:pt-6 sm:pb-4 pt-4 pb-0">
       <article className="prose">
         <h1 className="sm:text-6xl text-5xl">meetr.</h1>
       </article>

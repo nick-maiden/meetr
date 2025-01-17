@@ -38,7 +38,7 @@ const parseCellId = (cellId: string): CellInfo => {
 
 const formatSelectedDate = (cellId: string): string => {
   const { year, month, day } = parseCellId(cellId);
-  return `${day} ${MONTHS[month]} ${year}`;
+  return `${year}-${String(month + 1).padStart(2, '0')}-${day}`;
 };
 
 const useCalendarSelection = (
