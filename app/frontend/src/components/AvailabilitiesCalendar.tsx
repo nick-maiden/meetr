@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Availability {
   users: string[];
   startTime: string;
   endTime: string;
+  dates: string[];
   availability: {
     [timeSlot: string]: string[];
   }
@@ -20,7 +21,14 @@ type HoveredSlot = string | null;
 const DUMMY_DATA: Availability = {
   users: ["Alice Johnson", "Bob Smith", "Carol White", "David Brown", "Emily Clark"],
   startTime: "09:00",
-  endTime: "17:00",
+  endTime: "23:00",
+  dates: [
+      "2025-01-17",
+      "2025-01-18",
+      "2025-01-19",
+      "2025-01-20",
+      "2025-02-05"
+    ],
   availability: {
     // January 17
     "2025-01-17-09:00": ["Alice Johnson", "Bob Smith", "Carol White"],
@@ -72,11 +80,22 @@ const DUMMY_DATA: Availability = {
     "2025-02-05-10:00": ["Alice Johnson", "Carol White", "Emily Clark"],  }
 };
 
-const DATES_PER_PAGE = 4;
-
 const AvailabilitiesCalendar: React.FC = () => {
-  const [hoveredSlot, setHoveredSlot] = useState<HoveredSlot>(null);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [hoveredSlot, setHoveredSlot] = React.useState<HoveredSlot>(null);
+  const [currentPage, setCurrentPage] = React.useState(0);
+  const [datesPerPage, setDatesPerPage] = React.useState(7);
+
+  React.useEffect(() => {
+    // Show an appropriate number of dates per page depending on screen size.
+    const handleResize = () => {
+      if (window.innerWidth <= 600) { setDatesPerPage(4); }
+      else if (window.innerWidth <= 900) { setDatesPerPage(5); }
+      else { setDatesPerPage(7); }
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const generateTimeData = (): TimeData => {
     const displaySlots: string[] = [];
@@ -101,14 +120,7 @@ const AvailabilitiesCalendar: React.FC = () => {
   };
 
   const getDates = (): Date[] => {
-    const dates: Date[] = [];
-    const today = new Date();
-    for (let i = 0; i < 21; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      dates.push(date);
-    }
-    return dates;
+    return DUMMY_DATA.dates.map(dateStr => new Date(dateStr));
   };
 
   const isUserAvailable = (userName: string, date: Date, time: string): boolean => {
@@ -136,10 +148,10 @@ const AvailabilitiesCalendar: React.FC = () => {
 
   const { displaySlots, dataSlots } = generateTimeData();
   const allDates = getDates();
-  const totalPages = Math.ceil(allDates.length / DATES_PER_PAGE);
+  const totalPages = Math.ceil(allDates.length / datesPerPage);
   const displayDates = allDates.slice(
-    currentPage * DATES_PER_PAGE,
-    (currentPage + 1) * DATES_PER_PAGE
+    currentPage * datesPerPage,
+    (currentPage + 1) * datesPerPage
   );
 
   return (
@@ -147,17 +159,17 @@ const AvailabilitiesCalendar: React.FC = () => {
       <div className="flex-grow">
         <div className="flex justify-between items-center mb-4">
           <button
-            className="btn btn-outline btn-sm"
+            className="btn btn-outline sm:btn-sm btn-xs"
             onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
             disabled={currentPage === 0}
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <span className="font-bold text-xl">
+          <span className="font-bold md:text-xl sm:text-lg text-md">
             page {currentPage + 1} of {totalPages}
           </span>
           <button
-            className="btn btn-outline btn-sm"
+            className="btn btn-outline sm:btn-sm btn-xs"
             onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
             disabled={currentPage === totalPages - 1}
           >
@@ -166,7 +178,7 @@ const AvailabilitiesCalendar: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="table-auto table-compact w-full min-w-[180px]">
+          <table className="table-auto table-compact w-full min-w-[190px]">
             <thead>
               <tr>
                 <th className="w-0"></th>
@@ -179,7 +191,7 @@ const AvailabilitiesCalendar: React.FC = () => {
                   return (
                     <th key={i} className="text-center border-b border-neutral">
                       <div className="text-xs text-neutral-500">{monthDay}</div>
-                      <div className="text-lg">{weekday}</div>
+                      <div className="sm:text-lg text-md">{weekday}</div>
                     </th>
                   )
                 })}
@@ -189,7 +201,13 @@ const AvailabilitiesCalendar: React.FC = () => {
               {displaySlots.map((displayTime, hourIndex) => (
                 <>
                   <tr key={`hour-${hourIndex}`}>
-                    <td className="font-bold border-b border-t border-r border-r-neutral border-b-base-100 border-t-base-100 text-right p-0 pr-2">
+                    <td
+                      className="
+                        font-bold border-b border-t border-r
+                        border-r-neutral border-b-base-100
+                        border-t-base-100 text-right p-0
+                        sm:pr-2 pr-1 sm:text-md text-sm"
+                    >
                       {displayTime}
                     </td>
                     {displayDates.map((date, _) => (
@@ -237,10 +255,10 @@ const AvailabilitiesCalendar: React.FC = () => {
         </div>
       </div>
 
-      <div className="w-48 sticky top-0 self-start">
+      <div className="sm:w-48 w-32 sticky top-0 self-start overflow-y-auto no-scrollbar max-h-[70vh]">
         <div className="bg-base-200 p-4 rounded-lg">
-          <h2 className="font-bold text-xl mb-4">respondents</h2>
-          <ul className="space-y-2">
+          <h2 className="font-bold sm:text-xl text-lg sm:mb-4 mb-2">respondents</h2>
+          <ul className="sm:space-y-2 space-y-0">
             {DUMMY_DATA.users.map(userName => {
               const isAvailable = hoveredSlot ?
                 isUserAvailable(
@@ -252,7 +270,7 @@ const AvailabilitiesCalendar: React.FC = () => {
               return (
                 <li key={userName}>
                   <div
-                    className={`badge badge-neutral font-bold ${
+                    className={`badge badge-neutral sm:badge-md badge-sm font-bold ${
                       !isAvailable && hoveredSlot ? 'line-through text-gray-500' : ''
                     }`}
                   >

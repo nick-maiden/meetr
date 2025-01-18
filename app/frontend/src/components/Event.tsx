@@ -28,12 +28,13 @@ const Event = () => {
           </div>
         </div>
       }
-      <div className="flex flex-col w-screen h-screen sm:px-10 px-5">
+      <div className="flex flex-col w-screen h-screen ">
 
-        <Navbar />
-
-        <div className="flex flex-col overflow-auto no-scrollbar sm:px-[10%] px-2 sm:mt-6 mt-6 pb-6">
-          <div className="flex justify-between items-center sm:mb-8 mb-5">
+        <div className="sm:px-10 px-5">
+          <Navbar />
+        </div>
+        <div className="flex flex-col overflow-auto no-scrollbar sm:mt-6 mt-6 pb-6">
+          <div className="flex justify-between items-center sm:mb-8 mb-5 sm:px-[10%] px-6">
             <article className="prose">
               <h1 className="md:text-4xl sm:text-3xl text-2xl">{eventName}</h1>
             </article>
@@ -54,7 +55,10 @@ const Event = () => {
             </div>
           </div>
 
+          <div className="sm:px-[10%] px-2">
             <AvailabilitiesCalendar />
+
+          </div>
         </div>
       </div>
       </>
