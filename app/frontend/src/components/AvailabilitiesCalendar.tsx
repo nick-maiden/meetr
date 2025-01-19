@@ -318,26 +318,28 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
       <div className="space-y-4">
         <div className="flex gap-6">
           <div className="flex-grow">
-            <div className="flex justify-between items-center mb-4">
-              <button
-                className="btn btn-outline sm:btn-sm btn-xs"
-                onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
-                disabled={currentPage === 0}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <span className="font-bold md:text-xl sm:text-lg text-md">
-                page {currentPage + 1} of {totalPages}
-              </span>
-              <button
-                className="btn btn-outline sm:btn-sm btn-xs"
-                onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
-                disabled={currentPage === totalPages - 1}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-  
+            {totalPages > 1 &&
+              <div className="flex justify-between items-center mb-4">
+                <button
+                  className="btn btn-outline sm:btn-sm btn-xs"
+                  onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                  disabled={currentPage === 0}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <span className="font-bold md:text-xl sm:text-lg text-md">
+                  page {currentPage + 1} of {totalPages}
+                </span>
+                <button
+                  className="btn btn-outline sm:btn-sm btn-xs"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                  disabled={currentPage === totalPages - 1}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            }
+
             <div className="overflow-x-auto">
               <table 
                 className="table-auto table-compact w-full min-w-[190px]"
@@ -420,14 +422,14 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
             {isSelectionMode ? (
               <div className="bg-base-200 p-4 rounded-lg space-y-4">
                 <button 
-                  className="btn btn-outline btn-block text-lg"
+                  className="btn sm:btn-md btn-sm btn-outline btn-block sm:text-lg text-md"
                   onClick={cancelSetUserAvailability}
                 >
                   cancel
                 </button>
 
                 <button 
-                  className="btn btn-secondary btn-block text-lg"
+                  className="btn sm:btn-md btn-sm btn-secondary btn-block sm:text-lg text-md"
                   onClick={checkUser}
                 >
                   save
@@ -435,8 +437,9 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
               </div>
             ) : (
               <div className="bg-base-200 p-4 rounded-lg overflow-y-auto no-scrollbar max-h-[70vh]">
-                <h2 className="font-bold sm:text-xl text-lg sm:mb-4 mb-2">respondents</h2>
-                <ul className="sm:space-y-2 space-y-0">
+                <h2 className="font-bold md:text-2xl sm:text-xl text-md">respondents</h2>
+                <div className="divider mt-2"></div>
+                <ul className="sm:space-y-2 space-y-1.5">
                   {DUMMY_DATA.users.map(userName => {
                     const isAvailable = hoveredSlot ?
                       isUserAvailable(
@@ -448,11 +451,15 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
                     return (
                       <li key={userName}>
                         <div
-                          className={`flex justify-between badge badge-neutral w-full sm:badge-md badge-sm font-bold ${
-                            !isAvailable && hoveredSlot ? 'line-through text-gray-500' : ''
-                          }`}
+                          className={`
+                            flex justify-between
+                            hover:pl-1
+                            transition-[padding,text-decoration,color] duration-500 ease-in-out hover:ease-out
+                            w-full font-bold md:text-base sm:text-sm text-xs
+                            ${!isAvailable && hoveredSlot ? 'line-through text-gray-500' : ''}
+                          `}
                         >
-                          {userName}
+                          <p className="truncate">{userName}</p>
                           <button
                             onClick={() => editUserAvailability(userName)}
                           >
