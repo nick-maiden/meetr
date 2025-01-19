@@ -83,7 +83,7 @@ const LandingPage = () => {
         </div>
 
         <button
-          className="btn btn-primary text-xl mt-14 mb-10"
+          className="btn btn-secondary text-xl mt-14 mb-10"
           disabled={!canCreateEvent()}
           onClick={createEvent}
         >

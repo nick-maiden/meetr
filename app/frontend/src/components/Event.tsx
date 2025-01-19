@@ -7,6 +7,7 @@ import AvailabilitiesCalendar from "./AvailabilitiesCalendar";
 const Event = () => {
   const eventName = "test event"
   const [linkCopied, setLinkCopied] = React.useState(false);
+  const [isSelectionMode, setIsSelectionMode] = React.useState(false);
 
   const copyLink = () => {
     const url = window.location.href;
@@ -23,7 +24,7 @@ const Event = () => {
     <>
       {linkCopied &&
         <div className="toast toast-top toast-center" style={{zIndex: 10000}}>
-          <div className="alert font-bold">
+          <div className="alert bg-secondary font-bold">
             link copied to clipboard!
           </div>
         </div>
@@ -48,7 +49,9 @@ const Event = () => {
                 <FontAwesomeIcon icon={faLink} size="lg"/>
               </button>
               <button
-                className="btn btn-neutral btn-xs sm:btn-sm md:btn-md md:text-lg"
+                className="btn btn-secondary btn-xs sm:btn-sm md:btn-md md:text-lg"
+                onClick={() => setIsSelectionMode(true)}
+                disabled={isSelectionMode}
               >
                 add availability
               </button>
@@ -56,7 +59,10 @@ const Event = () => {
           </div>
 
           <div className="sm:px-[10%] px-2">
-            <AvailabilitiesCalendar />
+            <AvailabilitiesCalendar
+              isSelectionMode={isSelectionMode}
+              setIsSelectionMode={setIsSelectionMode}
+            />
 
           </div>
         </div>

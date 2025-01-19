@@ -199,7 +199,7 @@ const DateSelectionCalendar: React.FC<CalendarProps> = ({ className, setSelected
           <button
             className={`btn btn-circle md:w-12 md:h-12 w-9 h-9 min-h-0 relative mb-1 ${
               selectedCells.has(cellId)
-                ? 'btn-primary text-primary-content'
+                ? 'btn-secondary text-secondary-content'
                 : 'btn-ghost'
             }`}
             onMouseDown={() => handleSelectionStart(cellId)}
@@ -226,7 +226,7 @@ const DateSelectionCalendar: React.FC<CalendarProps> = ({ className, setSelected
   }
 
   return (
-    <div className={`card bg-base-100 w-full max-w-md p-4 border ${className || ''}`}>
+    <div className={`card bg-base-100 w-full max-w-md p-4 border border-base-content ${className || ''}`}>
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={prevMonth}
