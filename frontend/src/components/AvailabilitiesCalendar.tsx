@@ -190,7 +190,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
     setIsSelecting(true);
     setStartPosition({ hour: hourIndex, quarter, date: dateIndex });
     setIsDeselecting(selectedSlots.has(slotId));
-    
+
     setSelectedSlots(prev => {
       const next = new Set(prev);
       if (selectedSlots.has(slotId)) {
@@ -207,7 +207,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
 
   const minDate = Math.min(startPosition.date, dateIndex);
   const maxDate = Math.max(startPosition.date, dateIndex);
-  
+
   // Calculate actual slot positions (convert hour+quarter to absolute position)
   const startSlot = startPosition.hour * 4 + startPosition.quarter;
   const currentSlot = hourIndex * 4 + quarter;
@@ -216,13 +216,13 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
 
   setSelectedSlots(prev => {
     const next = new Set(prev);
-    
+
     for (let date = minDate; date <= maxDate; date++) {
       for (let slot = minSlot; slot <= maxSlot; slot++) {
         const timeSlot = dataSlots[slot];
         const currentDate = displayDates[date];
         const slotId = `${currentDate.toISOString().split('T')[0]}-${timeSlot}`;
-        
+
         if (isDeselecting) {
           next.delete(slotId);
         } else {
@@ -230,7 +230,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
         }
       }
     }
-    
+
     return next;
   });
 };
