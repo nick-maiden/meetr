@@ -22,7 +22,8 @@ description:         Please see the README on GitHub at <https://github.com/gith
 dependencies:
 - base >= 4.7 && < 5
 - scotty
-- mongoDB
+- acid-state
+- safecopy
 - aeson
 - text
 - mtl
@@ -30,6 +31,8 @@ dependencies:
 - wai-cors
 - wai-extra
 - http-types
+- containers
+- lens
 
 ghc-options:
 - -Wall

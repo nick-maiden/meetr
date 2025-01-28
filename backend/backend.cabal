@@ -34,11 +34,14 @@ library
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      aeson
+      acid-state
+    , aeson
     , base >=4.7 && <5
+    , containers
     , http-types
-    , mongoDB
+    , lens
     , mtl
+    , safecopy
     , scotty
     , text
     , transformers
@@ -56,12 +59,15 @@ executable backend-exe
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
+      acid-state
+    , aeson
     , backend
     , base >=4.7 && <5
+    , containers
     , http-types
-    , mongoDB
+    , lens
     , mtl
+    , safecopy
     , scotty
     , text
     , transformers
@@ -80,12 +86,15 @@ test-suite backend-test
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
+      acid-state
+    , aeson
     , backend
     , base >=4.7 && <5
+    , containers
     , http-types
-    , mongoDB
+    , lens
     , mtl
+    , safecopy
     , scotty
     , text
     , transformers
