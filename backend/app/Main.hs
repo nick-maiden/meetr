@@ -21,6 +21,10 @@ import qualified Data.Text as T
 import qualified Data.Map as Map
 import Control.Lens hiding ((.=))
 
+maybeToEither :: e -> Maybe a -> Either e a
+maybeToEither err Nothing = Left err
+maybeToEither _ (Just x) = Right x
+
 -- Data Types
 data User = User {
   id :: Int,
@@ -38,14 +42,15 @@ data UserAvailability = UserAvailability {
   userName :: T.Text,
   availability :: [TimeSlot]
 } deriving (Show, Generic)
+
 instance A.FromJSON UserAvailability
 instance A.ToJSON UserAvailability
 
 data Event = Event {
   name :: T.Text,
   users :: Map.Map Int User,
-  startTime :: T.Text,
-  endTime :: T.Text,
+  earliestTime :: T.Text,
+  latestTime :: T.Text,
   availabilities :: Availabilities
 } deriving (Show, Typeable, Generic)
 
@@ -82,40 +87,74 @@ insertNewEvent event = do
   nextEventId += 1
   return i
 
-addAvailability :: Int -> T.Text -> [TimeSlot] -> Update EventDB Int
+doAddAvailability :: Int -> [TimeSlot] -> Event -> Event
+doAddAvailability userId ts event = event {
+  availabilities = foldr (\t acc ->
+      Map.insertWith (++) t [userId] acc
+    ) (availabilities event) ts,
+  users = (users event)
+}
+
+addAvailability :: Int -> T.Text -> [TimeSlot] -> Update EventDB (Maybe Int)
 addAvailability eventId userName ts = do
   userId <- use nextUserId
-  events %= \es -> case Map.lookup eventId es of
-    Just event  -> Map.insert eventId (doAddAvailability event userId) es
-    Nothing     -> es
-  nextUserId += 1
-  return userId
+  mEvent <- use (events . at eventId)
+  case mEvent of
+    Just _ -> do
+      events . at eventId . _Just %= (doAddUser userId . doAddAvailability userId ts)
+      nextUserId += 1
+      return $ Just userId
+    Nothing -> return Nothing
   where
-    doAddAvailability event userId = event {
-      availabilities = foldr (\t acc ->
-        Map.insertWith (++) t [userId] acc
-      ) (availabilities event) ts,
+    doAddUser userId event = event {
+      availabilities = (availabilities event),
       users = Map.insert userId User {
         id = userId,
         name = userName
       } (users event)
     }
 
-$(makeAcidic ''EventDB ['getAllEvents, 'insertNewEvent, 'getEvent, 'addAvailability])
+data UpdateAvailabilityError =
+  EventNotFound
+  | UserNotFound
+  deriving (Show)
 
--- Main application
+$(deriveSafeCopy 0 'base ''UpdateAvailabilityError)
+
+updateAvailability :: Int -> Int -> [TimeSlot] -> Update EventDB (Either UpdateAvailabilityError ())
+updateAvailability eventId userId ts = do
+  mEvent  <- use (events . at eventId)
+  case do
+    event <- maybeToEither EventNotFound mEvent
+    _     <- maybeToEither UserNotFound (Map.lookup userId (users event))
+    return $ Right ()
+   of
+    Left err  -> return $ Left err
+    Right _   -> do
+      events . at eventId . _Just %= (doAddAvailability userId ts . clearAvailability)
+      nextUserId += 1
+      return $ Right ()
+  where
+    clearAvailability event = event {
+      availabilities = Map.map (filter (/= userId)) (availabilities event),
+      users = users event
+    }
+
+$(makeAcidic ''EventDB ['getAllEvents, 'insertNewEvent, 'getEvent, 'addAvailability, 'updateAvailability])
+
 main :: IO ()
 main = do
-  -- Initialize Acid-State
   acid <- openLocalState initialEventDBState
 
-  -- Start Scotty
-  scotty 3000 $ do
-    -- Middleware
-    middleware simpleCors
+  scotty 8080 $ do
+    middleware $ cors $ const $ Just simpleCorsResourcePolicy
+      { corsRequestHeaders = ["Content-Type"]
+      , corsMethods = ["GET", "POST", "PUT", "DELETE"]
+      , corsOrigins = Just (["http://localhost:5173"], True)
+      }
     middleware logStdoutDev
 
-    -- Routes
+    -- routes
     get "/events" $ do
       events' <- liftIO $ query acid GetAllEvents
       json events'
@@ -136,13 +175,23 @@ main = do
       userAvailability <- jsonData :: ActionM UserAvailability
       let uname = userName userAvailability
       let avail = availability userAvailability
-      userId <- liftIO $ update acid (AddAvailability (read eventId :: Int) uname avail)
-      status status201
-      json $ A.object ["userId" A..= userId]
+      result <- liftIO $ update acid (AddAvailability (read eventId :: Int) uname avail)
+      case result of
+        Just userId -> status status201 >> json userId
+        Nothing -> status status404 >> json ("Event not found" :: T.Text)
+
+    put "/events/:eventId/availability/:userId" $ do
+      eventId <- pathParam "eventId"
+      userId <- pathParam "userId"
+      avail <- jsonData
+      result <- liftIO $ update acid (UpdateAvailability (read eventId :: Int) (read userId :: Int) avail)
+      case result of
+        Left EventNotFound -> status status404 >> json ("Event not found" :: T.Text)
+        Left UserNotFound -> status status404 >> json ("User not found" :: T.Text)
+        Right () -> status status204
 
     notFound $ do
         status status404
         json $ A.object ["error" A..= ("Route not found" :: String)]
 
-  -- Close Acid-State on shutdown
   closeAcidState acid

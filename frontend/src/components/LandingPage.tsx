@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from 'react-router-dom';
 import DateSelectionCalendar from "./DateSelectionCalendar";
 import Navbar from "./Navbar";
+import { postRequest } from '../util/api';
 
 const LandingPage = () => {
   const [selectedDates, setSelectedDates] = React.useState<string[]>([]);
@@ -17,9 +18,17 @@ const LandingPage = () => {
 
   const createEvent = () => {
     setCreatingEvent(true);
-    setTimeout(() => {
-      navigate("/event");
-    }, 2000);
+    const newEvent = {
+      name: eventName,
+      earliestTime,
+      latestTime,
+      users: {},
+      availabilities: {}
+    }
+    postRequest('/events', newEvent)
+    .then(response => {
+      navigate(`/events/${response.data.eventId}`);
+    });
   };
 
   const hours = Array.from({ length: 24 }, (_, i) => {
