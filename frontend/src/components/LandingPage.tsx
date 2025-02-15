@@ -22,13 +22,14 @@ const LandingPage = () => {
       name: eventName,
       earliestTime,
       latestTime,
+      dates: selectedDates,
       users: {},
       availabilities: {}
     }
     postRequest('/events', newEvent)
-    .then(response => {
-      navigate(`/events/${response.data.eventId}`);
-    });
+      .then(response => {
+        navigate(`/events/${response.data.eventId}`);
+      });
   };
 
   const hours = Array.from({ length: 24 }, (_, i) => {

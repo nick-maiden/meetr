@@ -2,16 +2,8 @@ import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
+import { postRequest, putRequest } from "../util/api";
 
-interface Availability {
-  users: string[];
-  startTime: string;
-  endTime: string;
-  dates: string[];
-  availability: {
-    [timeSlot: string]: string[];
-  }
-}
 
 interface TimeData {
   displaySlots: string[];
@@ -26,74 +18,33 @@ interface Position {
 
 type HoveredSlot = string | null;
 
-const DUMMY_DATA: Availability = {
-  users: ["Alice Johnson", "Bob Smith", "Carol White", "David Brown", "Emily Clark"],
-  startTime: "09:00",
-  endTime: "23:00",
-  dates: [
-      "2025-01-17",
-      "2025-01-18",
-      "2025-01-19",
-      "2025-01-20",
-      "2025-02-05"
-    ],
-  availability: {
-    // January 17
-    "2025-01-17-09:00": ["Alice Johnson", "Bob Smith", "Carol White"],
-    "2025-01-17-09:15": ["Alice Johnson", "Bob Smith", "Carol White", "David Brown"],
-    "2025-01-17-09:30": ["Alice Johnson", "David Brown", "Emily Clark"],
-    "2025-01-17-09:45": ["David Brown", "Emily Clark"],
-    "2025-01-17-10:00": ["David Brown", "Emily Clark"],
-    "2025-01-17-10:15": ["Emily Clark", "Bob Smith"],
-    "2025-01-17-14:00": ["Alice Johnson", "Carol White", "David Brown"],
-    "2025-01-17-14:15": ["Alice Johnson", "Carol White"],
-    "2025-01-17-14:30": ["Alice Johnson", "Carol White", "Emily Clark"],
-    "2025-01-17-14:45": ["Carol White", "Emily Clark", "Bob Smith"],
-    "2025-01-17-15:00": ["Carol White", "Bob Smith"],
+// these need to be moved somewhere more appropriate
+type User = {
+  id: number,
+  name: string
+}
 
-    // January 18
-    "2025-01-18-09:00": ["Alice Johnson", "Carol White"],
-    "2025-01-18-09:15": ["Alice Johnson", "Carol White", "David Brown"],
-    "2025-01-18-09:30": ["Alice Johnson", "Carol White", "David Brown", "Emily Clark"],
-    "2025-01-18-09:45": ["Alice Johnson", "Carol White", "Emily Clark"],
-    "2025-01-18-10:00": ["Alice Johnson", "Emily Clark"],
-    "2025-01-18-14:00": ["David Brown", "Bob Smith", "Emily Clark"],
-    "2025-01-18-14:15": ["David Brown", "Bob Smith"],
-    "2025-01-18-14:30": ["David Brown", "Emily Clark"],
-
-    // January 19
-    "2025-01-19-09:00": ["Alice Johnson", "Carol White", "David Brown", "Emily Clark", "Bob Smith"],
-    "2025-01-19-09:15": ["Alice Johnson", "Carol White", "David Brown", "Emily Clark", "Bob Smith"],
-    "2025-01-19-09:30": ["Alice Johnson", "Carol White", "David Brown", "Emily Clark", "Bob Smith"],
-    "2025-01-19-14:00": ["David Brown", "Bob Smith"],
-    "2025-01-19-14:15": ["David Brown", "Bob Smith", "Emily Clark"],
-    "2025-01-19-14:30": ["David Brown", "Emily Clark", "Carol White"],
-    "2025-01-19-15:00": ["David Brown", "Carol White"],
-
-    // January 20
-    "2025-01-20-09:00": ["Alice Johnson", "David Brown"],
-    "2025-01-20-09:15": ["Alice Johnson", "David Brown", "Emily Clark"],
-    "2025-01-20-09:30": ["Alice Johnson", "Emily Clark"],
-    "2025-01-20-10:00": ["Emily Clark", "Carol White"],
-    "2025-01-20-10:15": ["Emily Clark", "Carol White", "Bob Smith"],
-    "2025-01-20-14:00": ["David Brown", "Bob Smith", "Emily Clark"],
-    "2025-01-20-14:15": ["David Brown", "Bob Smith"],
-    "2025-01-20-14:30": ["David Brown", "Emily Clark"],
-
-    // February 5
-    "2025-02-05-09:00": ["Carol White", "David Brown"],
-    "2025-02-05-09:15": ["Carol White", "David Brown", "Emily Clark"],
-    "2025-02-05-09:30": ["David Brown", "Emily Clark", "Bob Smith"],
-    "2025-02-05-09:45": ["Emily Clark", "Bob Smith"],
-    "2025-02-05-10:00": ["Alice Johnson", "Carol White", "Emily Clark"],  }
-};
+type Event = {
+  id: number,
+  name: string,
+  users: {
+    [userId: number]: User
+  },
+  dates: [string],
+  earliestTime: string,
+  latestTime: string,
+  availabilities: {
+    [timeSlot: string]: number[];
+  }
+}
 
 interface Props {
   isSelectionMode: boolean;
-  setIsSelectionMode: React.Dispatch<React.SetStateAction<boolean>>
+  setIsSelectionMode: React.Dispatch<React.SetStateAction<boolean>>;
+  event: Event;
 }
 
-const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelectionMode }) => {
+const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelectionMode, event }) => {
   const [hoveredSlot, setHoveredSlot] = React.useState<HoveredSlot>(null);
   const [currentPage, setCurrentPage] = React.useState(0);
   const [datesPerPage, setDatesPerPage] = React.useState(7);
@@ -101,6 +52,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
   const [isSelecting, setIsSelecting] = React.useState(false);
   const [startPosition, setStartPosition] = React.useState<Position | null>(null);
   const [isDeselecting, setIsDeselecting] = React.useState(false);
+  const [userId, setUserId] = React.useState<number | null>(null);
   const [userName, setUserName] = React.useState<string>("");
 
   React.useEffect(() => {
@@ -119,8 +71,8 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
     const displaySlots: string[] = [];
     const dataSlots: string[] = [];
 
-    const startHour = parseInt(DUMMY_DATA.startTime.split(':')[0]);
-    const endHour = parseInt(DUMMY_DATA.endTime.split(':')[0]);
+    const startHour = parseInt(event.earliestTime.split(':')[0]);
+    const endHour = parseInt(event.latestTime.split(':')[0]);
 
     for (let hour = startHour; hour < endHour; hour++) {
       const hour12 = hour % 12 || 12;
@@ -138,25 +90,25 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
   };
 
   const getDates = (): Date[] => {
-    return DUMMY_DATA.dates.map(dateStr => new Date(dateStr));
+    return event.dates.map(dateStr => new Date(dateStr));
   };
 
-  const isUserAvailable = (userName: string, date: Date, time: string): boolean => {
+  const isUserAvailable = (userId: number, date: Date, time: string): boolean => {
     const dateStr = date.toISOString().split('T')[0];
     const timeSlot = `${dateStr}-${time}`;
-    return DUMMY_DATA.availability[timeSlot]?.includes(userName) ?? false;
+    return event.availabilities[timeSlot]?.includes(userId) ?? false;
   };
 
-  const getAvailableUsers = (date: Date, time: string): string[] => {
+  const getAvailableUsers = (date: Date, time: string): number[] => {
     const dateStr = date.toISOString().split('T')[0];
     const timeSlot = `${dateStr}-${time}`;
-    return DUMMY_DATA.availability[timeSlot] ?? [];
+    return event.availabilities[timeSlot] ?? [];
   };
 
-  const getUserAvailability = (userName: string) => {
+  const getUserAvailability = (userId: number) => {
     return new Set(
-      Object.entries(DUMMY_DATA.availability)
-        .filter(([_, users]) => users.includes(userName))
+      Object.entries(event.availabilities)
+        .filter(([_, userIds]) => userIds.includes(userId))
         .map(([timeSlot]) => timeSlot)
         .sort()
     );
@@ -181,7 +133,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
       const availableUsers = getAvailableUsers(date, timeSlot);
       return getAvailabilityColor(
         availableUsers.length,
-        DUMMY_DATA.users.length
+        Object.keys(event.users).length
       );
     }
   }
@@ -241,31 +193,38 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
   };
 
   const checkUser = () => {
-    if (userName === "") {
+    if (!userId) {
       // New user, need to get their name first.
       document.getElementById('name_input_modal').showModal()
     } else {
       // Existing user, update their availability.
-      saveUserAvailability();
+      updateUserAvailability();
     }
   };
 
-  const saveUserAvailability = () => {
-    // TODO -> plug in to backend
-    console.log(userName);
-    console.log(selectedSlots);
+  const saveNewUserAvailability = () => {
     document.getElementById('name_input_modal').close()
-    setUserName("");
-    setIsSelectionMode(false);
-    setSelectedSlots(new Set());
-    setIsSelecting(false);
-    setStartPosition(null);
-    setIsDeselecting(false);
+    const userAvailability = {
+      name: userName,
+      availability: Array.from(selectedSlots)
+    }
+    postRequest(`/events/${event.id}/availability`, userAvailability)
+      .then((_) => {
+        cancelSetUserAvailability();
+      });
   };
 
-  const editUserAvailability = (userName: string) => {
-    setUserName(userName);
-    setSelectedSlots(getUserAvailability(userName));
+  const updateUserAvailability = () => {
+    const updatedAvailability = {availability: Array.from(selectedSlots)}
+    putRequest(`/events/${event.id}/availability/${userId}`, updatedAvailability)
+      .then(() => {
+        cancelSetUserAvailability();
+      });
+  };
+
+  const editUserAvailability = (userId: number) => {
+    setUserId(userId);
+    setSelectedSlots(getUserAvailability(userId));
     setIsSelectionMode(true);
   };
 
@@ -304,7 +263,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
               <button
                 className="btn btn-secondary self-end w-[30%] text-lg"
                 disabled={ userName.length === 0 }
-                onClick={saveUserAvailability}
+                onClick={saveNewUserAvailability}
               >
                 continue
               </button>
@@ -440,16 +399,16 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
                 <h2 className="font-bold md:text-2xl sm:text-xl text-md">respondents</h2>
                 <div className="divider mt-2"></div>
                 <ul className="sm:space-y-2 space-y-1.5">
-                  {DUMMY_DATA.users.map(userName => {
+                  {Object.values(event.users).map((user) => {
                     const isAvailable = hoveredSlot ?
                       isUserAvailable(
-                        userName,
+                        user.id,
                         new Date(hoveredSlot.split('-').slice(0, 3).join('-')),
                         hoveredSlot.split('-').slice(3).join('-')
                       ) : true;
-  
+
                     return (
-                      <li key={userName}>
+                      <li key={user.id}>
                         <div
                           className={`
                             flex justify-between
@@ -459,9 +418,9 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
                             ${!isAvailable && hoveredSlot ? 'line-through text-gray-500' : ''}
                           `}
                         >
-                          <p className="truncate">{userName}</p>
+                          <p className="truncate">{user.name}</p>
                           <button
-                            onClick={() => editUserAvailability(userName)}
+                            onClick={() => editUserAvailability(user.id)}
                           >
                             <FontAwesomeIcon icon={faPenToSquare} />
                           </button>

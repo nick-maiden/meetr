@@ -1,18 +1,31 @@
 import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLink } from '@fortawesome/free-solid-svg-icons';
+import { useParams } from "react-router-dom";
 import Navbar from "./Navbar"
 import AvailabilitiesCalendar from "./AvailabilitiesCalendar";
+import { getRequest } from "../util/api";
 
 const Event = () => {
-  const eventName = "test event"
+  const { eventId } = useParams();
   const [linkCopied, setLinkCopied] = React.useState(false);
   const [isSelectionMode, setIsSelectionMode] = React.useState(false);
+  const [event, setEvent] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    getRequest(`/events/${eventId}`)
+      .then(response => {
+        console.log(response.data);
+        setEvent(response.data);
+        setIsLoading(false);
+      });
+  }, [isSelectionMode]);
 
   const copyLink = () => {
     const url = window.location.href;
     navigator.clipboard.writeText(url)
-    .then(() => {
+      .then(() => {
         setLinkCopied(true);
         setTimeout(() => {
           setLinkCopied(false);
@@ -20,11 +33,15 @@ const Event = () => {
       });
   }
 
+  if (isLoading) {
+    return <> loading </>
+  }
+
   return (
     <>
       {linkCopied &&
         <div className="toast toast-top toast-center" style={{zIndex: 10000}}>
-          <div className="alert bg-secondary font-bold">
+          <div className="alert bg-secondary text-secondary-content font-bold">
             link copied to clipboard!
           </div>
         </div>
@@ -37,7 +54,7 @@ const Event = () => {
         <div className="flex flex-col overflow-auto no-scrollbar sm:mt-6 mt-6 pb-6">
           <div className="flex justify-between items-center sm:mb-8 mb-5 sm:px-[10%] px-6">
             <article className="prose">
-              <h1 className="md:text-4xl sm:text-3xl text-2xl">{eventName}</h1>
+              <h1 className="md:text-4xl sm:text-3xl text-2xl">{event.name}</h1>
             </article>
 
             <div className="flex gap-1 sm:gap-3">
@@ -59,10 +76,13 @@ const Event = () => {
           </div>
 
           <div className="sm:px-[10%] px-2">
-            <AvailabilitiesCalendar
-              isSelectionMode={isSelectionMode}
-              setIsSelectionMode={setIsSelectionMode}
-            />
+            {event &&
+              <AvailabilitiesCalendar
+                isSelectionMode={isSelectionMode}
+                setIsSelectionMode={setIsSelectionMode}
+                event={event}
+              />
+            }
 
           </div>
         </div>

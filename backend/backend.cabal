@@ -25,7 +25,9 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Db
+      Types
+      Util
   other-modules:
       Paths_backend
   autogen-modules:

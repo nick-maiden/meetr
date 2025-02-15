@@ -7,7 +7,7 @@ const PageList = () => {
     <>
       <Routes>
         <Route path='/' element={<LandingPage />} />
-        <Route path='/event' element={<Event />} />
+        <Route path='/events/:eventId' element={<Event />} />
       </Routes>
     </>
   );
