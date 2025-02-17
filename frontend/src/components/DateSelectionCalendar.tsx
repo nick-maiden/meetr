@@ -36,6 +36,13 @@ const parseCellId = (cellId: string): CellInfo => {
   return { year, month, day };
 };
 
+const dateIsInPast = (year: number, month: number, day: number): boolean => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dateToCheck = new Date(year, month, day);
+  return dateToCheck < today;
+};
+
 const formatSelectedDate = (cellId: string): string => {
   const { year, month, day } = parseCellId(cellId);
   return `${year}-${String(month + 1).padStart(2, '0')}-${day}`;
@@ -201,10 +208,14 @@ const DateSelectionCalendar: React.FC<CalendarProps> = ({ className, setSelected
               selectedCells.has(cellId)
                 ? 'btn-secondary text-secondary-content'
                 : 'btn-ghost'
+            } ${dateIsInPast(currentDate.getFullYear(), currentDate.getMonth(), day) 
+                ? 'line-through btn-disabled !bg-transparent hover:!bg-transparent'
+                : ''
             }`}
-            onMouseDown={() => handleSelectionStart(cellId)}
+            onMouseDown={() => !dateIsInPast(currentDate.getFullYear(), currentDate.getMonth(), day) && handleSelectionStart(cellId)}
             onMouseEnter={() => handleSelectionMove(cellId)}
             onMouseUp={handleSelectionEnd}
+            disabled={dateIsInPast(currentDate.getFullYear(), currentDate.getMonth(), day)}
           >
             {day}
           </button>

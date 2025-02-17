@@ -20,8 +20,8 @@ const LandingPage = () => {
     setCreatingEvent(true);
     const newEvent = {
       name: eventName,
-      earliestTime,
-      latestTime,
+      earliestTime: earliestTime ? convertTo24Hour(earliestTime) : undefined,
+      latestTime: latestTime ? convertTo24Hour(latestTime) : undefined,
       dates: selectedDates,
       users: {},
       availabilities: {}
@@ -32,11 +32,31 @@ const LandingPage = () => {
       });
   };
 
+  const getHour = (timeStr: string): number => {
+    const [hourStr, period] = timeStr.split(' ');
+    let hour = parseInt(hourStr);
+    if (period === 'pm' && hour !== 12) hour += 12;
+    if (period === 'am' && hour === 12) hour = 0;
+    return hour;
+  };
+
+const convertTo24Hour = (timeStr: string): string => {
+  return `${getHour(timeStr).toString().padStart(2, '0')}:00`;
+};
+
   const hours = Array.from({ length: 24 }, (_, i) => {
     const period = i < 12 ? "am" : "pm";
     const hour = i % 12 === 0 ? 12 : i % 12;
     return `${hour}:00 ${period}`;
   });
+
+  const availableEarliestHours = hours.filter(h =>
+    !latestTime || getHour(h) < getHour(latestTime)
+  );
+
+  const availableLatestHours = hours.filter(h =>
+    !earliestTime || getHour(h) > getHour(earliestTime)
+  );
 
   return (
     <div className="flex flex-col w-screen h-screen sm:px-10 px-5">
@@ -79,7 +99,7 @@ const LandingPage = () => {
             onChange={(event) => setEarliestTime(event.target.value)}
           >
             <option disabled selected>no earlier than</option>
-            {hours.map((h, i) => (<option key={i}>{h}</option>))}
+            {availableEarliestHours.map((h, i) => (<option key={i}>{h}</option>))}
           </select>
           <div className="divider divider-horizontal"></div>
           <select
@@ -88,7 +108,7 @@ const LandingPage = () => {
             onChange={(event) => setLatestTime(event.target.value)}
           >
             <option disabled selected>no later than</option>
-            {hours.map((h, i) => (<option key={i}>{h}</option>))}
+            {availableLatestHours.map((h, i) => (<option key={i}>{h}</option>))}
           </select>
         </div>
 
