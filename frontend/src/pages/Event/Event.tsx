@@ -2,9 +2,9 @@ import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLink } from '@fortawesome/free-solid-svg-icons';
 import { useParams } from "react-router-dom";
-import Navbar from "./Navbar"
-import AvailabilitiesCalendar from "./AvailabilitiesCalendar";
-import { getRequest } from "../util/api";
+import Navbar from "../../components/Navbar"
+import AvailabilitiesCalendar from "./components/AvailabilitiesCalendar";
+import { getRequest } from "../../util/api";
 
 const Event = () => {
   const { eventId } = useParams();

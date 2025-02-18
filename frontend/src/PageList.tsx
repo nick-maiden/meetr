@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
-import Event from './components/Event';
+import Event from './pages/Event/Event';
 
 const PageList = () => {
   return (

@@ -1,42 +1,12 @@
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
-import { postRequest, putRequest } from "../util/api";
-
-
-interface TimeData {
-  displaySlots: string[];
-  dataSlots: string[];
-}
-
-interface Position {
-  hour: number;
-  quarter: number;
-  date: number;
-}
-
-type HoveredSlot = string | null;
-
-// these need to be moved somewhere more appropriate
-type User = {
-  id: number,
-  name: string
-}
-
-type Event = {
-  id: number,
-  name: string,
-  users: {
-    [userId: number]: User
-  },
-  dates: [string],
-  earliestTime: string,
-  latestTime: string,
-  availabilities: {
-    [timeSlot: string]: number[];
-  }
-}
+import { postRequest, putRequest } from "../../../util/api";
+import { generateTimeData } from "../util";
+import { RespondentsList } from "./RespondentsList";
+import { ConfirmAvailabilitySelection } from "./ConfirmAvailabilitySelection";
+import { NameInputModal } from "./NameInputModal";
+import { Event } from "../../../types";
+import { Position } from "../types"
 
 interface Props {
   isSelectionMode: boolean;
@@ -44,8 +14,12 @@ interface Props {
   event: Event;
 }
 
-const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelectionMode, event }) => {
-  const [hoveredSlot, setHoveredSlot] = React.useState<HoveredSlot>(null);
+const AvailabilitiesCalendar: React.FC<Props> = ({
+  isSelectionMode,
+  setIsSelectionMode,
+  event
+}) => {
+  const [hoveredSlot, setHoveredSlot] = React.useState<string | null>(null);
   const [currentPage, setCurrentPage] = React.useState(0);
   const [datesPerPage, setDatesPerPage] = React.useState(7);
   const [selectedSlots, setSelectedSlots] = React.useState<Set<string>>(new Set());
@@ -56,7 +30,6 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
   const [userName, setUserName] = React.useState<string>("");
 
   React.useEffect(() => {
-    // Show an appropriate number of dates per page depending on screen size.
     const handleResize = () => {
       if (window.innerWidth <= 600) { setDatesPerPage(4); }
       else if (window.innerWidth <= 900) { setDatesPerPage(5); }
@@ -66,28 +39,6 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const generateTimeData = (): TimeData => {
-    const displaySlots: string[] = [];
-    const dataSlots: string[] = [];
-
-    const startHour = parseInt(event.earliestTime.split(':')[0]);
-    const endHour = parseInt(event.latestTime.split(':')[0]);
-
-    for (let hour = startHour; hour < endHour; hour++) {
-      const hour12 = hour % 12 || 12;
-      const ampm = hour < 12 ? 'am' : 'pm';
-      displaySlots.push(`${hour12}${ampm}`);
-
-      for (let minute = 0; minute < 60; minute += 15) {
-        dataSlots.push(
-          `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-        );
-      }
-    }
-
-    return { displaySlots, dataSlots };
-  };
 
   const getDates = (): Date[] => {
     return event.dates.map(dateStr => new Date(dateStr));
@@ -155,37 +106,36 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
   };
 
   const handleSelectionMove = (hourIndex: number, quarter: number, dateIndex: number) => {
-  if (!isSelecting || !startPosition) return;
+    if (!isSelecting || !startPosition) return;
 
-  const minDate = Math.min(startPosition.date, dateIndex);
-  const maxDate = Math.max(startPosition.date, dateIndex);
+    const minDate = Math.min(startPosition.date, dateIndex);
+    const maxDate = Math.max(startPosition.date, dateIndex);
 
-  // Calculate actual slot positions (convert hour+quarter to absolute position)
-  const startSlot = startPosition.hour * 4 + startPosition.quarter;
-  const currentSlot = hourIndex * 4 + quarter;
-  const minSlot = Math.min(startSlot, currentSlot);
-  const maxSlot = Math.max(startSlot, currentSlot);
+    const startSlot = startPosition.hour * 4 + startPosition.quarter;
+    const currentSlot = hourIndex * 4 + quarter;
+    const minSlot = Math.min(startSlot, currentSlot);
+    const maxSlot = Math.max(startSlot, currentSlot);
 
-  setSelectedSlots(prev => {
-    const next = new Set(prev);
+    setSelectedSlots(prev => {
+      const next = new Set(prev);
 
-    for (let date = minDate; date <= maxDate; date++) {
-      for (let slot = minSlot; slot <= maxSlot; slot++) {
-        const timeSlot = dataSlots[slot];
-        const currentDate = displayDates[date];
-        const slotId = `${currentDate.toISOString().split('T')[0]}-${timeSlot}`;
+      for (let date = minDate; date <= maxDate; date++) {
+        for (let slot = minSlot; slot <= maxSlot; slot++) {
+          const timeSlot = dataSlots[slot];
+          const currentDate = displayDates[date];
+          const slotId = `${currentDate.toISOString().split('T')[0]}-${timeSlot}`;
 
-        if (isDeselecting) {
-          next.delete(slotId);
-        } else {
-          next.add(slotId);
+          if (isDeselecting) {
+            next.delete(slotId);
+          } else {
+            next.add(slotId);
+          }
         }
       }
-    }
 
-    return next;
-  });
-};
+      return next;
+    });
+  };
 
   const handleSelectionEnd = () => {
     setIsSelecting(false);
@@ -194,20 +144,18 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
 
   const checkUser = () => {
     if (!userId) {
-      // New user, need to get their name first.
-      document.getElementById('name_input_modal').showModal()
+      document.getElementById('name_input_modal')?.showModal();
     } else {
-      // Existing user, update their availability.
       updateUserAvailability();
     }
   };
 
   const saveNewUserAvailability = () => {
-    document.getElementById('name_input_modal').close()
+    document.getElementById('name_input_modal')?.close();
     const userAvailability = {
       name: userName,
       availability: Array.from(selectedSlots)
-    }
+    };
     postRequest(`/events/${event.id}/availability`, userAvailability)
       .then((_) => {
         cancelSetUserAvailability();
@@ -215,7 +163,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
   };
 
   const updateUserAvailability = () => {
-    const updatedAvailability = {availability: Array.from(selectedSlots)}
+    const updatedAvailability = {availability: Array.from(selectedSlots)};
     putRequest(`/events/${event.id}/availability/${userId}`, updatedAvailability)
       .then(() => {
         cancelSetUserAvailability();
@@ -237,7 +185,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
     setIsDeselecting(false);
   };
 
-  const { displaySlots, dataSlots } = generateTimeData();
+  const { displaySlots, dataSlots } = generateTimeData(event.earliestTime, event.latestTime);
   const allDates = getDates();
   const totalPages = Math.ceil(allDates.length / datesPerPage);
   const displayDates = allDates.slice(
@@ -247,37 +195,16 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
 
   return (
     <>
-      <dialog id="name_input_modal" className="modal">
-        <div className="modal-box">
-          <article className="prose">
-            <h2 className="font-bold text-3xl">save availability</h2>
-            <div className="flex flex-col gap-y-4">
-              <input
-                type="text"
-                placeholder="enter your name..."
-                className="input input-bordered w-full "
-                autoFocus
-                value={userName}
-                onChange={(event) => setUserName(event.target.value)}
-              />
-              <button
-                className="btn btn-secondary self-end w-[30%] text-lg"
-                disabled={ userName.length === 0 }
-                onClick={saveNewUserAvailability}
-              >
-                continue
-              </button>
-            </div>
-          </article>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button onClick={() => setUserName("")}>close</button>
-        </form>
-      </dialog>
+      <NameInputModal
+        userName={userName}
+        onNameChange={setUserName}
+        onSave={saveNewUserAvailability}
+        onClose={() => setUserName("")}
+      />
       <div className="space-y-4">
         <div className="flex gap-6">
           <div className="flex-grow">
-            {totalPages > 1 &&
+            {totalPages > 1 && (
               <div className="flex justify-between items-center mb-4">
                 <button
                   className="btn btn-outline sm:btn-sm btn-xs"
@@ -297,7 +224,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
-            }
+            )}
 
             <div className="overflow-x-auto">
               <table 
@@ -319,14 +246,14 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
                           <div className="text-xs text-neutral-500">{monthDay}</div>
                           <div className="sm:text-lg text-md">{weekday}</div>
                         </th>
-                      )
+                      );
                     })}
                   </tr>
                 </thead>
                 <tbody>
                   {displaySlots.map((displayTime, hourIndex) => (
-                    <>
-                      <tr key={`hour-${hourIndex}`}>
+                    <React.Fragment key={`hour-${hourIndex}`}>
+                      <tr>
                         <td className="font-bold border-b border-t border-r border-r-neutral border-b-base-100 border-t-base-100 text-right p-0 sm:pr-2 pr-1 sm:text-md text-sm select-none">
                           {displayTime}
                         </td>
@@ -370,7 +297,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
                           ))}
                         </tr>
                       )}
-                    </>
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>
@@ -379,62 +306,17 @@ const AvailabilitiesCalendar: React.FC<Props> = ({ isSelectionMode, setIsSelecti
 
           <div className="sm:w-48 w-32 sticky top-0 self-start">
             {isSelectionMode ? (
-              <div className="bg-base-200 p-4 rounded-lg space-y-4">
-                <button 
-                  className="btn sm:btn-md btn-sm btn-outline btn-block sm:text-lg text-md"
-                  onClick={cancelSetUserAvailability}
-                >
-                  cancel
-                </button>
-
-                <button 
-                  className="btn sm:btn-md btn-sm btn-secondary btn-block sm:text-lg text-md"
-                  onClick={checkUser}
-                >
-                  save
-                </button>
-              </div>
+              <ConfirmAvailabilitySelection
+                onCancel={cancelSetUserAvailability}
+                onSave={checkUser}
+              />
             ) : (
-              <div className="bg-base-200 p-4 rounded-lg overflow-y-auto no-scrollbar max-h-[70vh]">
-                <h2 className="font-bold md:text-2xl sm:text-xl text-md">respondents</h2>
-                <div className="divider mt-2"></div>
-                <ul className="sm:space-y-2 space-y-1.5">
-                  {Object.values(event.users).length === 0 ? (
-                    <p className="font-bold text-gray-500 text-sm">
-                      no respondents yet 😢
-                    </p>
-                  ) : (
-                    Object.values(event.users).map((user) => {
-                      const isAvailable = hoveredSlot ?
-                        isUserAvailable(
-                          user.id,
-                          new Date(hoveredSlot.split('-').slice(0, 3).join('-')),
-                          hoveredSlot.split('-').slice(3).join('-')
-                        ) : true;
-                      return (
-                        <li key={user.id}>
-                          <div
-                            className={`
-                              flex justify-between
-                              hover:pl-1
-                              transition-[padding,text-decoration,color] duration-500 ease-in-out hover:ease-out
-                              w-full font-bold md:text-base sm:text-sm text-xs
-                              ${!isAvailable && hoveredSlot ? 'line-through text-gray-500' : ''}
-                            `}
-                          >
-                            <p className="truncate">{user.name}</p>
-                            <button
-                              onClick={() => editUserAvailability(user.id)}
-                            >
-                              <FontAwesomeIcon icon={faPenToSquare} />
-                            </button>
-                          </div>
-                        </li>
-                      );
-                    })
-                  )}
-                </ul>
-              </div>
+              <RespondentsList
+                users={event.users}
+                hoveredSlot={hoveredSlot}
+                isUserAvailable={isUserAvailable}
+                onEditAvailability={editUserAvailability}
+              />
             )}
           </div>
         </div>
