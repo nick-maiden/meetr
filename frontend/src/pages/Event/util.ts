@@ -1,4 +1,4 @@
-import { TimeData } from 'types';
+import { TimeData } from "./types";
 
 export const generateTimeData = (earliestTime: string, latestTime: string): TimeData => {
   const displaySlots: string[] = [];

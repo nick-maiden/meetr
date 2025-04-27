@@ -4,10 +4,10 @@ import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
 import { User } from '../../../types';
 
 interface RespondentsListProps {
-  users: { [userId: number]: User };
+  users: { [userId: string]: User };
   hoveredSlot: string | null;
-  isUserAvailable: (userId: number, date: Date, time: string) => boolean;
-  onEditAvailability: (userId: number) => void;
+  isUserAvailable: (userId: string, date: Date, time: string) => boolean;
+  onEditAvailability: (userId: string) => void;
 }
 
 export const RespondentsList: React.FC<RespondentsListProps> = ({

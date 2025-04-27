@@ -26,7 +26,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
   const [isSelecting, setIsSelecting] = React.useState(false);
   const [startPosition, setStartPosition] = React.useState<Position | null>(null);
   const [isDeselecting, setIsDeselecting] = React.useState(false);
-  const [userId, setUserId] = React.useState<number | null>(null);
+  const [userId, setUserId] = React.useState<string | null>(null);
   const [userName, setUserName] = React.useState<string>("");
 
   React.useEffect(() => {
@@ -44,19 +44,19 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
     return event.dates.map(dateStr => new Date(dateStr));
   };
 
-  const isUserAvailable = (userId: number, date: Date, time: string): boolean => {
+  const isUserAvailable = (userId: string, date: Date, time: string): boolean => {
     const dateStr = date.toISOString().split('T')[0];
     const timeSlot = `${dateStr}-${time}`;
     return event.availabilities[timeSlot]?.includes(userId) ?? false;
   };
 
-  const getAvailableUsers = (date: Date, time: string): number[] => {
+  const getAvailableUsers = (date: Date, time: string): string[] => {
     const dateStr = date.toISOString().split('T')[0];
     const timeSlot = `${dateStr}-${time}`;
     return event.availabilities[timeSlot] ?? [];
   };
 
-  const getUserAvailability = (userId: number) => {
+  const getUserAvailability = (userId: string) => {
     return new Set(
       Object.entries(event.availabilities)
         .filter(([_, userIds]) => userIds.includes(userId))
@@ -144,14 +144,14 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
 
   const checkUser = () => {
     if (!userId) {
-      document.getElementById('name_input_modal')?.showModal();
+      (document.getElementById('name_input_modal') as HTMLDialogElement)?.showModal();
     } else {
       updateUserAvailability();
     }
   };
 
   const saveNewUserAvailability = () => {
-    document.getElementById('name_input_modal')?.close();
+    (document.getElementById('name_input_modal') as HTMLDialogElement)?.close();
     const userAvailability = {
       name: userName,
       availability: Array.from(selectedSlots)
@@ -170,7 +170,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
       });
   };
 
-  const editUserAvailability = (userId: number) => {
+  const editUserAvailability = (userId: string) => {
     setUserId(userId);
     setSelectedSlots(getUserAvailability(userId));
     setIsSelectionMode(true);

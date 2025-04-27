@@ -16,52 +16,45 @@ import Data.SafeCopy
 import Control.Lens
 import Control.Monad.Reader
 import Data.Acid
-import qualified Data.Text as Text
+import qualified Data.Text as T
 
-import Types (User(..))
+import Types (User(..), UserId, EventId)
 import qualified Types as E (Event(..))
 import Types (TimeSlot, Error(..))
 import Util (maybeToEither)
 
-data DB = DB
-  { _events      :: Map.Map Int E.Event
-  , _nextEventId :: Int
-  , _nextUserId  :: Int
-  } deriving (Typeable)
+data DB = DB {
+  _events :: Map.Map EventId E.Event
+} deriving (Typeable)
 
 $(deriveSafeCopy 0 'base ''DB)
 $(makeLenses ''DB)
 
 initialDBState :: DB
-initialDBState = DB Map.empty 1 1
+initialDBState = DB Map.empty
 
-getEvent :: Int -> Query DB (Maybe E.Event)
+getEvent :: EventId -> Query DB (Maybe E.Event)
 getEvent eventId = asks (Map.lookup eventId . _events)
 
-insertNewEvent :: E.Event -> Update DB Int
-insertNewEvent event = do
-  i <- use nextEventId
-  events %= Map.insert i event
-  nextEventId += 1
-  return i
+insertNewEvent :: E.Event -> EventId -> Update DB ()
+insertNewEvent event eventId = do
+  events %= Map.insert eventId event
 
-doAddAvailability :: Int -> [TimeSlot] -> E.Event -> E.Event
+doAddAvailability :: UserId -> [TimeSlot] -> E.Event -> E.Event
 doAddAvailability userId ts event = event {
   E.availabilities = foldr (\t acc ->
       Map.insertWith (++) t [userId] acc
     ) (E.availabilities event) ts
 }
 
-addAvailability :: Int -> Text.Text -> [TimeSlot] -> Update DB (Maybe Int)
-addAvailability eventId userName ts = do
-  userId <- use nextUserId
+addAvailability :: EventId -> UserId -> T.Text -> [TimeSlot] -> Update DB Bool
+addAvailability eventId userId userName ts = do
   mEvent <- use (events . at eventId)
   case mEvent of
     Just _ -> do
       events . at eventId . _Just %= (doAddUser userId . doAddAvailability userId ts)
-      nextUserId += 1
-      return $ Just userId
-    Nothing -> return Nothing
+      return True
+    Nothing -> return False
   where
     doAddUser userId event = event {
       E.users = Map.insert userId User {
@@ -70,7 +63,7 @@ addAvailability eventId userName ts = do
       } (E.users event)
     }
 
-updateAvailability :: Int -> Int -> [TimeSlot] -> Update DB (Either Error ())
+updateAvailability :: EventId -> UserId -> [TimeSlot] -> Update DB (Either Error ())
 updateAvailability eventId userId ts = do
   mEvent <- use (events . at eventId)
   case do
@@ -81,7 +74,6 @@ updateAvailability eventId userId ts = do
     Left err -> return $ Left err
     Right _ -> do
       events . at eventId . _Just %= (doAddAvailability userId ts . clearAvailability)
-      nextUserId += 1
       return $ Right ()
   where
     clearAvailability event = event {
@@ -89,3 +81,4 @@ updateAvailability eventId userId ts = do
     }
 
 $(makeAcidic ''DB ['insertNewEvent, 'getEvent, 'addAvailability, 'updateAvailability])
+

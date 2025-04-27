@@ -6,6 +6,8 @@
 
 module Types
   ( User(..)
+  , UserId
+  , EventId
   , TimeSlot
   , Event(..)
   , UserAvailability(..)
@@ -27,18 +29,21 @@ import qualified Data.Aeson as A
 -- Core domain types
 -- -----------------------------
 
+type UserId = T.Text
+type EventId = T.Text
+
 data User = User
-  { id   :: Int
+  { id   :: UserId
   , name :: T.Text
   } deriving (Show, Typeable, Generic)
 
+type Users = Map.Map UserId User
 type TimeSlot = T.Text
-
-type Availabilities = Map.Map TimeSlot [Int]
+type Availabilities = Map.Map TimeSlot [UserId]
 
 data Event = Event
   { name            :: T.Text
-  , users           :: Map.Map Int User
+  , users           :: Users
   , dates           :: [T.Text]
   , earliestTime    :: T.Text
   , latestTime      :: T.Text
@@ -59,9 +64,9 @@ data UpdateAvailabilityRequest = UpdateAvailabilityRequest {
 } deriving (Show, Generic)
 
 data EventResponse = EventResponse
-  { id              :: Int
+  { id              :: EventId
   , name            :: T.Text
-  , users           :: Map.Map Int User
+  , users           :: Users
   , dates           :: [T.Text]
   , earliestTime    :: T.Text
   , latestTime      :: T.Text
@@ -103,8 +108,8 @@ $(deriveSafeCopy 0 'base ''Error)
 -- Conversion functions
 -- -----------------------------
 
-eventToEventResponse :: Int -> Event -> EventResponse
-eventToEventResponse eventId Event{..} = EventResponse 
+eventToEventResponse :: EventId -> Event -> EventResponse
+eventToEventResponse eventId Event{..} = EventResponse
   { id              = eventId
   , name            = name
   , users           = users

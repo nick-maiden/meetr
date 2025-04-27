@@ -5,12 +5,13 @@ import { useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar"
 import AvailabilitiesCalendar from "./components/AvailabilitiesCalendar";
 import { getRequest } from "../../util/api";
+import { Event as EventType } from "../../types";
 
 const Event = () => {
   const { eventId } = useParams();
   const [linkCopied, setLinkCopied] = React.useState(false);
   const [isSelectionMode, setIsSelectionMode] = React.useState(false);
-  const [event, setEvent] = React.useState(null);
+  const [event, setEvent] = React.useState<EventType | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -54,7 +55,9 @@ const Event = () => {
         <div className="flex flex-col overflow-auto no-scrollbar sm:mt-6 mt-6 pb-6">
           <div className="flex justify-between items-center sm:mb-8 mb-5 sm:px-[10%] px-6">
             <article className="prose">
-              <h1 className="md:text-4xl sm:text-3xl text-2xl">{event.name}</h1>
+              <h1 className="md:text-4xl sm:text-3xl text-2xl">
+                {event?.name}
+              </h1>
             </article>
 
             <div className="flex gap-1 sm:gap-3">

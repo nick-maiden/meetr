@@ -1,12 +1,12 @@
 /* Domain Types */
 
 export interface User {
-  id: number;
+  id: string;
   name: string;
 }
 
 export interface Event {
-  id: number;
+  id: string;
   name: string;
   users: {
     [userId: number]: User
@@ -15,6 +15,6 @@ export interface Event {
   earliestTime: string;
   latestTime: string;
   availabilities: {
-    [timeSlot: string]: number[];
+    [timeSlot: string]: string[];
   }
 }

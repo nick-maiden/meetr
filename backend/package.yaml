@@ -28,11 +28,18 @@ dependencies:
 - text
 - mtl
 - transformers
+- wai
 - wai-cors
 - wai-extra
+- network
+- warp
 - http-types
 - containers
 - lens
+- uuid
+- base64-bytestring
+- bytestring
+- binary
 
 ghc-options:
 - -Wall

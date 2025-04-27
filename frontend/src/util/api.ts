@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL
-const BACKEND_PORT = import.meta.env.REACT_APP_BACKEND_PORT
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
+const BACKEND_PORT = import.meta.env.VITE_BACKEND_PORT
 const BASE_URL = `${BACKEND_URL}:${BACKEND_PORT}`;
 
 const defaultHeaders = {

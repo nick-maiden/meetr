@@ -39,16 +39,23 @@ library
       acid-state
     , aeson
     , base >=4.7 && <5
+    , base64-bytestring
+    , binary
+    , bytestring
     , containers
     , http-types
     , lens
     , mtl
+    , network
     , safecopy
     , scotty
     , text
     , transformers
+    , uuid
+    , wai
     , wai-cors
     , wai-extra
+    , warp
   default-language: Haskell2010
 
 executable backend-exe
@@ -65,16 +72,23 @@ executable backend-exe
     , aeson
     , backend
     , base >=4.7 && <5
+    , base64-bytestring
+    , binary
+    , bytestring
     , containers
     , http-types
     , lens
     , mtl
+    , network
     , safecopy
     , scotty
     , text
     , transformers
+    , uuid
+    , wai
     , wai-cors
     , wai-extra
+    , warp
   default-language: Haskell2010
 
 test-suite backend-test
@@ -92,14 +106,21 @@ test-suite backend-test
     , aeson
     , backend
     , base >=4.7 && <5
+    , base64-bytestring
+    , binary
+    , bytestring
     , containers
     , http-types
     , lens
     , mtl
+    , network
     , safecopy
     , scotty
     , text
     , transformers
+    , uuid
+    , wai
     , wai-cors
     , wai-extra
+    , warp
   default-language: Haskell2010
