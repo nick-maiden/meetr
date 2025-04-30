@@ -1,0 +1,42 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Haskell
+      uses: haskell/actions/setup@v2
+      with:
+        ghc-version: "9.4.7"
+        enable-stack: true
+        stack-version: "3.3.1"
+
+    - name: Build executable
+      run: stack build --copy-bins
+      working-directory: backend
+
+    - name: Upload via SSH
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.BACKEND_HOST }}
+        username: ${{ secrets.BACKEND_USER }}
+        key: ${{ secrets.BACKEND_SSH_KEY }}
+        source: "./.stack-work/install/*/bin/backend-executable-name"
+        target: "/home/ubuntu/backend-executable-name"
+
+    - name: Restart backend
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.BACKEND_HOST }}
+        username: ${{ secrets.BACKEND_USER }}
+        key: ${{ secrets.BACKEND_SSH_KEY }}
+        script: |
+          sudo systemctl restart meetr-backend
