@@ -20,7 +20,9 @@ jobs:
         stack-version: "3.3.1"
 
     - name: Build executable
-      run: stack build --copy-bins
+      run: |
+        stack build --copy-bins
+        find .stack-work -type f -name "backend-exe" -exec cp {} ./backend-exe \;
       working-directory: backend
 
     - name: Upload via SSH
