@@ -25,9 +25,9 @@ jobs:
     - name: Upload via SSH
       uses: appleboy/scp-action@v0.1.4
       with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
+        host: ${{ secrets.BACKEND_HOST }}
+        username: ${{ secrets.BACKEND_USER }}
+        key: ${{ secrets.BACKEND_SSH_KEY }}
         source: "./.stack-work/install/*/bin/backend-executable-name"
         target: "/home/ubuntu/backend-executable-name"
 
