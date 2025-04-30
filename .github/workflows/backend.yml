@@ -21,6 +21,7 @@ jobs:
 
     - name: Build executable
       run: stack build --copy-bins
+      working-directory: backend
 
     - name: Upload via SSH
       uses: appleboy/scp-action@v0.1.4
