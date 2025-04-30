@@ -1,33 +1,31 @@
 import axios from 'axios';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
-const BACKEND_PORT = import.meta.env.VITE_BACKEND_PORT
-const BASE_URL = `${BACKEND_URL}:${BACKEND_PORT}`;
 
 const defaultHeaders = {
   'Content-Type': 'application/json'
 };
 
 export const postRequest = (path: string, data: any) => {
-  return axios.post(`${BASE_URL}${path}`, data, {
+  return axios.post(`${BACKEND_URL}${path}`, data, {
     headers: defaultHeaders
   });
 };
 
 export const getRequest = (path: string) => {
-  return axios.get(`${BASE_URL}${path}`, {
+  return axios.get(`${BACKEND_URL}${path}`, {
     headers: defaultHeaders
   });
 };
 
 export const deleteRequest = (path: string) => {
-  return axios.delete(`${BASE_URL}${path}`, {
+  return axios.delete(`${BACKEND_URL}${path}`, {
     headers: defaultHeaders
   });
 };
 
 export const putRequest = (path: string, data: any) => {
-  return axios.put(`${BASE_URL}${path}`, data, {
+  return axios.put(`${BACKEND_URL}${path}`, data, {
     headers: defaultHeaders
   });
 };

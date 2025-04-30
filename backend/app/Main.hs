@@ -36,7 +36,7 @@ main = do
     middleware $ cors $ const $ Just simpleCorsResourcePolicy
       { corsRequestHeaders = ["Content-Type"]
       , corsMethods = ["GET", "POST", "PUT", "DELETE"]
-      , corsOrigins = Just (["http://localhost:5173"], True)
+      , corsOrigins = Just (["https://www.meetr.app"], True)
       }
     middleware logStdoutDev
 
