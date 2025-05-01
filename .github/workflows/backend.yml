@@ -20,7 +20,9 @@ jobs:
         stack-version: "3.3.1"
 
     - name: Build executable
-      run: stack build --copy-bins
+      run: |
+        stack build --copy-bins
+        cp /home/runner/.local/bin/backend-exe $GITHUB_WORKSPACE/backend-exe
       working-directory: backend
 
     - name: Upload via SSH
@@ -29,7 +31,7 @@ jobs:
         host: ${{ secrets.BACKEND_HOST }}
         username: ${{ secrets.BACKEND_USER }}
         key: ${{ secrets.BACKEND_SSH_KEY }}
-        source: "/home/runner/.local/bin/backend-exe"
+        source: "backend-exe"
         target: "/home/ubuntu/backend-exe"
 
     - name: Restart backend
