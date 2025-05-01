@@ -7,6 +7,8 @@
 module Types
   ( User(..)
   , UserId
+  , Config(..)
+  , LogLevel(..)
   , EventId
   , TimeSlot
   , Event(..)
@@ -49,6 +51,20 @@ data Event = Event
   , latestTime      :: T.Text
   , availabilities  :: Availabilities
   } deriving (Show, Typeable, Generic)
+
+-- -----------------------------
+-- Server configuration types
+-- -----------------------------
+
+data Config = Config
+  { port :: Int
+  , host :: String
+  , allowedOrigins :: [String]
+  , logLevel :: LogLevel
+  }
+
+data LogLevel = Development | Production
+  deriving (Show, Read, Eq)
 
 -- -----------------------------
 -- API Request/Response types
