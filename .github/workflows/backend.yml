@@ -20,9 +20,7 @@ jobs:
         stack-version: "3.3.1"
 
     - name: Build executable
-      run: |
-        stack build --copy-bins
-        find .stack-work -type f -name "backend-exe" -exec cp {} ./backend-exe \;
+      run: stack build --copy-bins
       working-directory: backend
 
     - name: Upload via SSH
@@ -31,8 +29,8 @@ jobs:
         host: ${{ secrets.BACKEND_HOST }}
         username: ${{ secrets.BACKEND_USER }}
         key: ${{ secrets.BACKEND_SSH_KEY }}
-        source: "./.stack-work/install/*/bin/backend-executable-name"
-        target: "/home/ubuntu/backend-executable-name"
+        source: "/home/runner/.local/bin/backend-exe"
+        target: "/home/ubuntu/backend-exe"
 
     - name: Restart backend
       uses: appleboy/ssh-action@v0.1.6
