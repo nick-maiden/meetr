@@ -21,7 +21,7 @@ jobs:
 
     - name: Build executable
       run: |
-        stack build --copy-bins
+        ./run.sh prod
         cp /home/runner/.local/bin/backend-exe $GITHUB_WORKSPACE/backend-exe
       working-directory: backend
 
