@@ -6,7 +6,8 @@ module Main (main) where
 import Types
   ( UserAvailability(..)
   , UpdateAvailabilityRequest(..)
-
+  , Config(..)
+  , LogLevel(..)
   , Error(..)
   , eventToEventResponse
   )
@@ -18,6 +19,7 @@ import Db
   , UpdateAvailability(..)
   )
 import Util (uuidToText)
+import Config (readConfig)
 import Web.Scotty
 import Data.Acid
 import qualified Data.Aeson as A
@@ -26,19 +28,29 @@ import Network.Wai.Middleware.Cors
 import Network.Wai.Middleware.RequestLogger
 import Network.Wai.Handler.Warp (defaultSettings, setHost, setPort)
 import qualified Data.Text as Text
+import qualified Data.ByteString.Char8 as BS
 import qualified Data.UUID.V4 as UUID4
+import Data.String (fromString)
 
 main :: IO ()
 main = do
+  config <- readConfig
   acid <- openLocalState initialDBState
-  scottyOpts (Options 1 (setHost "*6" $ setPort 8080 defaultSettings)) $ do
 
+  let settings = setHost (fromString $ host config) $
+                 setPort (port config) defaultSettings
+
+  let logging = case logLevel config of
+        Development -> logStdoutDev
+        Production -> logStdout
+
+  scottyOpts (Options 1 settings) $ do
     middleware $ cors $ const $ Just simpleCorsResourcePolicy
       { corsRequestHeaders = ["Content-Type"]
       , corsMethods = ["GET", "POST", "PUT", "DELETE"]
-      , corsOrigins = Just (["https://www.meetr.app"], True)
+      , corsOrigins = Just (map BS.pack (allowedOrigins config), True)
       }
-    middleware logStdoutDev
+    middleware logging
 
     -- routes
     get "/events/:eventId" $ do
