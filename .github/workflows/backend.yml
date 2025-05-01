@@ -32,7 +32,7 @@ jobs:
         username: ${{ secrets.BACKEND_USER }}
         key: ${{ secrets.BACKEND_SSH_KEY }}
         source: "backend-exe"
-        target: "/home/ubuntu/backend-exe"
+        target: "/home/ubuntu/"
 
     - name: Restart backend
       uses: appleboy/ssh-action@v0.1.6
