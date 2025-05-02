@@ -2,8 +2,10 @@ name: Deploy Backend
 
 on:
   push:
-    branches: [main]
-
+    branches:
+      - main
+    paths:
+      - backend/**
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
