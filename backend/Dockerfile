@@ -8,8 +8,8 @@ COPY backend/package.yaml backend/package.yaml
 COPY backend/stack.yaml.lock backend/stack.yaml.lock
 
 # Install GHC and dependencies
-RUN stack setup --install-ghc && stack build --only-dependencies
+RUN cd backend && stack setup --install-ghc && stack build --only-dependencies
 
 COPY backend/ ./backend/
-RUN stack build --copy-bins
+RUN cd backend && stack build --copy-bins
 
