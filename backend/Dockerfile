@@ -1,12 +1,15 @@
 FROM haskell:9.4.7
 
 WORKDIR /app
+
+# Copy dependency files first (to leverage Docker cache for dependencies)
+COPY backend/stack.yaml backend/stack.yaml
+COPY backend/package.yaml backend/package.yaml
+COPY backend/stack.yaml.lock backend/stack.yaml.lock
+
+# Install GHC and dependencies
+RUN stack setup --install-ghc && stack build --only-dependencies
+
 COPY backend/ ./backend/
-
-# Install dependencies first to leverage Docker cache
-
-RUN cd backend && stack setup --install-ghc && stack build --only-dependencies --install-ghc
-
-# Build the binary
-RUN cd backend && stack build --copy-bins
+RUN stack build --copy-bins
 
