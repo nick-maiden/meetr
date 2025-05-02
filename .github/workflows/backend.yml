@@ -21,9 +21,14 @@ jobs:
 
     - name: Build executable
       run: |
-        ./run.sh prod
+        stack build --copy-bins
         cp /home/runner/.local/bin/backend-exe $GITHUB_WORKSPACE/backend-exe
       working-directory: backend
+      env:
+        PORT: 8080
+        HOST: 127.0.0.1
+        ALLOWED_ORIGINS: https://www.meetr.app
+        LOG_LEVEL: Production
 
     - name: Upload via SSH
       uses: appleboy/scp-action@v0.1.4
