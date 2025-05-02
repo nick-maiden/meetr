@@ -5,7 +5,8 @@ import { Context } from './util/context.js';
 import './App.css'
 
 const App = () => {
-  const [theme, setTheme] = React.useState("dracula");
+  const [theme, setTheme] = React.useState<"light" | "dark">("light");
+
   return (
     <>
       <Context.Provider value={{ theme, setTheme }}>

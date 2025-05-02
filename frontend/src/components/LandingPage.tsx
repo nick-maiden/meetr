@@ -71,7 +71,7 @@ const convertTo24Hour = (timeStr: string): string => {
         <label className="mx-auto sm:mt-6 mt-4">
           <input
             type="text"
-            placeholder="workplace meeting"
+            placeholder="..."
             className="input input-bordered text-xl font-bold text-center"
             value={eventName}
             onChange={(event) => setEventName(event.target.value)}

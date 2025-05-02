@@ -1,8 +1,8 @@
 import React from 'react';
 
 type _Context = {
-  theme: string
-  setTheme: React.Dispatch<React.SetStateAction<string>>
+  theme: "dark" | "light"
+  setTheme: React.Dispatch<React.SetStateAction<"dark" | "light">>
 }
 
 const Context = React.createContext({} as _Context);
