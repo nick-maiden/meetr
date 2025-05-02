@@ -14,7 +14,7 @@ jobs:
 
     - name: Build backend
       run: |
-        docker build -t backend-builder ./backend
+        docker build -t backend-builder -f backend/Dockerfile .
         docker create --name temp-container backend-builder
         docker cp temp-container:/root/.local/bin/backend-exe ./backend-exe
         docker rm temp-container
