@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - backend/**
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -14,10 +15,30 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Build backend
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Cache Docker layers
+      uses: actions/cache@v4
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
+    - name: Build backend with cache
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: backend/Dockerfile
+        push: false
+        tags: backend-builder:latest
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache
+
+    - name: Extract binary from image
       run: |
-        docker build -t backend-builder -f backend/Dockerfile .
-        docker create --name temp-container backend-builder
+        docker create --name temp-container backend-builder:latest
         docker cp temp-container:/root/.local/bin/backend-exe ./backend-exe
         docker rm temp-container
 
