@@ -1,4 +1,4 @@
-cabal-version: 2.2
+cabal-version: 1.12
 
 -- This file has been generated from package.yaml by hpack version 0.37.0.
 --
@@ -6,22 +6,7 @@ cabal-version: 2.2
 
 name:           backend
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/backend#readme>
-homepage:       https://github.com/githubuser/backend#readme
-bug-reports:    https://github.com/githubuser/backend/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2025 Author name here
-license:        BSD-3-Clause
-license-file:   LICENSE
 build-type:     Simple
-extra-source-files:
-    README.md
-    CHANGELOG.md
-
-source-repository head
-  type: git
-  location: https://github.com/githubuser/backend
 
 library
   exposed-modules:
@@ -30,8 +15,6 @@ library
       Types
       Util
   other-modules:
-      Paths_backend
-  autogen-modules:
       Paths_backend
   hs-source-dirs:
       src
@@ -62,8 +45,6 @@ library
 executable backend-exe
   main-is: Main.hs
   other-modules:
-      Paths_backend
-  autogen-modules:
       Paths_backend
   hs-source-dirs:
       app
@@ -96,8 +77,6 @@ test-suite backend-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_backend
-  autogen-modules:
       Paths_backend
   hs-source-dirs:
       test
