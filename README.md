@@ -54,11 +54,12 @@ Navigate to http://localhost:5173
 
 ## 🤝 Contributing
 
-All contributions are encouraged, I could really do with the help 🫠
+All contributions are encouraged! I could really do with the help 🫠
 
-If you find a bug or have an idea for a new feature, feel free to [open an issue](https://github.com/nick-maiden/meetr/issues).
+### Found a bug or have an idea for a new feature?
+Feel free to [open an issue](https://github.com/nick-maiden/meetr/issues).
 
-To contribute code:
+### To contribute code:
 
 1. **Fork the repository**
 2. **Create a new branch**
