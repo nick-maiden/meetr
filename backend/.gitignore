@@ -2,4 +2,4 @@
 state
 *~
 .env
-run.sh
+run-dev.sh
