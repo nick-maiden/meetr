@@ -33,7 +33,7 @@ cd ../frontend
 echo "VITE_BACKEND_URL=http://localhost:8080" > .env
 ```
 
-## ▶️ Running the App
+## ▶️ Running meetr
 
 Follow these steps to run meetr locally.
 
