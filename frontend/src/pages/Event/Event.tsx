@@ -1,7 +1,7 @@
 import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLink } from '@fortawesome/free-solid-svg-icons';
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar"
 import AvailabilitiesCalendar from "./components/AvailabilitiesCalendar";
 import { getRequest } from "../../util/api";
@@ -13,6 +13,7 @@ const Event = () => {
   const [isSelectionMode, setIsSelectionMode] = React.useState(false);
   const [event, setEvent] = React.useState<EventType | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     getRequest(`/events/${eventId}`)
@@ -20,6 +21,10 @@ const Event = () => {
         console.log(response.data);
         setEvent(response.data);
         setIsLoading(false);
+      })
+      .catch(_ => {
+        setIsLoading(false);
+        navigate('/404');
       });
   }, [isSelectionMode]);
 
@@ -35,7 +40,11 @@ const Event = () => {
   }
 
   if (isLoading) {
-    return <> loading </>
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <span className="loading loading-dots loading-xl"></span>
+      </div>
+    );
   }
 
   return (
