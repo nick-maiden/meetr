@@ -6,6 +6,7 @@ import Navbar from "../../components/Navbar"
 import AvailabilitiesCalendar from "./components/AvailabilitiesCalendar";
 import { getRequest } from "../../util/api";
 import { Event as EventType } from "../../types";
+import { Context } from "../../util/context";
 
 const Event = () => {
   const { eventId } = useParams();
@@ -14,17 +15,22 @@ const Event = () => {
   const [event, setEvent] = React.useState<EventType | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const navigate = useNavigate();
+  const { setErrorMessage } = React.useContext(Context);
 
   React.useEffect(() => {
     getRequest(`/events/${eventId}`)
       .then(response => {
-        console.log(response.data);
         setEvent(response.data);
         setIsLoading(false);
       })
-      .catch(_ => {
+      .catch(error => {
         setIsLoading(false);
-        navigate('/404');
+        if (error.response?.status === 404) {
+          setErrorMessage("event not found, please double check event link");
+        } else {
+          setErrorMessage("failed to load event, try again later");
+        }
+        navigate('/');
       });
   }, [isSelectionMode]);
 
@@ -42,7 +48,7 @@ const Event = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <span className="loading loading-dots loading-xl"></span>
+        <span className="loading loading-spinner loading-lg"></span>
       </div>
     );
   }
