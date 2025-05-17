@@ -8,7 +8,7 @@ import { NameInputModal } from "./NameInputModal";
 import { Event } from "../../../types";
 import { Position } from "../types"
 import { Context } from "../../../util/context";
-import errorCodeMap from "../../../errorCodeMap";
+import { errorCodeMap} from "../../../err";
 
 interface Props {
   isSelectionMode: boolean;
@@ -31,6 +31,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
   const [userId, setUserId] = React.useState<string | null>(null);
   const [userName, setUserName] = React.useState<string>("");
   const [isSaving, setIsSaving] = React.useState(false);
+  const [hasConfirmedName, setHasConfirmedName] = React.useState(false);
   const { setErrorMessage } = React.useContext(Context);
 
   React.useEffect(() => {
@@ -161,14 +162,16 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
     };
     postRequest(`/events/${event.id}/availability`, userAvailability)
       .then(() => {
-        (document.getElementById('name_input_modal') as HTMLDialogElement)?.close();
         cancelSetUserAvailability();
       })
       .catch((err) => {
-        setErrorMessage(errorCodeMap[err.response.data] ?? "unexpected error, please try again later");
+        setUserName("");
+        setErrorMessage(errorCodeMap[err.response?.data] ?? "unexpected error, please try again later");
       })
       .finally(() => {
+        (document.getElementById('name_input_modal') as HTMLDialogElement)?.close();
         setIsSaving(false);
+        setHasConfirmedName(false);
       });
   };
 
@@ -217,6 +220,8 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
           setIsSaving(false);
           setUserName("");
         }}
+        hasConfirmedName={hasConfirmedName}
+        setHasConfirmedName={setHasConfirmedName}
       />
       <div className="space-y-4">
         <div className="flex gap-6">

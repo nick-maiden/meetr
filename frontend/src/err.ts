@@ -5,5 +5,3 @@ export const errorCodeMap = {
   [errorCodes.ERR_EVENT_NOT_FOUND]: "event not found, please try again later",
 };
 
-export default errorCodeMap;
-
