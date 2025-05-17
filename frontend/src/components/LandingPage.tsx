@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import DateSelectionCalendar from "./DateSelectionCalendar";
 import Navbar from "./Navbar";
 import { postRequest } from '../util/api';
+import { Context } from "../util/context";
 
 const LandingPage = () => {
   const [selectedDates, setSelectedDates] = React.useState<string[]>([]);
@@ -11,6 +12,7 @@ const LandingPage = () => {
   const [latestTime, setLatestTime] = React.useState<string | undefined>(undefined);
   const [creatingEvent, setCreatingEvent] = React.useState(false);
   const navigate = useNavigate();
+  const { setErrorMessage } = React.useContext(Context);
 
   const canCreateEvent = () => {
     return selectedDates.length && eventName && earliestTime && latestTime;
@@ -29,6 +31,10 @@ const LandingPage = () => {
     postRequest('/events', newEvent)
       .then(response => {
         navigate(`/events/${response.data.eventId}`);
+      })
+      .catch(_ => {
+        setCreatingEvent(false);
+        setErrorMessage('unable to create event, please try again later');
       });
   };
 

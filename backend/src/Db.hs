@@ -18,10 +18,17 @@ import Control.Monad.Reader
 import Data.Acid
 import qualified Data.Text as T
 
-import Types (User(..), UserId, EventId)
+import Types
+  ( User(..)
+  , BaseErrors(..)
+  , AddAvailabilityError(..)
+  , UpdateAvailabilityError(..)
+  , UserId
+  , EventId
+  , TimeSlot
+  )
 import qualified Types as E (Event(..))
-import Types (TimeSlot, Error(..))
-import Util (maybeToEither)
+import Util (maybeToEither, boolToEither)
 
 data DB = DB {
   _events :: Map.Map EventId E.Event
@@ -47,14 +54,18 @@ doAddAvailability userId ts event = event {
     ) (E.availabilities event) ts
 }
 
-addAvailability :: EventId -> UserId -> T.Text -> [TimeSlot] -> Update DB Bool
+addAvailability :: EventId -> UserId -> T.Text -> [TimeSlot] -> Update DB (Either AddAvailabilityError ())
 addAvailability eventId userId userName ts = do
   mEvent <- use (events . at eventId)
-  case mEvent of
-    Just _ -> do
+  case do
+    event <- maybeToEither (AddAvailabilityCommon EventNotFound) mEvent
+    _     <- boolToEither UsernameTaken $ not $ any (\u -> name u == userName) (Map.elems (E.users event))
+    return $ Right ()
+   of
+    Left err  -> return $ Left err
+    Right _   -> do
       events . at eventId . _Just %= (doAddUser userId . doAddAvailability userId ts)
-      return True
-    Nothing -> return False
+      return $ Right ()
   where
     doAddUser userId event = event {
       E.users = Map.insert userId User {
@@ -63,16 +74,16 @@ addAvailability eventId userId userName ts = do
       } (E.users event)
     }
 
-updateAvailability :: EventId -> UserId -> [TimeSlot] -> Update DB (Either Error ())
+updateAvailability :: EventId -> UserId -> [TimeSlot] -> Update DB (Either UpdateAvailabilityError ())
 updateAvailability eventId userId ts = do
   mEvent <- use (events . at eventId)
   case do
-    event <- maybeToEither EventNotFound mEvent
+    event <- maybeToEither (UpdateAvailabilityCommon EventNotFound) mEvent
     _     <- maybeToEither UserNotFound (Map.lookup userId (E.users event))
     return $ Right ()
    of
-    Left err -> return $ Left err
-    Right _ -> do
+    Left err  -> return $ Left err
+    Right _   -> do
       events . at eventId . _Just %= (doAddAvailability userId ts . clearAvailability)
       return $ Right ()
   where

@@ -1,15 +1,21 @@
+import React from "react";
+
 interface NameInputModalProps {
   userName: string;
   onNameChange: (name: string) => void;
   onSave: () => void;
   onClose: () => void;
+  hasConfirmedName: boolean;
+  setHasConfirmedName: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const NameInputModal: React.FC<NameInputModalProps> = ({
   userName,
   onNameChange,
   onSave,
-  onClose
+  onClose,
+  hasConfirmedName,
+  setHasConfirmedName
 }) => {
   return (
     <dialog id="name_input_modal" className="modal">
@@ -28,9 +34,15 @@ export const NameInputModal: React.FC<NameInputModalProps> = ({
             <button
               className="btn btn-secondary self-end w-[30%] text-lg"
               disabled={userName.length === 0}
-              onClick={onSave}
+              onClick={() => {
+                setHasConfirmedName(true);
+                onSave();
+              }}
             >
-              continue
+              {hasConfirmedName ?
+                <span className="loading loading-spinner"></span> :
+                <>continue</>
+              }
             </button>
           </div>
         </article>

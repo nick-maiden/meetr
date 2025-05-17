@@ -5,7 +5,7 @@ function ThemeToggle() {
   const { theme, setTheme } = React.useContext(Context);
 
   return (
-    <label className="swap swap-rotate" style={{zIndex: 9999}}>
+    <label className="swap swap-rotate" style={{zIndex: 20}}>
       <input
         type="checkbox"
         onChange={() => theme == "light" ? setTheme("dark") : setTheme("light")}
