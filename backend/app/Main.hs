@@ -8,7 +8,10 @@ import Types
   , UpdateAvailabilityRequest(..)
   , Config(..)
   , LogLevel(..)
-  , Error(..)
+  , BaseErrors(..)
+  , AddAvailabilityError(..)
+  , UpdateAvailabilityError(..)
+  , ErrorCodes(..)
   , eventToEventResponse
   )
 import Db
@@ -18,7 +21,7 @@ import Db
   , AddAvailability(..)
   , UpdateAvailability(..)
   )
-import Util (uuidToText)
+import Util (uuidToText, loadErrorCodes)
 import Config (readConfig)
 import Web.Scotty
 import Data.Acid
@@ -27,13 +30,13 @@ import Network.HTTP.Types.Status
 import Network.Wai.Middleware.Cors
 import Network.Wai.Middleware.RequestLogger
 import Network.Wai.Handler.Warp (defaultSettings, setHost, setPort)
-import qualified Data.Text as Text
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.UUID.V4 as UUID4
 import Data.String (fromString)
 
 main :: IO ()
 main = do
+  errorCodes <-loadErrorCodes
   config <- readConfig
   acid <- openLocalState initialDBState
 
@@ -42,7 +45,7 @@ main = do
 
   let logging = case logLevel config of
         Development -> logStdoutDev
-        Production -> logStdout
+        Production  -> logStdout
 
   scottyOpts (Options 1 settings) $ do
     middleware $ cors $ const $ Just simpleCorsResourcePolicy
@@ -58,7 +61,7 @@ main = do
       event <- liftIO $ query acid (GetEvent eventId)
       case event of
         Just e -> json $ eventToEventResponse eventId e
-        Nothing -> status status404 >> json ("Event not found" :: Text.Text)
+        Nothing -> status status404 >> json (errEventNotFound errorCodes)
 
     post "/events" $ do
       event <- jsonData
@@ -73,10 +76,11 @@ main = do
       UserAvailability{..} <- jsonData
       uuid <- liftIO UUID4.nextRandom
       let userId = uuidToText uuid
-      eventFound <- liftIO $ update acid (AddAvailability eventId userId name availability)
-      case eventFound of
-        True  -> status status201 >> json userId
-        False -> status status404 >> json ("Event not found" :: Text.Text)
+      result <- liftIO $ update acid (AddAvailability eventId userId name availability)
+      case result of
+        Left (AddAvailabilityCommon EventNotFound)  -> status status404 >> json (errEventNotFound errorCodes)
+        Left UsernameTaken                          -> status status404 >> json (errUsernameTaken errorCodes)
+        Right ()                                    -> status status201 >> json userId
 
     put "/events/:eventId/availability/:userId" $ do
       eventId <- pathParam "eventId"
@@ -84,9 +88,9 @@ main = do
       UpdateAvailabilityRequest{..} <- jsonData
       result <- liftIO $ update acid (UpdateAvailability eventId userId availability)
       case result of
-        Left EventNotFound -> status status404 >> json ("Event not found" :: Text.Text)
-        Left UserNotFound -> status status404 >> json ("User not found" :: Text.Text)
-        Right () -> status status204
+        Left (UpdateAvailabilityCommon EventNotFound) -> status status404 >> json (errEventNotFound errorCodes)
+        Left UserNotFound                             -> status status404 >> json (errUserNotFound errorCodes)
+        Right ()                                      -> status status204
 
     notFound $ do
         status status404

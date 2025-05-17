@@ -28,7 +28,7 @@ const Event = () => {
         if (error.response?.status === 404) {
           setErrorMessage("event not found, please double check event link");
         } else {
-          setErrorMessage("failed to load event, try again later");
+          setErrorMessage("failed to load event, please try again later");
         }
         navigate('/');
       });

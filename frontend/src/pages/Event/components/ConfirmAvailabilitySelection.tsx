@@ -1,11 +1,17 @@
+import React from "react";
+
 interface ConfirmAvailabilitySelectionProps {
   onCancel: () => void;
   onSave: () => void;
+  isSaving: boolean;
+  setIsSaving: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const ConfirmAvailabilitySelection: React.FC<ConfirmAvailabilitySelectionProps> = ({
   onCancel,
-  onSave
+  onSave,
+  isSaving,
+  setIsSaving
 }) => {
   return (
     <div className="bg-base-200 p-4 rounded-lg space-y-4">
@@ -17,9 +23,15 @@ export const ConfirmAvailabilitySelection: React.FC<ConfirmAvailabilitySelection
       </button>
       <button
         className="btn sm:btn-md btn-sm btn-secondary btn-block sm:text-lg text-md"
-        onClick={onSave}
+        onClick={() => {
+          setIsSaving(true);
+          onSave();
+        }}
       >
-        save
+        {isSaving ?
+          <span className="loading loading-spinner"></span> :
+          <>save</>
+        }
       </button>
     </div>
   );

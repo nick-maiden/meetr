@@ -3,6 +3,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Types
   ( User(..)
@@ -15,7 +16,11 @@ module Types
   , UserAvailability(..)
   , UpdateAvailabilityRequest(..)
   , EventResponse(..)
-  , Error(..)
+  , errorCodesFile
+  , ErrorCodes(..)
+  , BaseErrors(..)
+  , AddAvailabilityError(..)
+  , UpdateAvailabilityError(..)
   , Availabilities
   , eventToEventResponse
   ) where
@@ -93,14 +98,40 @@ data EventResponse = EventResponse
 -- Error types
 -- -----------------------------
 
-data Error
-  = EventNotFound
+errorCodesFile :: FilePath
+errorCodesFile = "../shared/errorCodes.json"
+
+data ErrorCodes = ErrorCodes
+  { errUsernameTaken  :: T.Text
+  , errEventNotFound  :: T.Text
+  , errUserNotFound   :: T.Text
+  } deriving (Show, Generic)
+
+data BaseErrors = EventNotFound
+  deriving (Show)
+
+data AddAvailabilityError
+  = AddAvailabilityCommon BaseErrors
+  | UsernameTaken
+  deriving (Show)
+
+data UpdateAvailabilityError
+  = UpdateAvailabilityCommon BaseErrors
   | UserNotFound
   deriving (Show)
 
 -- -----------------------------
 -- JSON instances
 -- -----------------------------
+
+instance A.FromJSON ErrorCodes where
+  parseJSON = A.genericParseJSON A.defaultOptions
+    { A.fieldLabelModifier = \case
+        "errUsernameTaken" -> "ERR_USERNAME_TAKEN"
+        "errEventNotFound" -> "ERR_EVENT_NOT_FOUND"
+        "errUserNotFound"  -> "ERR_USER_NOT_FOUND"
+        other -> other
+    }
 
 instance A.ToJSON User
 instance A.FromJSON User
@@ -118,7 +149,9 @@ instance A.FromJSON UpdateAvailabilityRequest
 
 $(deriveSafeCopy 0 'base ''User)
 $(deriveSafeCopy 0 'base ''Event)
-$(deriveSafeCopy 0 'base ''Error)
+$(deriveSafeCopy 0 'base ''BaseErrors)
+$(deriveSafeCopy 0 'base ''AddAvailabilityError)
+$(deriveSafeCopy 0 'base ''UpdateAvailabilityError)
 
 -- -----------------------------
 -- Conversion functions

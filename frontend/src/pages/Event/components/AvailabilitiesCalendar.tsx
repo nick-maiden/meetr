@@ -7,6 +7,8 @@ import { ConfirmAvailabilitySelection } from "./ConfirmAvailabilitySelection";
 import { NameInputModal } from "./NameInputModal";
 import { Event } from "../../../types";
 import { Position } from "../types"
+import { Context } from "../../../util/context";
+import errorCodeMap from "../../../errorCodeMap";
 
 interface Props {
   isSelectionMode: boolean;
@@ -28,6 +30,8 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
   const [isDeselecting, setIsDeselecting] = React.useState(false);
   const [userId, setUserId] = React.useState<string | null>(null);
   const [userName, setUserName] = React.useState<string>("");
+  const [isSaving, setIsSaving] = React.useState(false);
+  const { setErrorMessage } = React.useContext(Context);
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -151,22 +155,32 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
   };
 
   const saveNewUserAvailability = () => {
-    (document.getElementById('name_input_modal') as HTMLDialogElement)?.close();
     const userAvailability = {
       name: userName,
       availability: Array.from(selectedSlots)
     };
     postRequest(`/events/${event.id}/availability`, userAvailability)
-      .then((_) => {
+      .then(() => {
+        (document.getElementById('name_input_modal') as HTMLDialogElement)?.close();
         cancelSetUserAvailability();
+      })
+      .catch((err) => {
+        setErrorMessage(errorCodeMap[err.response.data] ?? "unexpected error, please try again later");
+      })
+      .finally(() => {
+        setIsSaving(false);
       });
   };
 
   const updateUserAvailability = () => {
     const updatedAvailability = {availability: Array.from(selectedSlots)};
     putRequest(`/events/${event.id}/availability/${userId}`, updatedAvailability)
-      .then(() => {
+      .catch(() => {
+        setErrorMessage('unable to edit availability, please try again later');
+      })
+      .finally(() => {
         cancelSetUserAvailability();
+        setIsSaving(false);
       });
   };
 
@@ -199,7 +213,10 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
         userName={userName}
         onNameChange={setUserName}
         onSave={saveNewUserAvailability}
-        onClose={() => setUserName("")}
+        onClose={() => {
+          setIsSaving(false);
+          setUserName("");
+        }}
       />
       <div className="space-y-4">
         <div className="flex gap-6">
@@ -309,6 +326,8 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
               <ConfirmAvailabilitySelection
                 onCancel={cancelSetUserAvailability}
                 onSave={checkUser}
+                isSaving={isSaving}
+                setIsSaving={setIsSaving}
               />
             ) : (
               <RespondentsList

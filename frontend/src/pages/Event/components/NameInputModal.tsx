@@ -12,7 +12,7 @@ export const NameInputModal: React.FC<NameInputModalProps> = ({
   onClose
 }) => {
   return (
-    <dialog id="name_input_modal" className="modal">
+    <dialog id="name_input_modal" className="modal z-10">
       <div className="modal-box">
         <article className="prose">
           <h2 className="font-bold text-3xl">save availability</h2>

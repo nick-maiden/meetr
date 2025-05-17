@@ -21,7 +21,8 @@ const ErrorPopup = () => {
           bg-error-content
           rounded-lg
           w-max
-          max-w-[min(calc(100vw-2rem),700px)]"
+          max-w-[min(calc(100vw-2rem),700px)]
+          min-w-[350px]"
         role="alert"
       >
         <div className="flex items-center">
@@ -34,23 +35,14 @@ const ErrorPopup = () => {
         <div className="mt-2 mb-4">
           <p className="text-base">{errorMessage}</p>
         </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className="flex-1 btn btn-error btn-sm"
-            onClick={() => { window.open("https://github.com/nick-maiden/meetr/issues/new", "_blank"); }}
-          >
-            🐞 report a bug
-          </button>
-          <button
-            type="button"
-            className="flex-1 btn btn-error btn-outline btn-sm"
-            onClick={() => { setErrorMessage(""); }}
-          >
-            dismiss
-          </button>
+        <button
+          type="button"
+          className="w-full btn btn-error btn-outline text-base"
+          onClick={() => { setErrorMessage(""); }}
+        >
+          dismiss
+        </button>
         </div>
-      </div>
     </>
   );
 };
