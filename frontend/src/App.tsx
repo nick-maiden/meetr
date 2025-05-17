@@ -6,8 +6,16 @@ import './App.css'
 import ErrorPopup from './components/ErrorPopup.js';
 
 const App = () => {
-  const [theme, setTheme] = React.useState<"light" | "dark">("light");
   const [errorMessage, setErrorMessage] = React.useState("");
+  const [theme, setTheme] = React.useState<"light" | "dark">(() => {
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme === "dark" ? "dark" : "light";
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
 
   return (
     <>
