@@ -1,11 +1,11 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
-import DateSelectionCalendar from "./DateSelectionCalendar";
-import Navbar from "./Navbar";
-import { postRequest } from '../util/api';
-import { Context } from "../util/context";
+import DateSelectionCalendar from "../../components/DateSelectionCalendar";
+import Navbar from "../../components/Navbar";
+import { postRequest } from '../../util/api';
+import { Context } from "../../util/context";
 
-const LandingPage = () => {
+const CreateEvent = () => {
   const [selectedDates, setSelectedDates] = React.useState<string[]>([]);
   const [eventName, setEventName] = React.useState('');
   const [earliestTime, setEarliestTime] = React.useState<string | undefined>(undefined);
@@ -46,9 +46,9 @@ const LandingPage = () => {
     return hour;
   };
 
-const convertTo24Hour = (timeStr: string): string => {
-  return `${getHour(timeStr).toString().padStart(2, '0')}:00`;
-};
+  const convertTo24Hour = (timeStr: string): string => {
+    return `${getHour(timeStr).toString().padStart(2, '0')}:00`;
+  };
 
   const hours = Array.from({ length: 24 }, (_, i) => {
     const period = i < 12 ? "am" : "pm";
@@ -133,4 +133,5 @@ const convertTo24Hour = (timeStr: string): string => {
   )
 };
 
-export default LandingPage;
+export default CreateEvent;
+
