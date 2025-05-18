@@ -16,7 +16,6 @@ module Types
   , UserAvailability(..)
   , UpdateAvailabilityRequest(..)
   , EventResponse(..)
-  , errorCodesFile
   , ErrorCodes(..)
   , BaseErrors(..)
   , AddAvailabilityError(..)
@@ -62,10 +61,11 @@ data Event = Event
 -- -----------------------------
 
 data Config = Config
-  { port :: Int
-  , host :: String
-  , allowedOrigins :: [String]
-  , logLevel :: LogLevel
+  { port                :: Int
+  , host                :: String
+  , allowedOrigins      :: [String]
+  , logLevel            :: LogLevel
+  , errorCodesFilePath  :: FilePath
   }
 
 data LogLevel = Development | Production
@@ -97,9 +97,6 @@ data EventResponse = EventResponse
 -- -----------------------------
 -- Error types
 -- -----------------------------
-
-errorCodesFile :: FilePath
-errorCodesFile = "../shared/errorCodes.json"
 
 data ErrorCodes = ErrorCodes
   { errUsernameTaken  :: T.Text
