@@ -5,7 +5,7 @@ module Util
   , loadErrorCodes
   ) where
 
-import Types (errorCodesFile, ErrorCodes(..))
+import Types (ErrorCodes(..))
 import qualified Data.UUID as UUID
 import qualified Data.ByteString.Base64.URL as B64URL
 import qualified Data.Text.Encoding as TE
@@ -28,9 +28,9 @@ uuidToText uuid =
       encoded = B64URL.encode bytes
   in T.replace (T.pack "=") (T.pack "") $ TE.decodeUtf8 encoded
 
-loadErrorCodes :: IO ErrorCodes
-loadErrorCodes = do
-  json <- LBS.readFile errorCodesFile
+loadErrorCodes :: FilePath -> IO ErrorCodes
+loadErrorCodes errorCodesFilePath = do
+  json <- LBS.readFile errorCodesFilePath
   case A.eitherDecode json of
     Left err -> error $ "Failed to parse error constants: " ++ err
     Right cs -> return cs

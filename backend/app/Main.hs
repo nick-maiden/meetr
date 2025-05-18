@@ -36,9 +36,9 @@ import Data.String (fromString)
 
 main :: IO ()
 main = do
-  errorCodes <-loadErrorCodes
-  config <- readConfig
-  acid <- openLocalState initialDBState
+  config      <- readConfig
+  errorCodes  <- loadErrorCodes $ errorCodesFilePath config
+  acid        <- openLocalState initialDBState
 
   let settings = setHost (fromString $ host config) $
                  setPort (port config) defaultSettings

@@ -9,10 +9,11 @@ import System.Exit (die)
 -- Read configuration from environment variables
 readConfig :: IO Config
 readConfig = do
-  portStr <- lookupEnv "PORT" >>= maybe (die "PORT env var required") return
-  hostStr <- lookupEnv "HOST" >>= maybe (die "HOST env var required") return
-  originsStr <- lookupEnv "ALLOWED_ORIGINS" >>= maybe (die "ALLOWED_ORIGINS env var required") return
-  logLevelStr <- lookupEnv "LOG_LEVEL" >>= maybe (die "LOG_LEVEL env var required") return
+  portStr             <- lookupEnv "PORT" >>= maybe (die "PORT env var required") return
+  hostStr             <- lookupEnv "HOST" >>= maybe (die "HOST env var required") return
+  originsStr          <- lookupEnv "ALLOWED_ORIGINS" >>= maybe (die "ALLOWED_ORIGINS env var required") return
+  logLevelStr         <- lookupEnv "LOG_LEVEL" >>= maybe (die "LOG_LEVEL env var required") return
+  errorCodesFilePath  <- lookupEnv "ERROR_CODES_FILE_PATH" >>= maybe (die "ERROR_CODES_FILE_PATH env var required") return
 
   port <- case readMaybe portStr of
             Just p  -> return p
@@ -29,6 +30,7 @@ readConfig = do
     , host = hostStr
     , allowedOrigins = origins
     , logLevel = logLevel
+    , errorCodesFilePath = errorCodesFilePath
     }
   where
     splitOn c s = case break (== c) s of
