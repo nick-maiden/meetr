@@ -1,6 +1,6 @@
 import React from "react";
 
-interface NameInputModalProps {
+interface Props {
   userName: string;
   onNameChange: (name: string) => void;
   onSave: () => void;
@@ -9,7 +9,7 @@ interface NameInputModalProps {
   setHasConfirmedName: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const NameInputModal: React.FC<NameInputModalProps> = ({
+export const NameInputModal: React.FC<Props> = ({
   userName,
   onNameChange,
   onSave,

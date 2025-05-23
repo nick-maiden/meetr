@@ -1,13 +1,13 @@
 import React from "react";
 
-interface ConfirmAvailabilitySelectionProps {
+interface Props {
   onCancel: () => void;
   onSave: () => void;
   isSaving: boolean;
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const ConfirmAvailabilitySelection: React.FC<ConfirmAvailabilitySelectionProps> = ({
+export const ConfirmAvailabilitySelection: React.FC<Props> = ({
   onCancel,
   onSave,
   isSaving,

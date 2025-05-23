@@ -3,14 +3,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
 import { User } from '../../../types';
 
-interface RespondentsListProps {
+interface Props {
   users: { [userId: string]: User };
   hoveredSlot: string | null;
   isUserAvailable: (userId: string, date: Date, time: string) => boolean;
   onEditAvailability: (userId: string) => void;
 }
 
-export const RespondentsList: React.FC<RespondentsListProps> = ({
+export const RespondentsList: React.FC<Props> = ({
   users,
   hoveredSlot,
   isUserAvailable,

@@ -153,12 +153,12 @@ const useCalendarSelection = (
   };
 };
 
-interface CalendarProps {
+interface Props {
   className?: string;
   setSelectedDates: Dispatch<SetStateAction<string[]>>
 }
 
-const DateSelectionCalendar: React.FC<CalendarProps> = ({ className, setSelectedDates }) => {
+const DateSelectionCalendar: React.FC<Props> = ({ className, setSelectedDates }) => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const {
     selectedCells,
