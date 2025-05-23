@@ -2,13 +2,13 @@ import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { postRequest, putRequest } from "../../../util/api";
 import { generateTimeData } from "../util";
-import { RespondentsList } from "./RespondentsList";
-import { ConfirmAvailabilitySelection } from "./ConfirmAvailabilitySelection";
-import { NameInputModal } from "./NameInputModal";
 import { Event } from "../../../types";
 import { Position } from "../types"
 import { Context } from "../../../util/context";
 import { errorCodeMap} from "../../../err";
+import ConfirmAvailabilitySelection from "./ConfirmAvailabilitySelection";
+import NameInputModal from "./NameInputModal";
+import RespondentsList from "./RespondentsList";
 
 interface Props {
   isSelectionMode: boolean;

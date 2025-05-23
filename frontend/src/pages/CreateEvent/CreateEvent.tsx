@@ -15,11 +15,9 @@ const CreateEvent = () => {
 
   return (
     <div className="flex flex-col w-screen h-screen sm:px-10 px-5">
-
       <Navbar />
 
       <div className="flex flex-col overflow-auto no-scrollbar sm:px-[20%] px-2 sm:mt-8 mt-6">
-
         <article className="prose">
           <h2>event name</h2>
         </article>
@@ -64,9 +62,7 @@ const CreateEvent = () => {
             <>create event</>
           }
         </button>
-
       </div>
-
     </div>
   )
 };

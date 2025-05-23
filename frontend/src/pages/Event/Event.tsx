@@ -1,38 +1,16 @@
 import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLink } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar"
 import AvailabilitiesCalendar from "./components/AvailabilitiesCalendar";
-import { getRequest } from "../../util/api";
-import { Event as EventType } from "../../types";
-import { Context } from "../../util/context";
+import useFetchEvent from "./hooks/useFetchEvent";
 
 const Event = () => {
   const { eventId } = useParams();
   const [linkCopied, setLinkCopied] = React.useState(false);
   const [isSelectionMode, setIsSelectionMode] = React.useState(false);
-  const [event, setEvent] = React.useState<EventType | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const navigate = useNavigate();
-  const { setErrorMessage } = React.useContext(Context);
-
-  React.useEffect(() => {
-    getRequest(`/events/${eventId}`)
-      .then(response => {
-        setEvent(response.data);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        setIsLoading(false);
-        if (error.response?.status === 404) {
-          setErrorMessage("event not found, please double check event link");
-        } else {
-          setErrorMessage("failed to load event, please try again later");
-        }
-        navigate('/');
-      });
-  }, [isSelectionMode]);
+  const event = useFetchEvent(eventId, [isSelectionMode]);
 
   const copyLink = () => {
     const url = window.location.href;
@@ -45,14 +23,6 @@ const Event = () => {
       });
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <span className="loading loading-spinner loading-lg"></span>
-      </div>
-    );
-  }
-
   return (
     <>
       {linkCopied &&
@@ -62,11 +32,12 @@ const Event = () => {
           </div>
         </div>
       }
-      <div className="flex flex-col w-screen h-screen ">
 
+      <div className="flex flex-col w-screen h-screen ">
         <div className="sm:px-10 px-5">
           <Navbar />
         </div>
+
         <div className="flex flex-col overflow-auto no-scrollbar sm:mt-6 mt-6 pb-6">
           <div className="flex justify-between items-center sm:mb-8 mb-5 sm:px-[10%] px-6">
             <article className="prose">
@@ -76,6 +47,7 @@ const Event = () => {
             </article>
 
             <div className="flex gap-1 sm:gap-3">
+
               <button
                 className="btn btn-outline btn-xs sm:btn-sm md:btn-md md:text-lg"
                 onClick={copyLink}
@@ -83,6 +55,7 @@ const Event = () => {
                 <p className="hidden sm:block">copy link</p>
                 <FontAwesomeIcon icon={faLink} size="lg"/>
               </button>
+
               <button
                 className="btn btn-secondary btn-xs sm:btn-sm md:btn-md md:text-lg"
                 onClick={() => setIsSelectionMode(true)}
@@ -94,19 +67,21 @@ const Event = () => {
           </div>
 
           <div className="sm:px-[10%] px-2">
-            {event &&
+            {event ? (
               <AvailabilitiesCalendar
                 isSelectionMode={isSelectionMode}
                 setIsSelectionMode={setIsSelectionMode}
                 event={event}
               />
-            }
-
+            ) : (
+              <span className="loading loading-spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></span>
+            )}
           </div>
         </div>
       </div>
-      </>
+    </>
   )
 };
 
 export default Event;
+

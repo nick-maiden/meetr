@@ -9,7 +9,7 @@ interface Props {
   setHasConfirmedName: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const NameInputModal: React.FC<Props> = ({
+const NameInputModal: React.FC<Props> = ({
   userName,
   onNameChange,
   onSave,
@@ -53,4 +53,6 @@ export const NameInputModal: React.FC<Props> = ({
     </dialog>
   );
 };
+
+export default NameInputModal;
 

@@ -10,7 +10,7 @@ interface Props {
   onEditAvailability: (userId: string) => void;
 }
 
-export const RespondentsList: React.FC<Props> = ({
+const RespondentsList: React.FC<Props> = ({
   users,
   hoveredSlot,
   isUserAvailable,
@@ -19,7 +19,9 @@ export const RespondentsList: React.FC<Props> = ({
   return (
     <div className="bg-base-200 p-4 rounded-lg overflow-y-auto no-scrollbar max-h-[70vh]">
       <h2 className="font-bold md:text-2xl sm:text-xl text-md">respondents</h2>
+
       <div className="divider mt-2"></div>
+
       <ul className="sm:space-y-2 space-y-1.5">
         {Object.values(users).length === 0 ? (
           <p className="font-bold text-gray-500 text-sm">
@@ -55,3 +57,6 @@ export const RespondentsList: React.FC<Props> = ({
     </div>
   );
 };
+
+export default RespondentsList;
+

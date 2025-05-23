@@ -7,7 +7,7 @@ interface Props {
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const ConfirmAvailabilitySelection: React.FC<Props> = ({
+const ConfirmAvailabilitySelection: React.FC<Props> = ({
   onCancel,
   onSave,
   isSaving,
@@ -36,3 +36,6 @@ export const ConfirmAvailabilitySelection: React.FC<Props> = ({
     </div>
   );
 };
+
+export default ConfirmAvailabilitySelection;
+
