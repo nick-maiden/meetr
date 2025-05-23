@@ -4,7 +4,14 @@ import { getRequest } from "../../../util/api";
 import { Context } from "../../../util/context";
 import { Event as EventType } from "../../../types";
 
-const useFetchEvent = (eventId: string | undefined, refetchEvents: any[]): EventType | null => {
+interface UseFetchEventReturn {
+  event: EventType | null
+}
+
+const useFetchEvent = (
+  eventId: string | undefined,
+  refetchEvents: any[]
+): UseFetchEventReturn => {
   const [event, setEvent] = React.useState<EventType | null>(null);
   const navigate = useNavigate();
   const { setErrorMessage } = React.useContext(Context);
@@ -25,7 +32,7 @@ const useFetchEvent = (eventId: string | undefined, refetchEvents: any[]): Event
   }, [eventId, ...refetchEvents]);
 
 
-  return event;
+  return { event };
 
 };
 

@@ -5,7 +5,17 @@ import useTimeRangeSelector from "./useTimeRangeSelector";
 import { convertTo24Hour } from "../util";
 import { postRequest } from "../../../util/api";
 
-const useCreateEvent = () => {
+interface UseCreateEventReturn {
+  eventName: string;
+  setEventName: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedDates: React.Dispatch<React.SetStateAction<string[]>>;
+  timeRangeSelector: ReturnType<typeof useTimeRangeSelector>;
+  creatingEvent: boolean
+  canCreateEvent: React.Dispatch<React.SetStateAction<boolean>>;
+  createEvent: () => void;
+}
+
+const useCreateEvent = (): UseCreateEventReturn => {
   const [selectedDates, setSelectedDates] = React.useState<string[]>([]);
   const timeRangeSelector = useTimeRangeSelector();
   const [eventName, setEventName] = React.useState('');

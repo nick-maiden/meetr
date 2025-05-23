@@ -1,7 +1,18 @@
 import React from "react";
 import { getHour } from "../util";
 
-const useTimeRangeSelector = () => {
+interface TimeRangeSelectorValue {
+  value: string | undefined;
+  setValue: React.Dispatch<React.SetStateAction<string | undefined>>;
+  options: string[];
+};
+
+interface UseTimeRangeSelectorReturn {
+  earliest: TimeRangeSelectorValue;
+  latest: TimeRangeSelectorValue;
+};
+
+const useTimeRangeSelector = (): UseTimeRangeSelectorReturn => {
   const [earliestTime, setEarliestTime] = React.useState<string | undefined>(undefined);
   const [latestTime, setLatestTime] = React.useState<string | undefined>(undefined);
 
