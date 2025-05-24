@@ -3,14 +3,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLink } from '@fortawesome/free-solid-svg-icons';
 import { useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar"
-import AvailabilitiesCalendar from "./components/AvailabilitiesCalendar";
 import useFetchEvent from "./hooks/useFetchEvent";
+import AvailabilitiesCalendar from "./components/AvailabilitiesCalendar/AvailabilitiesCalendar";
 
 const Event = () => {
   const { eventId } = useParams();
   const [linkCopied, setLinkCopied] = React.useState(false);
   const [isSelectionMode, setIsSelectionMode] = React.useState(false);
-  const event = useFetchEvent(eventId, [isSelectionMode]);
+  const { event } = useFetchEvent(eventId, [isSelectionMode]);
 
   const copyLink = () => {
     const url = window.location.href;

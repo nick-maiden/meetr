@@ -1,7 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
-import { User } from '../../../types';
+import { User } from '../../../../../types';
 
 interface Props {
   users: { [userId: string]: User };

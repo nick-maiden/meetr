@@ -1,6 +1,6 @@
 export interface TimeData {
-  displaySlots: string[];
-  dataSlots: string[];
+  hours: string[];
+  timeSlots: string[];
 }
 
 export interface Position {
