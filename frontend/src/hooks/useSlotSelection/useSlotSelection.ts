@@ -15,11 +15,10 @@ interface UseSlotSelectionReturn {
 const useSlotSelection = (
   slotIsSelectable: (slot: Position) => boolean = () => true,
 ): UseSlotSelectionReturn => {
-  const initialStartPosition = { row: 0, col: 0 };
   const [selectedSlots, setSelectedSlots] = React.useState<Slots>(new Set());
   const [isSelecting, setIsSelecting] = React.useState(false);
   const [isDeselecting, setIsDeselecting] = React.useState(false);
-  const [startPosition, setStartPosition] = React.useState<Position>(initialStartPosition);
+  const [startPosition, setStartPosition] = React.useState<Position | undefined>(undefined);
 
 
   const createSlotId = (pos: Position): SlotId => {
@@ -65,7 +64,7 @@ const useSlotSelection = (
   }
 
   const handleSelectionMove = (currentSlotId: SlotId): void => {
-    if (!isSelecting) return;
+    if (!isSelecting || !startPosition) return;
 
     const currentPosition = parseSlotId(currentSlotId);
     const newSelectedSlots = getSlotsInRectangle(startPosition, currentPosition);
@@ -83,13 +82,13 @@ const useSlotSelection = (
 
   const handleSelectionEnd = (): void => {
     setIsSelecting(false);
-    setStartPosition(initialStartPosition);
+    setStartPosition(undefined);
   };
 
   const handleCancelSelection = (): void => {
     setIsSelecting(false);
     setSelectedSlots(new Set());
-    setStartPosition(initialStartPosition);
+    setStartPosition(undefined);
   };
 
   return {
