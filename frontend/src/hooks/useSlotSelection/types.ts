@@ -6,8 +6,6 @@ export interface UseSlotSelectionParams {
 
 export interface Slot {
   id: string;
-  row: number;
-  col: number;
 }
 
 export type Slots = Set<Slot["id"]>;

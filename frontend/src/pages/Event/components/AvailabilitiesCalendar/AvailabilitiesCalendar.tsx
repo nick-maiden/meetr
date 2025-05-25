@@ -9,7 +9,8 @@ import ConfirmAvailabilitySelection from "./components/ConfirmAvailabilitySelect
 import RespondentsList from "./components/RespondentsList";
 import NameInputModal from "./components/NameInputModal";
 import useSlotSelection from "../../../../hooks/useSlotSelection/useSlotSelection";
-import { Slot, Slots } from "../../../../hooks/useSlotSelection/types";
+import { Slots } from "../../../../hooks/useSlotSelection/types";
+import { AvailabilitySlot } from "./types";
 
 interface Props {
   isSelectionMode: boolean;
@@ -31,11 +32,11 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
   const [hasConfirmedName, setHasConfirmedName] = React.useState(false);
   const { setErrorMessage } = React.useContext(Context);
 
-  const serializeSlot = (date: string, time: string, row: number, col: number): Slot => {
+  const serializeSlot = (date: string, time: string, row: number, col: number): AvailabilitySlot => {
     return { id: date + '-' + time, row, col }
   };
 
-  const getSlotsInSelection = (start: Slot, end: Slot): Slots => {
+  const getSlotsInSelection = (start: AvailabilitySlot, end: AvailabilitySlot): Slots => {
     const minCol = Math.min(start.col, end.col);
     const maxCol = Math.max(start.col, end.col);
     const minRow = Math.min(start.row, end.row);

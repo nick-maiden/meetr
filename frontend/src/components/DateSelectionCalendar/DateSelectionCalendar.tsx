@@ -15,35 +15,53 @@ interface Position {
   col: number;
 }
 
-const createSlotId = (year: number, month: number, day: number): string => {
-  return `${year}-${month}-${day}`;
-};
+interface IDateSlot extends Slot {
+  year: number;
+  month: number;
+  day: number
+}
 
-const getSlotPosition = (day: number, date: Date): Position => {
-  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-  const adjustedDay = day + firstDayOfMonth - 1;
-  const row = Math.floor(adjustedDay / COLS);
-  const col = adjustedDay % COLS;
-  return { row, col };
-};
+class DateSlot implements IDateSlot {
+  id: string;
+  year: number;
+  month: number;
+  day: number
 
+  constructor(year: number, month: number, day: number) {
+    this.id = DateSlot.createId(year, month, day);
+    this.year = year;
+    this.month = month;
+    this.day = day;
+  }
 
-const parseSlotId = (slotId: string) => {
-  const [year, month, day] = slotId.split('-').map(Number);
-  return { year, month, day };
-};
+  static fromString(dateStr: string): DateSlot {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    return new DateSlot(year, month, day);
+  }
 
-const dateIsInPast = (year: number, month: number, day: number): boolean => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const dateToCheck = new Date(year, month, day);
-  return dateToCheck < today;
-};
+  static createId(year: number, month: number, day: number) {
+    return `${year}-${month}-${day}`;
+  }
 
-const formatSelectedDate = (cellId: string): string => {
-  const { year, month, day } = parseSlotId(cellId);
-  return `${year}-${String(month + 1).padStart(2, '0')}-${day}`;
-};
+  getPosition(): Position {
+    const firstDayOfMonth = new Date(this.year, this.month, 1).getDay();
+    const adjustedDay = this.day + firstDayOfMonth - 1;
+    const row = Math.floor(adjustedDay / COLS);
+    const col = adjustedDay % COLS;
+    return { row, col };
+  }
+
+  isInPast(): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dateToCheck = new Date(this.year, this.month, this.day);
+    return dateToCheck < today;
+  }
+
+  asFormattedString(): string {
+    return `${this.year}-${String(this.month + 1).padStart(2, '0')}-${this.day}`;
+  }
+}
 
 interface Props {
   className?: string;
@@ -53,16 +71,13 @@ interface Props {
 const DateSelectionCalendar: React.FC<Props> = ({ className, setSelectedDates }) => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
 
-
-  const serializeSlot = (year: number, month: number, day: number, row: number, col: number): Slot => {
-    return { id: `${year}-${month}-${day}`, row, col };
-  };
-
-  const getSlotsInSelection = (start: Slot, end: Slot): Slots => {
-    const minCol = Math.min(start.col, end.col);
-    const maxCol = Math.max(start.col, end.col);
-    const minRow = Math.min(start.row, end.row);
-    const maxRow = Math.max(start.row, end.row);
+  const getSlotsInSelection = (start: DateSlot, end: DateSlot): Slots => {
+    const startPos = start.getPosition();
+    const endPos = end.getPosition();
+    const minCol = Math.min(startPos.col, endPos.col);
+    const maxCol = Math.max(startPos.col, endPos.col);
+    const minRow = Math.min(startPos.row, endPos.row);
+    const maxRow = Math.max(startPos.row, endPos.row);
 
     const slots = new Set<string>;
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
@@ -72,14 +87,12 @@ const DateSelectionCalendar: React.FC<Props> = ({ className, setSelectedDates })
       for (let row = minRow; row <= maxRow; row++) {
         const adjustedDay = row * COLS + col + 1 - firstDayOfMonth;
         if (adjustedDay > 0 && adjustedDay <= daysInMonth) {
-          const slot = serializeSlot(
+          const slotId = DateSlot.createId(
             currentDate.getFullYear(),
             currentDate.getMonth(),
             adjustedDay,
-            row,
-            col
           );
-          slots.add(slot.id);
+          slots.add(slotId);
         }
       }
     }
@@ -92,12 +105,12 @@ const DateSelectionCalendar: React.FC<Props> = ({ className, setSelectedDates })
     handleSelectionStart,
     handleSelectionMove,
     handleSelectionEnd,
-  } = useSlotSelection(getSlotsInSelection);
+  } = useSlotSelection<DateSlot>(getSlotsInSelection);
 
   useEffect(() => {
     setSelectedDates(Array.from(selectedSlots)
       .sort((a, b) => { return new Date(a).getTime() - new Date(b).getTime(); })
-      .map(formatSelectedDate));
+      .map((slotId) => DateSlot.fromString(slotId).asFormattedString()));
   }, [selectedSlots]);
 
   const getDaysInMonth = (date: Date): number => {
@@ -121,40 +134,39 @@ const DateSelectionCalendar: React.FC<Props> = ({ className, setSelectedDates })
     const firstDayOfMonth = getFirstDayOfMonth(currentDate);
     const days: JSX.Element[] = [];
 
-    // Empty cells for days before the first day of the month
+    // Empty slots for days before the first day of the month
     for (let i = 0; i < firstDayOfMonth; i++) {
       days.push(<td key={`empty-${i}`} className="p-0" />);
     }
 
     // Actual days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const slotId = createSlotId(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        day
-      );
-      const pos = getSlotPosition(day, currentDate);
-      const slot: Slot = { id: slotId, ...pos };
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const slot = new DateSlot(year, month, day);
+      //const slotId = createSlotId(year, month, day);
+      //const pos = getSlotPosition(year, month, day);
+      //const slot: Slot = { id: slotId, ...pos };
 
       days.push(
         <td key={day} className="p-0">
           <button
             className={`btn btn-circle md:w-12 md:h-12 w-9 h-9 min-h-0 relative mb-1 ${
-              selectedSlots.has(slotId)
+              selectedSlots.has(slot.id)
                 ? 'btn-secondary text-secondary-content'
                 : 'btn-ghost'
-            } ${dateIsInPast(currentDate.getFullYear(), currentDate.getMonth(), day)
+            } ${slot.isInPast()
                 ? 'line-through btn-disabled !bg-transparent hover:!bg-transparent'
                 : ''
             }`}
             onPointerDown={(e) => {
               e.preventDefault();
-              if (!dateIsInPast(currentDate.getFullYear(), currentDate.getMonth(), day)) handleSelectionStart(slot);
+              if (!slot.isInPast()) handleSelectionStart(slot);
               e.currentTarget.releasePointerCapture(e.pointerId)
             }}
             onPointerEnter={() => handleSelectionMove(slot)}
             onPointerUp={handleSelectionEnd}
-            disabled={dateIsInPast(currentDate.getFullYear(), currentDate.getMonth(), day)}
+            disabled={slot.isInPast()}
           >
             {day}
           </button>

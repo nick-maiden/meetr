@@ -1,25 +1,25 @@
 import React from "react";
 import { Slot, Slots } from "./types";
 
-interface UseSlotSelectionReturn {
+interface UseSlotSelectionReturn <S extends Slot>{
   selectedSlots: Slots;
   setSelectedSlots: React.Dispatch<React.SetStateAction<Slots>>;
   isSelecting: boolean;
-  handleSelectionStart: (startSlot: Slot) => void;
-  handleSelectionMove: (currentSlot: Slot) => void;
+  handleSelectionStart: (startSlot: S) => void;
+  handleSelectionMove: (currentSlot: S) => void;
   handleSelectionEnd: () => void;
   handleCancelSelection: () => void;
 }
 
-const useSlotSelection = (
-  getSlotsInSelection: (start: Slot, end: Slot) => Slots
-): UseSlotSelectionReturn => {
+const useSlotSelection = <S extends Slot>(
+  getSlotsInSelection: (start: S, end: S) => Slots
+): UseSlotSelectionReturn<S> => {
   const [selectedSlots, setSelectedSlots] = React.useState<Slots>(new Set());
   const [isSelecting, setIsSelecting] = React.useState(false);
   const [isDeselecting, setIsDeselecting] = React.useState(false);
-  const [startSlot, setStartSlot] = React.useState<Slot | undefined>(undefined);
+  const [startSlot, setStartSlot] = React.useState<S | undefined>(undefined);
 
-  const handleSelectionStart = (slot: Slot): void => {
+  const handleSelectionStart = (slot: S): void => {
     setIsSelecting(true);
     setStartSlot(slot);
     setIsDeselecting(selectedSlots.has(slot.id));
@@ -30,7 +30,7 @@ const useSlotSelection = (
     });
   };
 
-  const handleSelectionMove = (currentSlot: Slot): void => {
+  const handleSelectionMove = (currentSlot: S): void => {
     if (!isSelecting || !startSlot) return;
 
     const newSelectedSlots = getSlotsInSelection(startSlot, currentSlot);
