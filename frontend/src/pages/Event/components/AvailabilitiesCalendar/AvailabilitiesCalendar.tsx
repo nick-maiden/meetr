@@ -5,10 +5,11 @@ import { generateTimeData } from "./util";
 import { Event } from "../../../../types";
 import { Context } from "../../../../util/context";
 import { errorCodeMap} from "../../../../err";
-import NameInputModal from "./components/NameInputModal";
 import ConfirmAvailabilitySelection from "./components/ConfirmAvailabilitySelection";
 import RespondentsList from "./components/RespondentsList";
+import NameInputModal from "./components/NameInputModal";
 import useSlotSelection from "../../../../hooks/useSlotSelection/useSlotSelection";
+import { Slot, Slots } from "../../../../hooks/useSlotSelection/types";
 
 interface Props {
   isSelectionMode: boolean;
@@ -30,15 +31,38 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
   const [hasConfirmedName, setHasConfirmedName] = React.useState(false);
   const { setErrorMessage } = React.useContext(Context);
 
+  const serializeSlot = (date: string, time: string, row: number, col: number): Slot => {
+    return { id: date + '-' + time, row, col }
+  };
+
+  const getSlotsInSelection = (start: Slot, end: Slot): Slots => {
+    const minCol = Math.min(start.col, end.col);
+    const maxCol = Math.max(start.col, end.col);
+    const minRow = Math.min(start.row, end.row);
+    const maxRow = Math.max(start.row, end.row);
+
+    const slots = new Set<string>;
+
+    for (let col = minCol; col <= maxCol; col++) {
+      for (let row = minRow; row <= maxRow; row++) {
+        const date = displayDates[col];
+        const time = timeSlots[row];
+        const slot = serializeSlot(date, time, row, col);
+        slots.add(slot.id);
+      }
+    }
+    return slots;
+  };
+
   const {
     selectedSlots,
     setSelectedSlots,
-    createSlotId,
     handleSelectionStart,
     handleSelectionMove,
     handleSelectionEnd,
-    handleCancelSelection,
-  } = useSlotSelection();
+    handleCancelSelection
+  } = useSlotSelection(getSlotsInSelection);
+
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -51,8 +75,8 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const getDates = (): Date[] => {
-    return event.dates.map(dateStr => new Date(dateStr));
+  const getDates = (): string[] => {
+    return event.dates;
   };
 
   const isUserAvailable = (userId: string, date: Date, time: string): boolean => {
@@ -61,9 +85,8 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
     return event.availabilities[timeSlot]?.includes(userId) ?? false;
   };
 
-  const getAvailableUsers = (date: Date, time: string): string[] => {
-    const dateStr = date.toISOString().split('T')[0];
-    const timeSlot = `${dateStr}-${time}`;
+  const getAvailableUsers = (date: string, time: string): string[] => {
+    const timeSlot = `${date}-${time}`;
     return event.availabilities[timeSlot] ?? [];
   };
 
@@ -87,7 +110,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
     return `rgb(${red}, ${green}, ${blue})`;
   };
 
-  const getTimeSlotBackgroundColor = (slotId: string, date: Date, timeSlot: string) => {
+  const getTimeSlotBackgroundColor = (slotId: string, date: string, timeSlot: string) => {
     const isSelected = selectedSlots.has(slotId);
     if (isSelectionMode) {
       return isSelected ? 'rgb(34, 197, 94)' : 'rgb(254, 202, 202)';
@@ -199,16 +222,12 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
             )}
 
             <div className="overflow-x-auto">
-              <table
-                className="table-auto table-compact w-full min-w-[190px]"
-                onMouseUp={handleSelectionEnd}
-                onMouseLeave={handleSelectionEnd}
-              >
+              <table className="table-auto table-compact w-full min-w-[190px]">
                 <thead>
                   <tr>
                     <th className="w-0"></th>
                     {displayDates.map((date, i) => {
-                      const [weekday, monthDay] = date.toLocaleDateString('en-US', {
+                      const [weekday, monthDay] = new Date(date).toLocaleDateString('en-US', {
                         weekday: 'short',
                         month: 'short',
                         day: '2-digit',
@@ -223,39 +242,39 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {hours.map((displayTime, hourIndex) => (
-                    <React.Fragment key={`hour-${hourIndex}`}>
+                  {hours.map((hour, hourIndex) => (
+                    <React.Fragment key={`${hour}`}>
                       <tr>
                         <td className="font-bold border-b border-t border-r border-r-neutral border-b-base-100 border-t-base-100 text-right p-0 sm:pr-2 pr-1 sm:text-md text-sm select-none">
-                          {displayTime}
+                          {hour}
                         </td>
-                        {displayDates.map((date, dateIndex) => (
+                        {displayDates.map((date, col) => (
                           <td
-                            key={`hour-${hourIndex}-${date.toISOString()}`}
+                            key={`${date}-${hour}`}
                             className="p-0 border-b border-r border-neutral"
                           >
                             <div className="grid grid-rows-4">
                               {[0, 1, 2, 3].map((quarter) => {
                                 const row = hourIndex * 4 + quarter;
-                                const timeSlot = timeSlots[row];
-                                const pos = { row, col: dateIndex };
-                                const slotId = createSlotId(pos);
+                                const time = timeSlots[row];
+                                const slot = serializeSlot(date, time, row, col);
                                 const border = quarter === 1 ? "border-b border-dotted border-neutral" : "";
-                                const backgroundColor = getTimeSlotBackgroundColor(slotId, date, timeSlot);
+                                const backgroundColor = getTimeSlotBackgroundColor(slot.id, date, time);
                                 return (
                                   <div
-                                    key={slotId}
+                                    key={`${date}-${hour}-${quarter}`}
                                     className={`h-3 ${border} cursor-pointer`}
                                     style={{ backgroundColor }}
-                                    onMouseDown={() => isSelectionMode && handleSelectionStart(slotId)}
-                                    onMouseEnter={() => {
-                                      if (isSelectionMode) {
-                                        handleSelectionMove(slotId);
-                                      } else {
-                                        setHoveredSlot(slotId);
-                                      }
+                                    onPointerDown={(e) => {
+                                      e.preventDefault();
+                                      if (isSelectionMode) handleSelectionStart(slot);
+                                      e.currentTarget.releasePointerCapture(e.pointerId)
                                     }}
-                                    onMouseLeave={() => !isSelectionMode && setHoveredSlot(null)}
+                                    onPointerEnter={() => {
+                                      isSelectionMode ? handleSelectionMove(slot) : setHoveredSlot(slot.id);
+                                    }}
+                                    onPointerUp={handleSelectionEnd}
+                                    onPointerLeave={() => !isSelectionMode && setHoveredSlot(null)}
                                   />
                                 );
                               })}
@@ -302,3 +321,4 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
 };
 
 export default AvailabilitiesCalendar;
+

@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useCallback, useRef, Dispatch, SetStateAction} from 'react';
+import React, { useState, useEffect, Dispatch, SetStateAction} from 'react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Slot, Slots } from '../hooks/useSlotSelection/types';
+import useSlotSelection from '../hooks/useSlotSelection/useSlotSelection';
 
 const DAYS: readonly string[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const MONTHS: readonly string[] = [
@@ -13,26 +15,21 @@ interface Position {
   col: number;
 }
 
-interface CalendarSelectionHookResult {
-  selectedCells: Set<string>;
-  isSelecting: boolean;
-  handleSelectionStart: (cellId: string) => void;
-  handleSelectionMove: (cellId: string) => void;
-  handleSelectionEnd: () => void;
-}
-
-interface CellInfo {
-  year: number;
-  month: number;
-  day: number;
-}
-
-const createCellId = (year: number, month: number, day: number): string => {
+const createSlotId = (year: number, month: number, day: number): string => {
   return `${year}-${month}-${day}`;
 };
 
-const parseCellId = (cellId: string): CellInfo => {
-  const [year, month, day] = cellId.split('-').map(Number);
+const getSlotPosition = (day: number, date: Date): Position => {
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  const adjustedDay = day + firstDayOfMonth - 1;
+  const row = Math.floor(adjustedDay / COLS);
+  const col = adjustedDay % COLS;
+  return { row, col };
+};
+
+
+const parseSlotId = (slotId: string) => {
+  const [year, month, day] = slotId.split('-').map(Number);
   return { year, month, day };
 };
 
@@ -44,113 +41,8 @@ const dateIsInPast = (year: number, month: number, day: number): boolean => {
 };
 
 const formatSelectedDate = (cellId: string): string => {
-  const { year, month, day } = parseCellId(cellId);
+  const { year, month, day } = parseSlotId(cellId);
   return `${year}-${String(month + 1).padStart(2, '0')}-${day}`;
-};
-
-const useCalendarSelection = (
-  setSelectedDates: Dispatch<SetStateAction<string[]>>,
-  currentDate: Date
-): CalendarSelectionHookResult => {
-  const [selectedCells, setSelectedCells] = useState<Set<string>>(new Set());
-  const [isSelecting, setIsSelecting] = useState<boolean>(false);
-  const [isDeselecting, setIsDeselecting] = useState<boolean>(false);
-
-  const startPosRef = useRef<Position>({ row: 0, col: 0 });
-  const previousSelectionsRef = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-    setSelectedDates(Array.from(selectedCells)
-      .sort((a, b) => {
-        const dateA = parseCellId(a);
-        const dateB = parseCellId(b);
-        return new Date(dateA.year, dateA.month, dateA.day).getTime() -
-               new Date(dateB.year, dateB.month, dateB.day).getTime();
-      })
-      .map(formatSelectedDate));
-  }, [selectedCells]);
-
-  const getCellPosition = useCallback((cellId: string): Position => {
-    const { day } = parseCellId(cellId);
-    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
-    const adjustedDay = day + firstDayOfMonth - 1;
-    const row = Math.floor(adjustedDay / COLS);
-    const col = adjustedDay % COLS;
-    return { row, col };
-  }, [currentDate]);
-
-  const getCellsInRectangle = useCallback((startPos: Position, endPos: Position): Set<string> => {
-    const minRow = Math.min(startPos.row, endPos.row);
-    const maxRow = Math.max(startPos.row, endPos.row);
-    const minCol = Math.min(startPos.col, endPos.col);
-    const maxCol = Math.max(startPos.col, endPos.col);
-    const cells = new Set<string>();
-    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
-    const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
-
-    for (let row = minRow; row <= maxRow; row++) {
-      for (let col = minCol; col <= maxCol; col++) {
-        const adjustedDay = row * COLS + col + 1 - firstDayOfMonth;
-        if (adjustedDay > 0 && adjustedDay <= daysInMonth) {
-          const cellId = createCellId(
-            currentDate.getFullYear(),
-            currentDate.getMonth(),
-            adjustedDay
-          );
-          cells.add(cellId);
-        }
-      }
-    }
-    return cells;
-  }, [currentDate]);
-
-  const handleSelectionStart = useCallback((cellId: string): void => {
-    const pos = getCellPosition(cellId);
-    setIsSelecting(true);
-    setIsDeselecting(selectedCells.has(cellId));
-    startPosRef.current = pos;
-    previousSelectionsRef.current = new Set(selectedCells);
-
-    setSelectedCells(prev => {
-      const next = new Set(prev);
-      if (selectedCells.has(cellId)) {
-        next.delete(cellId);
-      } else {
-        next.add(cellId);
-      }
-      return next;
-    });
-  }, [selectedCells, getCellPosition]);
-
-  const handleSelectionMove = useCallback((cellId: string): void => {
-    if (!isSelecting) return;
-
-    const currentPos = getCellPosition(cellId);
-    const currentSelectionCells = getCellsInRectangle(startPosRef.current, currentPos);
-
-    setSelectedCells(() => {
-      const next = new Set(previousSelectionsRef.current);
-      if (isDeselecting) {
-        currentSelectionCells.forEach(cell => next.delete(cell));
-      } else {
-        currentSelectionCells.forEach(cell => next.add(cell));
-      }
-      return next;
-    });
-  }, [isSelecting, isDeselecting, getCellPosition, getCellsInRectangle]);
-
-  const handleSelectionEnd = useCallback((): void => {
-    setIsSelecting(false);
-    previousSelectionsRef.current = new Set();
-  }, []);
-
-  return {
-    selectedCells,
-    isSelecting,
-    handleSelectionStart,
-    handleSelectionMove,
-    handleSelectionEnd,
-  };
 };
 
 interface Props {
@@ -160,12 +52,53 @@ interface Props {
 
 const DateSelectionCalendar: React.FC<Props> = ({ className, setSelectedDates }) => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
+
+
+  const serializeSlot = (year: number, month: number, day: number, row: number, col: number): Slot => {
+    return { id: `${year}-${month}-${day}`, row, col };
+  };
+
+  const getSlotsInSelection = (start: Slot, end: Slot): Slots => {
+    const minCol = Math.min(start.col, end.col);
+    const maxCol = Math.max(start.col, end.col);
+    const minRow = Math.min(start.row, end.row);
+    const maxRow = Math.max(start.row, end.row);
+
+    const slots = new Set<string>;
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+    const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+
+    for (let col = minCol; col <= maxCol; col++) {
+      for (let row = minRow; row <= maxRow; row++) {
+        const adjustedDay = row * COLS + col + 1 - firstDayOfMonth;
+        if (adjustedDay > 0 && adjustedDay <= daysInMonth) {
+          const slot = serializeSlot(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            adjustedDay,
+            row,
+            col
+          );
+          slots.add(slot.id);
+        }
+      }
+    }
+
+    return slots;
+  };
+
   const {
-    selectedCells,
+    selectedSlots,
     handleSelectionStart,
     handleSelectionMove,
     handleSelectionEnd,
-  } = useCalendarSelection(setSelectedDates, currentDate);
+  } = useSlotSelection(getSlotsInSelection);
+
+  useEffect(() => {
+    setSelectedDates(Array.from(selectedSlots)
+      .sort((a, b) => { return new Date(a).getTime() - new Date(b).getTime(); })
+      .map(formatSelectedDate));
+  }, [selectedSlots]);
 
   const getDaysInMonth = (date: Date): number => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -195,26 +128,32 @@ const DateSelectionCalendar: React.FC<Props> = ({ className, setSelectedDates })
 
     // Actual days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const cellId = createCellId(
+      const slotId = createSlotId(
         currentDate.getFullYear(),
         currentDate.getMonth(),
         day
       );
+      const pos = getSlotPosition(day, currentDate);
+      const slot: Slot = { id: slotId, ...pos };
 
       days.push(
         <td key={day} className="p-0">
           <button
             className={`btn btn-circle md:w-12 md:h-12 w-9 h-9 min-h-0 relative mb-1 ${
-              selectedCells.has(cellId)
+              selectedSlots.has(slotId)
                 ? 'btn-secondary text-secondary-content'
                 : 'btn-ghost'
-            } ${dateIsInPast(currentDate.getFullYear(), currentDate.getMonth(), day) 
+            } ${dateIsInPast(currentDate.getFullYear(), currentDate.getMonth(), day)
                 ? 'line-through btn-disabled !bg-transparent hover:!bg-transparent'
                 : ''
             }`}
-            onMouseDown={() => !dateIsInPast(currentDate.getFullYear(), currentDate.getMonth(), day) && handleSelectionStart(cellId)}
-            onMouseEnter={() => handleSelectionMove(cellId)}
-            onMouseUp={handleSelectionEnd}
+            onPointerDown={(e) => {
+              e.preventDefault();
+              if (!dateIsInPast(currentDate.getFullYear(), currentDate.getMonth(), day)) handleSelectionStart(slot);
+              e.currentTarget.releasePointerCapture(e.pointerId)
+            }}
+            onPointerEnter={() => handleSelectionMove(slot)}
+            onPointerUp={handleSelectionEnd}
             disabled={dateIsInPast(currentDate.getFullYear(), currentDate.getMonth(), day)}
           >
             {day}
@@ -259,7 +198,7 @@ const DateSelectionCalendar: React.FC<Props> = ({ className, setSelectedDates })
       </div>
 
       <div className="p-0">
-        <table className="w-full" onMouseLeave={handleSelectionEnd}>
+        <table className="w-full touch-none">
           <thead>
             <tr>
               {DAYS.map(day => (
@@ -277,3 +216,4 @@ const DateSelectionCalendar: React.FC<Props> = ({ className, setSelectedDates })
 };
 
 export default DateSelectionCalendar;
+

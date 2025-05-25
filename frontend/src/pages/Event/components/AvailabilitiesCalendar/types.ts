@@ -3,9 +3,3 @@ export interface TimeData {
   timeSlots: string[];
 }
 
-export interface Position {
-  hour: number;
-  quarter: number;
-  date: number;
-}
-
