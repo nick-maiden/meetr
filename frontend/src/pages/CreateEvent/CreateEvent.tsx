@@ -1,4 +1,4 @@
-import DateSelectionCalendar from "../../components/DateSelectionCalendar";
+import DateSelectionCalendar from "../../components/DateSelectionCalendar/DateSelectionCalendar";
 import Navbar from "../../components/Navbar";
 import SelectBox from "./components/SelectBox";
 import useCreateEvent from "./hooks/useCreateEvent";

@@ -1,14 +1,11 @@
 import React from "react";
-import { Slot, Slots } from "./types";
+import { Slot, SlotSelection, Slots } from "./types";
 
 interface UseSlotSelectionReturn <S extends Slot>{
   selectedSlots: Slots;
   setSelectedSlots: React.Dispatch<React.SetStateAction<Slots>>;
   isSelecting: boolean;
-  handleSelectionStart: (startSlot: S) => void;
-  handleSelectionMove: (currentSlot: S) => void;
-  handleSelectionEnd: () => void;
-  handleCancelSelection: () => void;
+  slotSelection: SlotSelection<S>;
 }
 
 const useSlotSelection = <S extends Slot>(
@@ -19,51 +16,54 @@ const useSlotSelection = <S extends Slot>(
   const [isDeselecting, setIsDeselecting] = React.useState(false);
   const [startSlot, setStartSlot] = React.useState<S | undefined>(undefined);
 
-  const handleSelectionStart = (slot: S): void => {
-    setIsSelecting(true);
-    setStartSlot(slot);
-    setIsDeselecting(selectedSlots.has(slot.id));
-    setSelectedSlots(prev => {
-      const next = new Set(prev);
-      selectedSlots.has(slot.id) ? next.delete(slot.id) : next.add(slot.id);
-      return next;
-    });
-  };
+  const slotSelection = {
+    start(slot: S): void {
+      setIsSelecting(true);
+      setStartSlot(slot);
+      setIsDeselecting(selectedSlots.has(slot.id));
+      setSelectedSlots(prev => {
+        const next = new Set(prev);
+        selectedSlots.has(slot.id) ? next.delete(slot.id) : next.add(slot.id);
+        return next;
+      });
+    },
 
-  const handleSelectionMove = (currentSlot: S): void => {
-    if (!isSelecting || !startSlot) return;
+    move(currentSlot: S): void {
+      if (!isSelecting || !startSlot) return;
 
-    const newSelectedSlots = getSlotsInSelection(startSlot, currentSlot);
-    setSelectedSlots((prev) => {
-      const next = new Set(prev);
-      if (isDeselecting) {
-        newSelectedSlots.forEach(cell => next.delete(cell));
-      } else {
-        newSelectedSlots.forEach(cell => next.add(cell));
-      }
-      return next;
-    });
-  };
+      const newSelectedSlots = getSlotsInSelection(startSlot, currentSlot);
+      setSelectedSlots((prev) => {
+        const next = new Set(prev);
+        if (isDeselecting) {
+          newSelectedSlots.forEach(cell => next.delete(cell));
+        } else {
+          newSelectedSlots.forEach(cell => next.add(cell));
+        }
+        return next;
+      });
+    },
 
-  const handleSelectionEnd = (): void => {
-    setIsSelecting(false);
-    setStartSlot(undefined);
-  };
+    end(): void {
+      setIsSelecting(false);
+      setStartSlot(undefined);
+    },
 
-  const handleCancelSelection = (): void => {
-    setIsSelecting(false);
-    setSelectedSlots(new Set());
-    setStartSlot(undefined);
-  };
+    cancel(): void {
+      setIsSelecting(false);
+      setSelectedSlots(new Set());
+      setStartSlot(undefined);
+    },
+
+    contains(slot: S) {
+      return selectedSlots.has(slot.id);
+    }
+  }
 
   return {
     selectedSlots,
     setSelectedSlots,
     isSelecting,
-    handleSelectionStart,
-    handleSelectionMove,
-    handleSelectionEnd,
-    handleCancelSelection,
+    slotSelection
   };
 };
 

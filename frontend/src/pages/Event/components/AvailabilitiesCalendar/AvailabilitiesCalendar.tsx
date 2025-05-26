@@ -1,5 +1,4 @@
 import React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { postRequest, putRequest } from "../../../../util/api";
 import { generateTimeData } from "./util";
 import { Event } from "../../../../types";
@@ -8,9 +7,10 @@ import { errorCodeMap} from "../../../../err";
 import ConfirmAvailabilitySelection from "./components/ConfirmAvailabilitySelection";
 import RespondentsList from "./components/RespondentsList";
 import NameInputModal from "./components/NameInputModal";
-import useSlotSelection from "../../../../hooks/useSlotSelection/useSlotSelection";
-import { Slots } from "../../../../hooks/useSlotSelection/types";
 import { AvailabilitySlot } from "./types";
+import useSelectTimes from "./hooks/useSelectTimes";
+import Paginator from "./components/Paginator";
+import DayHeadings from "./components/DayHeadings";
 
 interface Props {
   isSelectionMode: boolean;
@@ -31,38 +31,19 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
   const [isSaving, setIsSaving] = React.useState(false);
   const [hasConfirmedName, setHasConfirmedName] = React.useState(false);
   const { setErrorMessage } = React.useContext(Context);
+  const { hours, timeSlots } = generateTimeData(event.earliestTime, event.latestTime);
+  const totalPages = Math.ceil(event.dates.length / datesPerPage);
+  const displayDates = event.dates.slice(
+    currentPage * datesPerPage,
+    (currentPage + 1) * datesPerPage
+  );
 
-  const serializeSlot = (date: string, time: string, row: number, col: number): AvailabilitySlot => {
-    return { id: date + '-' + time, row, col }
-  };
-
-  const getSlotsInSelection = (start: AvailabilitySlot, end: AvailabilitySlot): Slots => {
-    const minCol = Math.min(start.col, end.col);
-    const maxCol = Math.max(start.col, end.col);
-    const minRow = Math.min(start.row, end.row);
-    const maxRow = Math.max(start.row, end.row);
-
-    const slots = new Set<string>;
-
-    for (let col = minCol; col <= maxCol; col++) {
-      for (let row = minRow; row <= maxRow; row++) {
-        const date = displayDates[col];
-        const time = timeSlots[row];
-        const slot = serializeSlot(date, time, row, col);
-        slots.add(slot.id);
-      }
-    }
-    return slots;
-  };
 
   const {
     selectedSlots,
     setSelectedSlots,
-    handleSelectionStart,
-    handleSelectionMove,
-    handleSelectionEnd,
-    handleCancelSelection
-  } = useSlotSelection(getSlotsInSelection);
+    slotSelection
+  } = useSelectTimes(displayDates, timeSlots);
 
 
   React.useEffect(() => {
@@ -75,10 +56,6 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const getDates = (): string[] => {
-    return event.dates;
-  };
 
   const isUserAvailable = (userId: string, date: Date, time: string): boolean => {
     const dateStr = date.toISOString().split('T')[0];
@@ -173,16 +150,8 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
   const cancelSetUserAvailability = () => {
     setUserName("");
     setIsSelectionMode(false);
-    handleCancelSelection();
+    slotSelection.cancel();
   };
-
-  const { hours, timeSlots } = generateTimeData(event.earliestTime, event.latestTime);
-  const allDates = getDates();
-  const totalPages = Math.ceil(allDates.length / datesPerPage);
-  const displayDates = allDates.slice(
-    currentPage * datesPerPage,
-    (currentPage + 1) * datesPerPage
-  );
 
   return (
     <>
@@ -200,48 +169,11 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
       <div className="space-y-4">
         <div className="flex gap-6">
           <div className="flex-grow">
-            {totalPages > 1 && (
-              <div className="flex justify-between items-center mb-4">
-                <button
-                  className="btn btn-outline sm:btn-sm btn-xs"
-                  onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
-                  disabled={currentPage === 0}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <span className="font-bold md:text-xl sm:text-lg text-md">
-                  page {currentPage + 1} of {totalPages}
-                </span>
-                <button
-                  className="btn btn-outline sm:btn-sm btn-xs"
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
-                  disabled={currentPage === totalPages - 1}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            )}
+            {totalPages > 1 && <Paginator {...{ currentPage, setCurrentPage, totalPages }}/>}
 
             <div className="overflow-x-auto">
               <table className="table-auto table-compact w-full min-w-[190px]">
-                <thead>
-                  <tr>
-                    <th className="w-0"></th>
-                    {displayDates.map((date, i) => {
-                      const [weekday, monthDay] = new Date(date).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        month: 'short',
-                        day: '2-digit',
-                      }).split(", ");
-                      return (
-                        <th key={i} className="text-center border-b border-neutral">
-                          <div className="text-xs text-neutral-500">{monthDay}</div>
-                          <div className="sm:text-lg text-md">{weekday}</div>
-                        </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
+                <DayHeadings dates={displayDates.map(d => new Date(d))} />
                 <tbody>
                   {hours.map((hour, hourIndex) => (
                     <React.Fragment key={`${hour}`}>
@@ -258,7 +190,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
                               {[0, 1, 2, 3].map((quarter) => {
                                 const row = hourIndex * 4 + quarter;
                                 const time = timeSlots[row];
-                                const slot = serializeSlot(date, time, row, col);
+                                const slot = new AvailabilitySlot(date, time, row, col);
                                 const border = quarter === 1 ? "border-b border-dotted border-neutral" : "";
                                 const backgroundColor = getTimeSlotBackgroundColor(slot.id, date, time);
                                 return (
@@ -268,13 +200,13 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
                                     style={{ backgroundColor }}
                                     onPointerDown={(e) => {
                                       e.preventDefault();
-                                      if (isSelectionMode) handleSelectionStart(slot);
+                                      if (isSelectionMode) slotSelection.start(slot);
                                       e.currentTarget.releasePointerCapture(e.pointerId)
                                     }}
                                     onPointerEnter={() => {
-                                      isSelectionMode ? handleSelectionMove(slot) : setHoveredSlot(slot.id);
+                                      isSelectionMode ? slotSelection.move(slot) : setHoveredSlot(slot.id);
                                     }}
-                                    onPointerUp={handleSelectionEnd}
+                                    onPointerUp={() => slotSelection.end()}
                                     onPointerLeave={() => !isSelectionMode && setHoveredSlot(null)}
                                   />
                                 );
