@@ -1,5 +1,5 @@
 import React from "react";
-import { getHour } from "../util";
+import { getHour } from "../utils";
 
 interface TimeRangeSelectorValue {
   value: string | undefined;

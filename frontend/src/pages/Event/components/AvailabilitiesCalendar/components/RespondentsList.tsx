@@ -2,16 +2,23 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
 import { AvailabilitySlot } from '../types';
-import { AvailabilityContext } from '../AvailabilityContext';
+import { Event } from '../../../../../types';
+import { SelectionContext, UserContext } from '../contexts';
 
-const RespondentsList = () => {
+interface Props {
+  event: Event;
+  hoveredSlot: AvailabilitySlot | null;
+}
+
+const RespondentsList: React.FC<Props> = ({
+  event,
+  hoveredSlot,
+}) => {
+  const { setUserId } = React.useContext(UserContext);
   const {
-    event,
-    hoveredSlot,
-    setUserId,
     slotSelection,
     setIsSelectionMode
-  } = React.useContext(AvailabilityContext);
+  } = React.useContext(SelectionContext);
 
   const isUserAvailable = (userId: string, slot: AvailabilitySlot): boolean => {
     return event.availabilities[slot.id]?.includes(userId) ?? false;

@@ -1,15 +1,15 @@
 import React from "react";
-import { generateTimeData } from "./util";
 import ConfirmAvailabilitySelection from "./components/ConfirmAvailabilitySelection";
 import RespondentsList from "./components/RespondentsList";
 import NameInputModal from "./components/NameInputModal";
 import useSelectTimes from "./hooks/useSelectTimes";
 import Paginator from "./components/Paginator";
 import CalendarGrid from "./components/CalendarGrid";
-import useResponsiveDatesPerPage from "./hooks/useResponsiveDatesPerPage";
 import { AvailabilitySlot } from "./types";
-import { AvailabilityContext } from "./AvailabilityContext";
+import { SelectionContext, UserContext } from "./contexts";
 import { Event } from "../../../../types";
+import useUserContext from "./hooks/useUserContext";
+import useDisplayData from "./hooks/useDisplayData";
 
 interface Props {
   isSelectionMode: boolean;
@@ -23,66 +23,56 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
   event
 }) => {
   const [hoveredSlot, setHoveredSlot] = React.useState<AvailabilitySlot | null>(null);
-  const [currentPage, setCurrentPage] = React.useState(0);
-  const [userId, setUserId] = React.useState<string | null>(null);
-  const [userName, setUserName] = React.useState<string>("");
-  const [isSaving, setIsSaving] = React.useState(false);
-  const [hasConfirmedName, setHasConfirmedName] = React.useState(false);
-  const datesPerPage = useResponsiveDatesPerPage();
-  const { hours, timeSlots } = generateTimeData(event.earliestTime, event.latestTime);
-  const totalPages = Math.ceil(event.dates.length / datesPerPage);
-  const displayDates = event.dates.slice(
-    currentPage * datesPerPage,
-    (currentPage + 1) * datesPerPage
-  );
+  const {
+    currentPage,
+    setCurrentPage,
+    hours,
+    timeSlots,
+    totalPages,
+    displayDates
+  } = useDisplayData(event);
   const { slotSelection } = useSelectTimes(displayDates, timeSlots);
+  const userContext = useUserContext();
 
   const cancelSetUserAvailability = () => {
-    setUserName("");
+    userContext.setUserName("");
     setIsSelectionMode(false);
     slotSelection.cancel();
   };
 
   return (
-    <AvailabilityContext.Provider value={{
+    <SelectionContext.Provider value={{
       isSelectionMode,
       setIsSelectionMode,
-      hoveredSlot,
-      setHoveredSlot,
-      isSaving,
-      setIsSaving,
-      userName,
-      setUserName,
-      userId,
-      setUserId,
-      hasConfirmedName,
-      setHasConfirmedName,
-      event,
-      hours,
-      timeSlots,
-      displayDates,
-      totalPages,
       slotSelection,
       cancelSetUserAvailability,
     }}>
-      <NameInputModal />
-      <div className="space-y-4">
-        <div className="flex gap-6">
-          <div className="flex-grow">
-            {totalPages > 1 && <Paginator {...{ currentPage, setCurrentPage, totalPages }}/>}
+      <UserContext.Provider value={userContext}>
+        <NameInputModal event={event}/>
+        <div className="space-y-4">
+          <div className="flex gap-6">
+            <div className="flex-grow">
+              {totalPages > 1 && <Paginator {...{ currentPage, setCurrentPage, totalPages }}/>}
 
-            <CalendarGrid />
-          </div>
+              <CalendarGrid {...{
+                event,
+                hours,
+                displayDates,
+                timeSlots,
+                setHoveredSlot
+              }}/>
+            </div>
 
-          <div className="sm:w-48 w-32 sticky top-0 self-start">
-            {isSelectionMode
-              ? <ConfirmAvailabilitySelection />
-              : <RespondentsList />
-            }
+            <div className="sm:w-48 w-32 sticky top-0 self-start">
+              {isSelectionMode
+                ? <ConfirmAvailabilitySelection event={event}/>
+                : <RespondentsList {...{ event, hoveredSlot }}/>
+              }
+            </div>
           </div>
         </div>
-      </div>
-    </AvailabilityContext.Provider>
+      </UserContext.Provider>
+    </SelectionContext.Provider>
   );
 };
 

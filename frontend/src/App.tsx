@@ -1,7 +1,7 @@
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom';
 import PageList from './PageList.jsx';
-import { Context } from './util/context.js';
+import { AppContext } from './contexts';
 import './App.css'
 import ErrorPopup from './components/ErrorPopup.js';
 
@@ -18,14 +18,14 @@ const App = () => {
 
   return (
     <>
-      <Context.Provider value={{ theme, setTheme, errorMessage, setErrorMessage }}>
+      <AppContext.Provider value={{ theme, setTheme, errorMessage, setErrorMessage }}>
         <html data-theme={theme == "light" ? "retro" : "dracula"}>
           {errorMessage && <ErrorPopup />}
           <BrowserRouter>
             <PageList />
           </BrowserRouter>
         </html>
-      </Context.Provider>
+      </AppContext.Provider>
     </>
   );
 };

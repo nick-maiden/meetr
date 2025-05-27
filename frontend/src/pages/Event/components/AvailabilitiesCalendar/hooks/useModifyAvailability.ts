@@ -1,26 +1,28 @@
 import React from "react";
-import { postRequest, putRequest } from "../../../../../util/api";
-import { Context } from "../../../../../util/context";
+import { postRequest, putRequest } from "../../../../../utils/api";
+import { AppContext } from "../../../../../contexts";
 import { errorCodeMap } from "../../../../../err";
-import { AvailabilityContext } from "../AvailabilityContext";
+import { SelectionContext, UserContext } from "../contexts";
+import { Event } from "../../../../../types";
 
 interface UseModifyAvailabilityReturn {
   saveNewUserAvailability: () => void;
   updateUserAvailability: () => void;
 }
 
-const useModifyAvailability = (): UseModifyAvailabilityReturn => {
-  const { setErrorMessage } = React.useContext(Context);
+const useModifyAvailability = (event: Event): UseModifyAvailabilityReturn => {
+  const { setErrorMessage } = React.useContext(AppContext);
   const {
-    event,
     cancelSetUserAvailability,
+    slotSelection
+  } = React.useContext(SelectionContext);
+  const {
     setUserName,
     userName,
     userId,
     setIsSaving,
     setHasConfirmedName,
-    slotSelection
-  } = React.useContext(AvailabilityContext);
+  } = React.useContext(UserContext);
 
   const saveNewUserAvailability = (): void => {
     const userAvailability = { name: userName, availability: Array.from(slotSelection.getSlots()) };

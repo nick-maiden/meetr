@@ -1,17 +1,18 @@
 import React from "react";
-import { AvailabilityContext } from "../AvailabilityContext";
-import useModifyAvailability from "../hooks/useHandleAvailability";
+import useModifyAvailability from "../hooks/useModifyAvailability";
+import { UserContext } from "../contexts";
+import { Event } from "../../../../../types";
 
-const NameInputModal = () => {
-  const { saveNewUserAvailability } = useModifyAvailability();
+const NameInputModal = ({ event }: { event: Event} ) => {
+  const { saveNewUserAvailability } = useModifyAvailability(event);
   const {
     userName,
     setUserName,
     setIsSaving,
     hasConfirmedName,
     setHasConfirmedName,
-    slotSelection
-  } = React.useContext(AvailabilityContext);
+  } = React.useContext(UserContext);
+
   return (
     <dialog id="name_input_modal" className="modal">
       <div className="modal-box">
@@ -31,7 +32,7 @@ const NameInputModal = () => {
               disabled={userName.length === 0}
               onClick={() => {
                 setHasConfirmedName(true);
-                saveNewUserAvailability(Array.from(slotSelection.getSlots()), userName);
+                saveNewUserAvailability();
               }}
             >
               {hasConfirmedName ?

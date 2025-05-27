@@ -1,13 +1,13 @@
 import React from 'react';
 
-interface ContextType {
+interface AppContextType {
   theme: "dark" | "light";
   setTheme: React.Dispatch<React.SetStateAction<"dark" | "light">>;
   errorMessage: string;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const Context = React.createContext({} as ContextType);
+const AppContext = React.createContext({} as AppContextType);
 
-export { Context };
+export { AppContext };
 

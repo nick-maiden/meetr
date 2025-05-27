@@ -1,15 +1,12 @@
 import React from "react";
-import { AvailabilityContext } from "../AvailabilityContext";
-import useModifyAvailability from "../hooks/useHandleAvailability";
+import useModifyAvailability from "../hooks/useModifyAvailability";
+import { SelectionContext, UserContext } from "../contexts";
+import { Event } from "../../../../../types";
 
-const ConfirmAvailabilitySelection = () => {
-  const { updateUserAvailability } = useModifyAvailability();
-  const {
-    isSaving,
-    setIsSaving,
-    cancelSetUserAvailability,
-    userId,
-  } = React.useContext(AvailabilityContext);
+const ConfirmAvailabilitySelection = ({ event }: { event: Event} ) => {
+  const { updateUserAvailability } = useModifyAvailability(event);
+  const { cancelSetUserAvailability } = React.useContext(SelectionContext);
+  const { userId, isSaving, setIsSaving } = React.useContext(UserContext);
 
   return (
     <div className="bg-base-200 p-4 rounded-lg space-y-4">

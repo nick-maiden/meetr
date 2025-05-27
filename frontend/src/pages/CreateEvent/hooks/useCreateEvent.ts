@@ -1,9 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Context } from "../../../util/context";
+import { AppContext } from "../../../contexts";
 import useTimeRangeSelector from "./useTimeRangeSelector";
-import { convertTo24Hour } from "../util";
-import { postRequest } from "../../../util/api";
+import { convertTo24Hour } from "../utils";
+import { postRequest } from "../../../utils/api";
 
 interface UseCreateEventReturn {
   eventName: string;
@@ -21,7 +21,7 @@ const useCreateEvent = (): UseCreateEventReturn => {
   const [eventName, setEventName] = React.useState('');
   const [creatingEvent, setCreatingEvent] = React.useState(false);
   const navigate = useNavigate();
-  const { setErrorMessage } = React.useContext(Context);
+  const { setErrorMessage } = React.useContext(AppContext);
 
   const canCreateEvent = () => {
     return (

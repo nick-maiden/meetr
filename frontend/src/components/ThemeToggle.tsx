@@ -1,8 +1,8 @@
 import React from "react";
-import { Context } from "../util/context";
+import { AppContext } from "../contexts";
 
 function ThemeToggle() {
-  const { theme, setTheme } = React.useContext(Context);
+  const { theme, setTheme } = React.useContext(AppContext);
 
   return (
     <label className="swap swap-rotate" style={{zIndex: 20}}>

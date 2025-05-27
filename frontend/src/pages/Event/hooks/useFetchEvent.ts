@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { getRequest } from "../../../util/api";
-import { Context } from "../../../util/context";
+import { getRequest } from "../../../utils/api";
+import { AppContext } from "../../../contexts";
 import { Event as EventType } from "../../../types";
 
 interface UseFetchEventReturn {
@@ -14,7 +14,7 @@ const useFetchEvent = (
 ): UseFetchEventReturn => {
   const [event, setEvent] = React.useState<EventType | null>(null);
   const navigate = useNavigate();
-  const { setErrorMessage } = React.useContext(Context);
+  const { setErrorMessage } = React.useContext(AppContext);
 
   React.useEffect(() => {
     getRequest(`/events/${eventId}`)
