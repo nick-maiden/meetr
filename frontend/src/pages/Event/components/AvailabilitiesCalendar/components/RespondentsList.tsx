@@ -2,11 +2,12 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
 import { User } from '../../../../../types';
+import { AvailabilitySlot } from '../types';
 
 interface Props {
   users: { [userId: string]: User };
-  hoveredSlot: string | null;
-  isUserAvailable: (userId: string, date: Date, time: string) => boolean;
+  hoveredSlot: AvailabilitySlot | null;
+  isUserAvailable: (userId: string, slot: AvailabilitySlot) => boolean;
   onEditAvailability: (userId: string) => void;
 }
 
@@ -29,12 +30,10 @@ const RespondentsList: React.FC<Props> = ({
           </p>
         ) : (
           Object.values(users).map((user) => {
-            const isAvailable = hoveredSlot ?
-              isUserAvailable(
-                user.id,
-                new Date(hoveredSlot.split('-').slice(0, 3).join('-')),
-                hoveredSlot.split('-').slice(3).join('-')
-              ) : true;
+            console.log(users);
+            const isAvailable = hoveredSlot
+              ? isUserAvailable(user.id,hoveredSlot)
+              : true;
             return (
               <li key={user.id}>
                 <div className={`
