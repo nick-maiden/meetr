@@ -15,15 +15,14 @@ const DateSelectionCalendar: React.FC<Props> = ({ className, setSelectedDates })
     currentDate,
     prevMonth,
     nextMonth,
-    selectedSlots,
     slotSelection
   } = useSelectDates();
 
   React.useEffect(() => {
-    setSelectedDates(Array.from(selectedSlots)
+    setSelectedDates(Array.from(slotSelection.getSlots())
       .sort((a, b) => { return new Date(a).getTime() - new Date(b).getTime(); })
       .map((slotId) => DateSlot.fromString(slotId).asFormattedString()));
-  }, [selectedSlots]);
+  }, [slotSelection.getSlots()]);
 
   const days = generateCalendarDays(currentDate, slotSelection);
   const weeks = generateCalendarWeeks(days);

@@ -1,29 +1,31 @@
 import React from "react";
-import { Event } from "../../../../../types";
 import { postRequest, putRequest } from "../../../../../util/api";
 import { Context } from "../../../../../util/context";
 import { errorCodeMap } from "../../../../../err";
+import { AvailabilityContext } from "../AvailabilityContext";
 
 interface UseModifyAvailabilityReturn {
-  saveNewUserAvailability: (availability: Array<string>, name: string) => void;
-  updateUserAvailability: (userId: string, availability: Array<string>) => void;
+  saveNewUserAvailability: () => void;
+  updateUserAvailability: () => void;
 }
 
-const useModifyAvailability = (
-  event: Event,
-  cancelSetUserAvailability: () => void,
-  setIsSaving: React.Dispatch<React.SetStateAction<boolean>>,
-  setHasConfirmedName: React.Dispatch<React.SetStateAction<boolean>>,
-  setUserName: React.Dispatch<React.SetStateAction<string>>,
-): UseModifyAvailabilityReturn => {
+const useModifyAvailability = (): UseModifyAvailabilityReturn => {
   const { setErrorMessage } = React.useContext(Context);
+  const {
+    event,
+    cancelSetUserAvailability,
+    setUserName,
+    userName,
+    userId,
+    setIsSaving,
+    setHasConfirmedName,
+    slotSelection
+  } = React.useContext(AvailabilityContext);
 
-  const saveNewUserAvailability = (availability: Array<string>, name: string) => {
-    const userAvailability = { name, availability };
+  const saveNewUserAvailability = (): void => {
+    const userAvailability = { name: userName, availability: Array.from(slotSelection.getSlots()) };
     postRequest(`/events/${event.id}/availability`, userAvailability)
-      .then(() => {
-        cancelSetUserAvailability();
-      })
+      .then(cancelSetUserAvailability)
       .catch((err) => {
         setUserName("");
         setErrorMessage(errorCodeMap[err.response?.data] ?? "unexpected error, please try again later");
@@ -35,7 +37,8 @@ const useModifyAvailability = (
       });
   };
 
-  const updateUserAvailability = (userId: string, availability: Array<string>) => {
+  const updateUserAvailability = (): void => {
+    const availability = Array.from(slotSelection.getSlots());
     putRequest(`/events/${event.id}/availability/${userId}`, {availability})
       .catch(() => {
         setErrorMessage('unable to edit availability, please try again later');

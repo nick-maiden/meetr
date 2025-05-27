@@ -1,16 +1,9 @@
 import React from "react";
 import { Slot, SlotSelection, Slots } from "./types";
 
-interface UseSlotSelectionReturn <S extends Slot>{
-  selectedSlots: Slots;
-  setSelectedSlots: React.Dispatch<React.SetStateAction<Slots>>;
-  isSelecting: boolean;
-  slotSelection: SlotSelection<S>;
-}
-
 const useSlotSelection = <S extends Slot>(
   getSlotsInSelection: (start: S, end: S) => Slots
-): UseSlotSelectionReturn<S> => {
+): { slotSelection: SlotSelection<S> } => {
   const [selectedSlots, setSelectedSlots] = React.useState<Slots>(new Set());
   const [isSelecting, setIsSelecting] = React.useState(false);
   const [isDeselecting, setIsDeselecting] = React.useState(false);
@@ -54,17 +47,13 @@ const useSlotSelection = <S extends Slot>(
       setStartSlot(undefined);
     },
 
-    contains(slot: S) {
-      return selectedSlots.has(slot.id);
-    }
+    contains(slot: S): boolean { return selectedSlots.has(slot.id); },
+    getSlots(): Slots { return selectedSlots; },
+    setSlots(slots: Slots): void { setSelectedSlots(slots); },
+    isSelecting(): boolean { return isSelecting; },
   }
 
-  return {
-    selectedSlots,
-    setSelectedSlots,
-    isSelecting,
-    slotSelection
-  };
+  return { slotSelection };
 };
 
 export default useSlotSelection;

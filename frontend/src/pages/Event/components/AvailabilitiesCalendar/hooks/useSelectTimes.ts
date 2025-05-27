@@ -1,16 +1,11 @@
-import React from "react";
 import { SlotSelection, Slots } from "../../../../../hooks/useSlotSelection/types";
 import useSlotSelection from "../../../../../hooks/useSlotSelection/useSlotSelection";
 import { AvailabilitySlot } from "../types";
 
-interface useSelectTimesReturn {
-    selectedSlots: Slots;
-    setSelectedSlots: React.Dispatch<React.SetStateAction<Slots>>;
-    slotSelection: SlotSelection<AvailabilitySlot>;
-}
-
-const useSelectTimes = (displayDates: string[], timeSlots: string[]): useSelectTimesReturn => {
-
+const useSelectTimes = (
+  displayDates: string[],
+  timeSlots: string[]
+): { slotSelection : SlotSelection<AvailabilitySlot> } => {
   const getSlotsInSelection = (start: AvailabilitySlot, end: AvailabilitySlot): Slots => {
     const minCol = Math.min(start.col, end.col);
     const maxCol = Math.max(start.col, end.col);
@@ -31,17 +26,8 @@ const useSelectTimes = (displayDates: string[], timeSlots: string[]): useSelectT
     return slots;
   };
 
-  const {
-    selectedSlots,
-    setSelectedSlots,
-    slotSelection,
-  } = useSlotSelection<AvailabilitySlot>(getSlotsInSelection);
-
-  return {
-    selectedSlots,
-    setSelectedSlots,
-    slotSelection,
-  };
+  const { slotSelection } = useSlotSelection<AvailabilitySlot>(getSlotsInSelection);
+  return { slotSelection };
 };
 
 export default useSelectTimes;

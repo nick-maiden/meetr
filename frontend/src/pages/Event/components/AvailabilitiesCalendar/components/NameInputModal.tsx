@@ -1,22 +1,17 @@
 import React from "react";
+import { AvailabilityContext } from "../AvailabilityContext";
+import useModifyAvailability from "../hooks/useHandleAvailability";
 
-interface Props {
-  userName: string;
-  onNameChange: (name: string) => void;
-  onSave: () => void;
-  onClose: () => void;
-  hasConfirmedName: boolean;
-  setHasConfirmedName: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const NameInputModal: React.FC<Props> = ({
-  userName,
-  onNameChange,
-  onSave,
-  onClose,
-  hasConfirmedName,
-  setHasConfirmedName
-}) => {
+const NameInputModal = () => {
+  const { saveNewUserAvailability } = useModifyAvailability();
+  const {
+    userName,
+    setUserName,
+    setIsSaving,
+    hasConfirmedName,
+    setHasConfirmedName,
+    slotSelection
+  } = React.useContext(AvailabilityContext);
   return (
     <dialog id="name_input_modal" className="modal">
       <div className="modal-box">
@@ -29,14 +24,14 @@ const NameInputModal: React.FC<Props> = ({
               className="input input-bordered w-full"
               autoFocus
               value={userName}
-              onChange={(e) => onNameChange(e.target.value)}
+              onChange={(e) => setUserName(e.target.value)}
             />
             <button
               className="btn btn-secondary self-end w-[30%] text-lg"
               disabled={userName.length === 0}
               onClick={() => {
                 setHasConfirmedName(true);
-                onSave();
+                saveNewUserAvailability(Array.from(slotSelection.getSlots()), userName);
               }}
             >
               {hasConfirmedName ?
@@ -48,7 +43,14 @@ const NameInputModal: React.FC<Props> = ({
         </article>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button onClick={onClose}>close</button>
+        <button
+          onClick={() => {
+            setIsSaving(false);
+            setUserName("");
+          }}
+        >
+          close
+        </button>
       </form>
     </dialog>
   );

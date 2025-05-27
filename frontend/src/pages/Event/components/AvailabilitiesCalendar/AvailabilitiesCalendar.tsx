@@ -1,15 +1,15 @@
 import React from "react";
 import { generateTimeData } from "./util";
-import { Event } from "../../../../types";
 import ConfirmAvailabilitySelection from "./components/ConfirmAvailabilitySelection";
 import RespondentsList from "./components/RespondentsList";
 import NameInputModal from "./components/NameInputModal";
 import useSelectTimes from "./hooks/useSelectTimes";
 import Paginator from "./components/Paginator";
 import CalendarGrid from "./components/CalendarGrid";
-import useModifyAvailability from "./hooks/useHandleAvailability";
 import useResponsiveDatesPerPage from "./hooks/useResponsiveDatesPerPage";
 import { AvailabilitySlot } from "./types";
+import { AvailabilityContext } from "./AvailabilityContext";
+import { Event } from "../../../../types";
 
 interface Props {
   isSelectionMode: boolean;
@@ -35,12 +35,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
     currentPage * datesPerPage,
     (currentPage + 1) * datesPerPage
   );
-
-  const {
-    selectedSlots,
-    setSelectedSlots,
-    slotSelection
-  } = useSelectTimes(displayDates, timeSlots);
+  const { slotSelection } = useSelectTimes(displayDates, timeSlots);
 
   const cancelSetUserAvailability = () => {
     setUserName("");
@@ -48,95 +43,46 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
     slotSelection.cancel();
   };
 
-  const {
-    saveNewUserAvailability,
-    updateUserAvailability
-  } = useModifyAvailability(
-    event,
-    cancelSetUserAvailability,
-    setIsSaving,
-    setHasConfirmedName,
-    setUserName
-  );
-
-  const isUserAvailable = (userId: string, slot: AvailabilitySlot): boolean => {
-    return event.availabilities[slot.id]?.includes(userId) ?? false;
-  };
-
-  const getUserAvailability = (userId: string) => {
-    return new Set(
-      Object.entries(event.availabilities)
-        .filter(([_, userIds]) => userIds.includes(userId))
-        .map(([timeSlot]) => timeSlot)
-        .sort()
-    );
-  }
-
-  const checkUser = () => {
-    if (!userId) {
-      (document.getElementById('name_input_modal') as HTMLDialogElement)?.showModal();
-    } else {
-      updateUserAvailability(userId, Array.from(selectedSlots));
-    }
-  };
-
-  const editUserAvailability = (userId: string) => {
-    setUserId(userId);
-    setSelectedSlots(getUserAvailability(userId));
-    setIsSelectionMode(true);
-  };
-
   return (
-    <>
-      <NameInputModal
-        userName={userName}
-        onNameChange={setUserName}
-        onSave={() => saveNewUserAvailability(Array.from(selectedSlots), userName)}
-        onClose={() => {
-          setIsSaving(false);
-          setUserName("");
-        }}
-        hasConfirmedName={hasConfirmedName}
-        setHasConfirmedName={setHasConfirmedName}
-      />
+    <AvailabilityContext.Provider value={{
+      isSelectionMode,
+      setIsSelectionMode,
+      hoveredSlot,
+      setHoveredSlot,
+      isSaving,
+      setIsSaving,
+      userName,
+      setUserName,
+      userId,
+      setUserId,
+      hasConfirmedName,
+      setHasConfirmedName,
+      event,
+      hours,
+      timeSlots,
+      displayDates,
+      totalPages,
+      slotSelection,
+      cancelSetUserAvailability,
+    }}>
+      <NameInputModal />
       <div className="space-y-4">
         <div className="flex gap-6">
           <div className="flex-grow">
             {totalPages > 1 && <Paginator {...{ currentPage, setCurrentPage, totalPages }}/>}
 
-            <CalendarGrid {...
-              {
-                hours,
-                displayDates,
-                timeSlots,
-                isSelectionMode,
-                event,
-                setHoveredSlot,
-                slotSelection
-              }}
-            />
+            <CalendarGrid />
           </div>
 
           <div className="sm:w-48 w-32 sticky top-0 self-start">
-            {isSelectionMode ? (
-              <ConfirmAvailabilitySelection
-                onCancel={cancelSetUserAvailability}
-                onSave={checkUser}
-                isSaving={isSaving}
-                setIsSaving={setIsSaving}
-              />
-            ) : (
-              <RespondentsList
-                users={event.users}
-                hoveredSlot={hoveredSlot}
-                isUserAvailable={isUserAvailable}
-                onEditAvailability={editUserAvailability}
-              />
-            )}
+            {isSelectionMode
+              ? <ConfirmAvailabilitySelection />
+              : <RespondentsList />
+            }
           </div>
         </div>
       </div>
-    </>
+    </AvailabilityContext.Provider>
   );
 };
 

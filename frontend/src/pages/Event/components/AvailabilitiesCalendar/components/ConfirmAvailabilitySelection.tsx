@@ -1,23 +1,21 @@
 import React from "react";
+import { AvailabilityContext } from "../AvailabilityContext";
+import useModifyAvailability from "../hooks/useHandleAvailability";
 
-interface Props {
-  onCancel: () => void;
-  onSave: () => void;
-  isSaving: boolean;
-  setIsSaving: React.Dispatch<React.SetStateAction<boolean>>;
-}
+const ConfirmAvailabilitySelection = () => {
+  const { updateUserAvailability } = useModifyAvailability();
+  const {
+    isSaving,
+    setIsSaving,
+    cancelSetUserAvailability,
+    userId,
+  } = React.useContext(AvailabilityContext);
 
-const ConfirmAvailabilitySelection: React.FC<Props> = ({
-  onCancel,
-  onSave,
-  isSaving,
-  setIsSaving
-}) => {
   return (
     <div className="bg-base-200 p-4 rounded-lg space-y-4">
       <button
         className="btn sm:btn-md btn-sm btn-outline btn-block sm:text-lg text-md"
-        onClick={onCancel}
+        onClick={cancelSetUserAvailability}
       >
         cancel
       </button>
@@ -25,7 +23,11 @@ const ConfirmAvailabilitySelection: React.FC<Props> = ({
         className="btn sm:btn-md btn-sm btn-secondary btn-block sm:text-lg text-md"
         onClick={() => {
           setIsSaving(true);
-          onSave();
+          if (!userId) {
+            (document.getElementById('name_input_modal') as HTMLDialogElement)?.showModal();
+          } else {
+            updateUserAvailability();
+          }
         }}
       >
         {isSaving ?

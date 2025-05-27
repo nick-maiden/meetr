@@ -8,7 +8,6 @@ interface useSelectDatesReturn {
     currentDate: Date;
     prevMonth: () => void;
     nextMonth: () => void;
-    selectedSlots: Slots;
     slotSelection: SlotSelection<DateSlot>;
 }
 
@@ -52,16 +51,12 @@ const useSelectDates = (): useSelectDatesReturn => {
     return slots;
   };
 
-  const {
-    selectedSlots,
-    slotSelection
-  } = useSlotSelection<DateSlot>(getSlotsInSelection);
+  const { slotSelection } = useSlotSelection<DateSlot>(getSlotsInSelection);
 
   return {
     currentDate,
     prevMonth,
     nextMonth,
-    selectedSlots,
     slotSelection,
   }
 };

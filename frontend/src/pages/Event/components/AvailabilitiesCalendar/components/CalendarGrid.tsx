@@ -1,29 +1,19 @@
 import React from "react";
 import { AvailabilitySlot } from "../types";
-import { SlotSelection } from "../../../../../hooks/useSlotSelection/types";
-import { Event } from "../../../../../types";
 import DayHeadings from "./DayHeadings";
 import { getTimeSlotBackgroundColor } from "../util";
+import { AvailabilityContext } from "../AvailabilityContext";
 
-interface Props {
-  hours: string[];
-  displayDates: string[];
-  timeSlots: string[];
-  isSelectionMode: boolean;
-  event: Event;
-  setHoveredSlot: React.Dispatch<React.SetStateAction<AvailabilitySlot | null>>;
-  slotSelection: SlotSelection<AvailabilitySlot>;
-}
-
-const CalendarGrid: React.FC<Props> = ({
-  hours,
-  displayDates,
-  timeSlots,
-  isSelectionMode,
-  event,
-  setHoveredSlot,
-  slotSelection
-}) => {
+const CalendarGrid = () => {
+  const {
+    hours,
+    displayDates,
+    timeSlots,
+    isSelectionMode,
+    event,
+    setHoveredSlot,
+    slotSelection
+  } = React.useContext(AvailabilityContext);
   return (
     <div className="overflow-x-auto">
       <table className="table-auto table-compact w-full min-w-[190px]">

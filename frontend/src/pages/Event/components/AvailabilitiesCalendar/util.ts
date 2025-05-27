@@ -1,3 +1,5 @@
+import { TimeData } from "./types";
+
 export const generateTimeData = (earliestTime: string, latestTime: string): TimeData => {
   const hours: string[] = [];
   const timeSlots: string[] = [];
@@ -38,5 +40,5 @@ export const getTimeSlotBackgroundColor = (
   const blue = Math.round(255 - (255 - 94) * proportion);
 
   return `rgb(${red}, ${green}, ${blue})`;
-}
+};
 

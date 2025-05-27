@@ -1,22 +1,37 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
-import { User } from '../../../../../types';
 import { AvailabilitySlot } from '../types';
+import { AvailabilityContext } from '../AvailabilityContext';
 
-interface Props {
-  users: { [userId: string]: User };
-  hoveredSlot: AvailabilitySlot | null;
-  isUserAvailable: (userId: string, slot: AvailabilitySlot) => boolean;
-  onEditAvailability: (userId: string) => void;
-}
+const RespondentsList = () => {
+  const {
+    event,
+    hoveredSlot,
+    setUserId,
+    slotSelection,
+    setIsSelectionMode
+  } = React.useContext(AvailabilityContext);
 
-const RespondentsList: React.FC<Props> = ({
-  users,
-  hoveredSlot,
-  isUserAvailable,
-  onEditAvailability
-}) => {
+  const isUserAvailable = (userId: string, slot: AvailabilitySlot): boolean => {
+    return event.availabilities[slot.id]?.includes(userId) ?? false;
+  };
+
+  const getUserAvailability = (userId: string) => {
+    return new Set(
+      Object.entries(event.availabilities)
+        .filter(([_, userIds]) => userIds.includes(userId))
+        .map(([timeSlot]) => timeSlot)
+        .sort()
+    );
+  }
+
+  const editUserAvailability = (userId: string) => {
+    setUserId(userId);
+    slotSelection.setSlots(getUserAvailability(userId));
+    setIsSelectionMode(true);
+  };
+
   return (
     <div className="bg-base-200 p-4 rounded-lg overflow-y-auto no-scrollbar max-h-[70vh]">
       <h2 className="font-bold md:text-2xl sm:text-xl text-md">respondents</h2>
@@ -24,13 +39,12 @@ const RespondentsList: React.FC<Props> = ({
       <div className="divider mt-2"></div>
 
       <ul className="sm:space-y-2 space-y-1.5">
-        {Object.values(users).length === 0 ? (
+        {Object.values(event.users).length === 0 ? (
           <p className="font-bold text-gray-500 text-sm">
             no respondents yet 😢
           </p>
         ) : (
-          Object.values(users).map((user) => {
-            console.log(users);
+          Object.values(event.users).map((user) => {
             const isAvailable = hoveredSlot
               ? isUserAvailable(user.id,hoveredSlot)
               : true;
@@ -44,7 +58,7 @@ const RespondentsList: React.FC<Props> = ({
                   ${!isAvailable && hoveredSlot ? 'line-through text-gray-500' : ''}
                 `}>
                   <p className="truncate">{user.name}</p>
-                  <button onClick={() => onEditAvailability(user.id)}>
+                  <button onClick={() => editUserAvailability(user.id)}>
                     <FontAwesomeIcon icon={faPenToSquare} />
                   </button>
                 </div>

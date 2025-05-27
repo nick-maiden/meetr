@@ -16,7 +16,6 @@ const App = () => {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-
   return (
     <>
       <Context.Provider value={{ theme, setTheme, errorMessage, setErrorMessage }}>
