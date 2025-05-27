@@ -1,20 +1,25 @@
 /* Domain Types */
 
+export type UserId = string;
+
 export interface User {
-  id: string;
+  id: UserId;
   name: string;
 }
 
+export type EventId = string;
+
 export interface Event {
-  id: string;
+  id: EventId;
   name: string;
   users: {
-    [userId: number]: User
+    [userId: UserId]: User
   };
-  dates: [string];
+  dates: string[];
   earliestTime: string;
   latestTime: string;
   availabilities: {
-    [timeSlot: string]: string[];
+    [timeSlot: string]: UserId[];
   }
 }
+

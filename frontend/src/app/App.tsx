@@ -1,9 +1,8 @@
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom';
-import PageList from './PageList.jsx';
-import { AppContext } from './contexts';
-import './App.css'
-import ErrorPopup from './components/ErrorPopup.js';
+import PageList from './PageList.js';
+import { AppContext } from 'global/contexts.js';
+import ErrorPopup from 'src/components/ErrorPopup.js';
 
 const App = () => {
   const [errorMessage, setErrorMessage] = React.useState("");
@@ -18,14 +17,14 @@ const App = () => {
 
   return (
     <>
-      <AppContext.Provider value={{ theme, setTheme, errorMessage, setErrorMessage }}>
-        <html data-theme={theme == "light" ? "retro" : "dracula"}>
+      <html data-theme={theme == "light" ? "retro" : "dracula"}>
+        <AppContext.Provider value={{ theme, setTheme, errorMessage, setErrorMessage }}>
           {errorMessage && <ErrorPopup />}
           <BrowserRouter>
             <PageList />
           </BrowserRouter>
-        </html>
-      </AppContext.Provider>
+        </AppContext.Provider>
+      </html>
     </>
   );
 };

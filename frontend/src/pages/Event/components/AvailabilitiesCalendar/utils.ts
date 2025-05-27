@@ -1,4 +1,5 @@
-import { TimeData } from "./types";
+import { Event, UserId } from "../../../../types";
+import { AvailabilitySlot, TimeData } from "./types";
 
 export const generateTimeData = (earliestTime: string, latestTime: string): TimeData => {
   const hours: string[] = [];
@@ -41,4 +42,18 @@ export const getTimeSlotBackgroundColor = (
 
   return `rgb(${red}, ${green}, ${blue})`;
 };
+
+
+export const isUserAvailable = (userId: UserId, slot: AvailabilitySlot, event: Event): boolean => {
+  return event.availabilities[slot.id]?.includes(userId) ?? false;
+};
+
+export const getUserAvailability = (userId: UserId, event: Event) => {
+  return new Set(
+    Object.entries(event.availabilities)
+      .filter(([_, userIds]) => userIds.includes(userId))
+      .map(([timeSlot]) => timeSlot)
+      .sort()
+  );
+}
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { DateSlot } from "../DateSlot";
-import { SlotSelection } from "../../../hooks/useSlotSelection/types";
+import { SlotSelection } from "src/hooks/useSlotSelection/types";
 
 interface Props {
   slot: DateSlot;

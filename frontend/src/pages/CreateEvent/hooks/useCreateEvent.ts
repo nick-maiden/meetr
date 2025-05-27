@@ -1,9 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { AppContext } from "../../../contexts";
+import { AppContext } from "global/contexts";
 import useTimeRangeSelector from "./useTimeRangeSelector";
 import { convertTo24Hour } from "../utils";
-import { postRequest } from "../../../utils/api";
+import { postRequest } from "global/api";
 
 interface UseCreateEventReturn {
   eventName: string;

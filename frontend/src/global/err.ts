@@ -1,4 +1,4 @@
-import errorCodes from '../../shared/errorCodes.json';
+import errorCodes from '../../../shared/errorCodes.json';
 
 export const errorCodeMap = {
   [errorCodes.ERR_USERNAME_TAKEN]: "name already taken, please use another",

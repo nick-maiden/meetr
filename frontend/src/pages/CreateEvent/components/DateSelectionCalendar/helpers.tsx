@@ -1,4 +1,4 @@
-import { SlotSelection } from "../../hooks/useSlotSelection/types";
+import { SlotSelection } from "../../../../hooks/useSlotSelection/types";
 import CalendarSlot from "./components/CalendarSlot";
 import { DateSlot } from "./DateSlot";
 

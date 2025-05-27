@@ -1,4 +1,4 @@
-import { Slot } from "../../hooks/useSlotSelection/types";
+import { Slot } from "src/hooks/useSlotSelection/types";
 import { NUM_COLS } from "./const";
 
 interface Position {

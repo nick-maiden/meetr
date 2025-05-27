@@ -4,6 +4,7 @@ import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
 import { AvailabilitySlot } from '../types';
 import { Event } from '../../../../../types';
 import { SelectionContext, UserContext } from '../contexts';
+import { getUserAvailability, isUserAvailable } from '../utils';
 
 interface Props {
   event: Event;
@@ -20,22 +21,9 @@ const RespondentsList: React.FC<Props> = ({
     setIsSelectionMode
   } = React.useContext(SelectionContext);
 
-  const isUserAvailable = (userId: string, slot: AvailabilitySlot): boolean => {
-    return event.availabilities[slot.id]?.includes(userId) ?? false;
-  };
-
-  const getUserAvailability = (userId: string) => {
-    return new Set(
-      Object.entries(event.availabilities)
-        .filter(([_, userIds]) => userIds.includes(userId))
-        .map(([timeSlot]) => timeSlot)
-        .sort()
-    );
-  }
-
   const editUserAvailability = (userId: string) => {
     setUserId(userId);
-    slotSelection.setSlots(getUserAvailability(userId));
+    slotSelection.setSlots(getUserAvailability(userId, event));
     setIsSelectionMode(true);
   };
 
@@ -53,7 +41,7 @@ const RespondentsList: React.FC<Props> = ({
         ) : (
           Object.values(event.users).map((user) => {
             const isAvailable = hoveredSlot
-              ? isUserAvailable(user.id,hoveredSlot)
+              ? isUserAvailable(user.id,hoveredSlot, event)
               : true;
             return (
               <li key={user.id}>

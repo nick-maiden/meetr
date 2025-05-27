@@ -1,9 +1,9 @@
 import React from "react";
-import { postRequest, putRequest } from "../../../../../utils/api";
-import { AppContext } from "../../../../../contexts";
-import { errorCodeMap } from "../../../../../err";
+import { postRequest, putRequest } from "global/api";
+import { AppContext } from "global/contexts";
+import { errorCodeMap } from "global/err";
 import { SelectionContext, UserContext } from "../contexts";
-import { Event } from "../../../../../types";
+import { Event } from "global/types";
 
 interface UseModifyAvailabilityReturn {
   saveNewUserAvailability: () => void;

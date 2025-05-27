@@ -1,15 +1,15 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { getRequest } from "../../../utils/api";
-import { AppContext } from "../../../contexts";
-import { Event as EventType } from "../../../types";
+import { getRequest } from "src/global/api";
+import { AppContext } from "global/contexts";
+import { EventId, Event as EventType } from "global/types";
 
 interface UseFetchEventReturn {
   event: EventType | null
 }
 
 const useFetchEvent = (
-  eventId: string | undefined,
+  eventId: EventId | undefined,
   refetchEvents: any[]
 ): UseFetchEventReturn => {
   const [event, setEvent] = React.useState<EventType | null>(null);

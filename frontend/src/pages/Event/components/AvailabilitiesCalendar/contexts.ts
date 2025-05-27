@@ -1,6 +1,7 @@
 import React from 'react';
 import { AvailabilitySlot } from './types';
 import { SlotSelection } from '../../../../hooks/useSlotSelection/types';
+import { UserId } from '../../../../types';
 
 interface SelectionContextType {
   isSelectionMode: boolean;
@@ -12,7 +13,7 @@ interface SelectionContextType {
 interface UserContextType {
   userName: string;
   setUserName: React.Dispatch<React.SetStateAction<string>>;
-  userId: string | null;
+  userId: UserId | null;
   setUserId: React.Dispatch<React.SetStateAction<string | null>>;
   hasConfirmedName: boolean;
   setHasConfirmedName: React.Dispatch<React.SetStateAction<boolean>>;

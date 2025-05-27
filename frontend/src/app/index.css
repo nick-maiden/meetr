@@ -11,6 +11,10 @@ body, html {
   font-family: 'Roboto', sans-serif;
 }
 
+.app {
+  height: 100vh;
+}
+
 @layer utilities {
     .no-scrollbar::-webkit-scrollbar {
         display: none;

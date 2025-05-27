@@ -1,8 +1,8 @@
 import React from "react";
 import { DateSlot } from "../DateSlot";
-import { SlotSelection, Slots } from "../../../hooks/useSlotSelection/types";
+import { SlotSelection, Slots } from "src/hooks/useSlotSelection/types";
 import { NUM_COLS } from "../const";
-import useSlotSelection from "../../../hooks/useSlotSelection/useSlotSelection";
+import useSlotSelection from "src/hooks/useSlotSelection/useSlotSelection";
 
 interface useSelectDatesReturn {
     currentDate: Date;
