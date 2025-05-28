@@ -1,13 +1,12 @@
 import React from 'react';
 import { AvailabilitySlot } from './types';
-import { SlotSelection } from '../../../../hooks/useSlotSelection/types';
-import { UserId } from '../../../../types';
+import { SlotSelection } from 'src/hooks/useSlotSelection/types';
+import { UserId } from 'global/types';
 
 interface SelectionContextType {
   isSelectionMode: boolean;
   setIsSelectionMode: React.Dispatch<React.SetStateAction<boolean>>;
   slotSelection: SlotSelection<AvailabilitySlot>;
-  cancelSetUserAvailability(): void;
 }
 
 interface UserContextType {
@@ -15,8 +14,6 @@ interface UserContextType {
   setUserName: React.Dispatch<React.SetStateAction<string>>;
   userId: UserId | null;
   setUserId: React.Dispatch<React.SetStateAction<string | null>>;
-  hasConfirmedName: boolean;
-  setHasConfirmedName: React.Dispatch<React.SetStateAction<boolean>>;
   isSaving: boolean;
   setIsSaving: React.Dispatch<React.SetStateAction<boolean>>;
 }

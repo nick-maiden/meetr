@@ -7,10 +7,10 @@ import { DateSlot } from './DateSlot';
 
 interface Props {
   className?: string;
-  setSelectedDates: React.Dispatch<React.SetStateAction<string[]>>
+  setDates: React.Dispatch<React.SetStateAction<string[]>>
 }
 
-const DateSelectionCalendar: React.FC<Props> = ({ className, setSelectedDates }) => {
+const DateSelectionCalendar: React.FC<Props> = ({ className, setDates }) => {
   const {
     currentDate,
     prevMonth,
@@ -19,7 +19,7 @@ const DateSelectionCalendar: React.FC<Props> = ({ className, setSelectedDates })
   } = useSelectDates();
 
   React.useEffect(() => {
-    setSelectedDates(Array.from(slotSelection.getSlots())
+    setDates(Array.from(slotSelection.getSlots())
       .sort((a, b) => { return new Date(a).getTime() - new Date(b).getTime(); })
       .map((slotId) => DateSlot.fromString(slotId).asFormattedString()));
   }, [slotSelection.getSlots()]);

@@ -1,9 +1,9 @@
 import React from "react";
 import { AvailabilitySlot } from "../types";
 import DayHeadings from "./DayHeadings";
-import { getTimeSlotBackgroundColor } from "../utils";
+import { getNumAvailableUsers, getNumUsers, getTimeSlotBackgroundColor } from "../utils";
 import { SelectionContext } from "../contexts";
-import { Event } from "../../../../../types";
+import { Event } from "global/types";
 
 interface Props {
   event: Event;
@@ -50,8 +50,8 @@ const CalendarGrid: React.FC<Props> = ({
                         const backgroundColor = getTimeSlotBackgroundColor(
                           isSelectionMode,
                           slotSelection.contains(slot),
-                          (event.availabilities[slot.id] ?? []).length,
-                          Object.keys(event.users).length
+                          getNumAvailableUsers(event, slot),
+                          getNumUsers(event)
                         );
                         return (
                           <div

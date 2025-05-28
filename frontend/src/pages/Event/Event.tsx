@@ -5,12 +5,13 @@ import { useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar"
 import useFetchEvent from "./hooks/useFetchEvent";
 import AvailabilitiesCalendar from "./components/AvailabilitiesCalendar/AvailabilitiesCalendar";
+import { EventId } from "src/global/types";
 
 const Event = () => {
-  const { eventId } = useParams();
+  const { eventId } = useParams<EventId>();
   const [linkCopied, setLinkCopied] = React.useState(false);
   const [isSelectionMode, setIsSelectionMode] = React.useState(false);
-  const { event } = useFetchEvent(eventId, [isSelectionMode]);
+  const { event } = useFetchEvent(eventId!, [isSelectionMode]);
 
   const copyLink = () => {
     const url = window.location.href;

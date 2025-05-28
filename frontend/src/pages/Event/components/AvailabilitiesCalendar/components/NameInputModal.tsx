@@ -1,17 +1,19 @@
 import React from "react";
-import useModifyAvailability from "../hooks/useModifyAvailability";
-import { UserContext } from "../contexts";
-import { Event } from "../../../../../types";
+import { SelectionContext, UserContext } from "../contexts";
+import { Event } from "../../../../../global/types";
+import { addAvailability } from "src/global/api";
+import { errorCodeMap } from "src/global/err";
+import { AppContext } from "global/contexts";
 
 const NameInputModal = ({ event }: { event: Event} ) => {
-  const { saveNewUserAvailability } = useModifyAvailability(event);
   const {
     userName,
     setUserName,
     setIsSaving,
-    hasConfirmedName,
-    setHasConfirmedName,
   } = React.useContext(UserContext);
+  const { slotSelection, cancelSetUserAvailability } = React.useContext(SelectionContext);
+  const { setErrorMessage } = React.useContext(AppContext);
+  const [hasConfirmedName, setHasConfirmedName] = React.useState(false);
 
   return (
     <dialog id="name_input_modal" className="modal">
@@ -32,8 +34,21 @@ const NameInputModal = ({ event }: { event: Event} ) => {
               disabled={userName.length === 0}
               onClick={() => {
                 setHasConfirmedName(true);
-                saveNewUserAvailability();
-              }}
+                const availability = {
+                  name: userName,
+                  availability: Array.from(slotSelection.getSlots())
+                };
+                addAvailability(event.id, availability)
+                  .then(cancelSetUserAvailability)
+                  .catch((err) => {
+                    setUserName("");
+                    setErrorMessage(errorCodeMap[err.response?.data] ?? "unexpected error, please try again later");
+                  })
+                  .finally(() => {
+                    (document.getElementById('name_input_modal') as HTMLDialogElement)?.close();
+                    setIsSaving(false);
+                  });
+                }}
             >
               {hasConfirmedName ?
                 <span className="loading loading-spinner"></span> :

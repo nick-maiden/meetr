@@ -1,5 +1,5 @@
-import { SlotSelection, Slots } from "../../../../../hooks/useSlotSelection/types";
-import useSlotSelection from "../../../../../hooks/useSlotSelection/useSlotSelection";
+import { SlotSelection, Slots } from "src/hooks/useSlotSelection/types";
+import useSlotSelection from "src/hooks/useSlotSelection/useSlotSelection";
 import { AvailabilitySlot } from "../types";
 
 const useSelectTimes = (

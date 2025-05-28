@@ -1,5 +1,5 @@
 import React from "react";
-import { Event } from "../../../../../types";
+import { Event } from "global/types";
 import useResponsiveDatesPerPage from "./useResponsiveDatesPerPage";
 import { generateTimeData } from "../utils";
 

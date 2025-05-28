@@ -2,7 +2,7 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
 import { AvailabilitySlot } from '../types';
-import { Event } from '../../../../../types';
+import { Event } from '../../../../../global/types';
 import { SelectionContext, UserContext } from '../contexts';
 import { getUserAvailability, isUserAvailable } from '../utils';
 

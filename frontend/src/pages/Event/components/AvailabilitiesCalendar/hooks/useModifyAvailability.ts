@@ -1,33 +1,32 @@
 import React from "react";
-import { postRequest, putRequest } from "global/api";
+import { addAvailability, updateAvailability } from "global/api";
 import { AppContext } from "global/contexts";
 import { errorCodeMap } from "global/err";
 import { SelectionContext, UserContext } from "../contexts";
-import { Event } from "global/types";
+import { EventId, UserId } from "global/types";
+import { Slots } from "src/hooks/useSlotSelection/types";
 
 interface UseModifyAvailabilityReturn {
-  saveNewUserAvailability: () => void;
-  updateUserAvailability: () => void;
+  addNewAvailability: (userName: string, availability: Slots) => void;
+  editAvailability: (userId: UserId, availability: Slots) => void;
+  cancelSetAvailability: () => void;
 }
 
-const useModifyAvailability = (event: Event): UseModifyAvailabilityReturn => {
+const useModifyAvailability = (eventId: EventId): UseModifyAvailabilityReturn => {
   const { setErrorMessage } = React.useContext(AppContext);
-  const {
-    cancelSetUserAvailability,
-    slotSelection
-  } = React.useContext(SelectionContext);
-  const {
-    setUserName,
-    userName,
-    userId,
-    setIsSaving,
-    setHasConfirmedName,
-  } = React.useContext(UserContext);
+  const { setIsSelectionMode, slotSelection } = React.useContext(SelectionContext);
+  const { setUserName, setIsSaving } = React.useContext(UserContext);
 
-  const saveNewUserAvailability = (): void => {
-    const userAvailability = { name: userName, availability: Array.from(slotSelection.getSlots()) };
-    postRequest(`/events/${event.id}/availability`, userAvailability)
-      .then(cancelSetUserAvailability)
+  const cancelSetAvailability = () => {
+    setUserName("");
+    setIsSelectionMode(false);
+    slotSelection.cancel();
+  };
+
+  const addNewAvailability = (userName: string, availability: Slots): void => {
+    const userAvailability = { name: userName, availability: Array.from(availability) };
+    addAvailability(eventId, userAvailability)
+      .then(cancelSetAvailability)
       .catch((err) => {
         setUserName("");
         setErrorMessage(errorCodeMap[err.response?.data] ?? "unexpected error, please try again later");
@@ -35,23 +34,21 @@ const useModifyAvailability = (event: Event): UseModifyAvailabilityReturn => {
       .finally(() => {
         (document.getElementById('name_input_modal') as HTMLDialogElement)?.close();
         setIsSaving(false);
-        setHasConfirmedName(false);
       });
   };
 
-  const updateUserAvailability = (): void => {
-    const availability = Array.from(slotSelection.getSlots());
-    putRequest(`/events/${event.id}/availability/${userId}`, {availability})
+  const editAvailability = (userId: UserId, availability: Slots): void => {
+    updateAvailability(eventId, userId, { availability: Array.from(availability) })
       .catch(() => {
         setErrorMessage('unable to edit availability, please try again later');
       })
       .finally(() => {
-        cancelSetUserAvailability();
+        cancelSetAvailability();
         setIsSaving(false);
       });
   };
 
-  return { saveNewUserAvailability, updateUserAvailability };
+  return { addNewAvailability, editAvailability, cancelSetAvailability };
 };
 
 export default useModifyAvailability;

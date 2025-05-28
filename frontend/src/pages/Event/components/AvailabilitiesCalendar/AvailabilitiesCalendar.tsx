@@ -7,7 +7,7 @@ import Paginator from "./components/Paginator";
 import CalendarGrid from "./components/CalendarGrid";
 import { AvailabilitySlot } from "./types";
 import { SelectionContext, UserContext } from "./contexts";
-import { Event } from "../../../../types";
+import { Event } from "global/types";
 import useUserContext from "./hooks/useUserContext";
 import useDisplayData from "./hooks/useDisplayData";
 
@@ -34,26 +34,15 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
   const { slotSelection } = useSelectTimes(displayDates, timeSlots);
   const userContext = useUserContext();
 
-  const cancelSetUserAvailability = () => {
-    userContext.setUserName("");
-    setIsSelectionMode(false);
-    slotSelection.cancel();
-  };
-
   return (
-    <SelectionContext.Provider value={{
-      isSelectionMode,
-      setIsSelectionMode,
-      slotSelection,
-      cancelSetUserAvailability,
-    }}>
+    <SelectionContext.Provider value={{ isSelectionMode, setIsSelectionMode, slotSelection }}>
       <UserContext.Provider value={userContext}>
         <NameInputModal event={event}/>
         <div className="space-y-4">
           <div className="flex gap-6">
+
             <div className="flex-grow">
               {totalPages > 1 && <Paginator {...{ currentPage, setCurrentPage, totalPages }}/>}
-
               <CalendarGrid {...{
                 event,
                 hours,
@@ -69,6 +58,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
                 : <RespondentsList {...{ event, hoveredSlot }}/>
               }
             </div>
+
           </div>
         </div>
       </UserContext.Provider>

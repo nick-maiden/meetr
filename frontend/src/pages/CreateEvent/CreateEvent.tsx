@@ -5,10 +5,10 @@ import useCreateEvent from "./hooks/useCreateEvent";
 
 const CreateEvent = () => {
   const {
-    eventName, setEventName,
-    setSelectedDates,
+    name, setName,
+    setDates,
     timeRangeSelector,
-    creatingEvent,
+   isCreating,
     canCreateEvent,
     createEvent
   } = useCreateEvent();
@@ -27,8 +27,8 @@ const CreateEvent = () => {
             type="text"
             placeholder="..."
             className="input input-bordered text-xl font-bold text-center"
-            value={eventName}
-            onChange={(event) => setEventName(event.target.value)}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
           />
         </label>
 
@@ -39,9 +39,9 @@ const CreateEvent = () => {
 
         <DateSelectionCalendar
           className="mx-auto mt-6"
-          setSelectedDates={setSelectedDates}
+          setDates={setDates}
         />
-
+isCreating
         <article className="prose mt-10">
           <h2>what times might work?</h2>
         </article>
@@ -57,7 +57,7 @@ const CreateEvent = () => {
           disabled={!canCreateEvent()}
           onClick={createEvent}
         >
-          {creatingEvent ?
+          {isCreating ?
             <span className="loading loading-spinner"></span> :
             <>create event</>
           }

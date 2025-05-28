@@ -6,8 +6,7 @@ export const getHour = (timeStr: string): number => {
   return hour;
 };
 
-export const convertTo24Hour = (timeStr: string | undefined): string | undefined => {
-  if (!timeStr) return undefined
+export const convertTo24Hour = (timeStr: string): string => {
   return `${getHour(timeStr).toString().padStart(2, '0')}:00`;
 };
 

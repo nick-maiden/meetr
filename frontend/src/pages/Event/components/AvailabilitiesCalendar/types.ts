@@ -1,4 +1,4 @@
-import { Slot } from "../../../../hooks/useSlotSelection/types";
+import { Slot } from "src/hooks/useSlotSelection/types";
 
 export interface TimeData {
   hours: string[];

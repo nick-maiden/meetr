@@ -3,46 +3,44 @@ import { useNavigate } from "react-router-dom";
 import { AppContext } from "global/contexts";
 import useTimeRangeSelector from "./useTimeRangeSelector";
 import { convertTo24Hour } from "../utils";
-import { postRequest } from "global/api";
+import { createEvent } from "global/api";
 
 interface UseCreateEventReturn {
-  eventName: string;
-  setEventName: React.Dispatch<React.SetStateAction<string>>;
-  setSelectedDates: React.Dispatch<React.SetStateAction<string[]>>;
+  name: string;
+  setName: React.Dispatch<React.SetStateAction<string>>;
+  setDates: React.Dispatch<React.SetStateAction<string[]>>;
   timeRangeSelector: ReturnType<typeof useTimeRangeSelector>;
-  creatingEvent: boolean
-  canCreateEvent: React.Dispatch<React.SetStateAction<boolean>>;
-  createEvent: () => void;
+  isCreating: boolean;
+  canCreateEvent: () => boolean;
+  handleCreateEvent: () => void;
 }
 
 const useCreateEvent = (): UseCreateEventReturn => {
-  const [selectedDates, setSelectedDates] = React.useState<string[]>([]);
+  const [dates, setDates] = React.useState<string[]>([]);
   const timeRangeSelector = useTimeRangeSelector();
-  const [eventName, setEventName] = React.useState('');
-  const [creatingEvent, setCreatingEvent] = React.useState(false);
+  const [name, setName] = React.useState('');
+  const [isCreating, setCreatingEvent] = React.useState(false);
   const navigate = useNavigate();
   const { setErrorMessage } = React.useContext(AppContext);
 
-  const canCreateEvent = () => {
-    return (
-      selectedDates.length
-      && eventName
+  const canCreateEvent = (): boolean => {
+    return Boolean(
+      dates.length
+      && name
       && timeRangeSelector.earliest.value
       && timeRangeSelector.latest.value
     );
   };
 
-  const createEvent = () => {
+  const handleCreateEvent = (): void => {
     setCreatingEvent(true);
     const newEvent = {
-      name: eventName,
-      earliestTime: convertTo24Hour(timeRangeSelector.earliest.value),
-      latestTime: convertTo24Hour(timeRangeSelector.latest.value),
-      dates: selectedDates,
-      users: {},
-      availabilities: {}
+      name,
+      earliestTime: convertTo24Hour(timeRangeSelector.earliest.value!),
+      latestTime: convertTo24Hour(timeRangeSelector.latest.value!),
+      dates,
     }
-    postRequest('/events', newEvent)
+    createEvent(newEvent)
       .then(response => {
         navigate(`/events/${response.data.eventId}`);
       })
@@ -53,12 +51,12 @@ const useCreateEvent = (): UseCreateEventReturn => {
   };
 
   return {
-    eventName, setEventName,
-    setSelectedDates,
+    name, setName,
+    setDates,
     timeRangeSelector,
-    creatingEvent,
+    isCreating,
     canCreateEvent,
-    createEvent
+    handleCreateEvent
   };
 };
 

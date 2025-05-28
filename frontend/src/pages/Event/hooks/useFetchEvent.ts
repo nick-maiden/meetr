@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { getRequest } from "src/global/api";
+import { getEvent } from "src/global/api";
 import { AppContext } from "global/contexts";
 import { EventId, Event as EventType } from "global/types";
 
@@ -9,7 +9,7 @@ interface UseFetchEventReturn {
 }
 
 const useFetchEvent = (
-  eventId: EventId | undefined,
+  eventId: EventId,
   refetchEvents: any[]
 ): UseFetchEventReturn => {
   const [event, setEvent] = React.useState<EventType | null>(null);
@@ -17,10 +17,8 @@ const useFetchEvent = (
   const { setErrorMessage } = React.useContext(AppContext);
 
   React.useEffect(() => {
-    getRequest(`/events/${eventId}`)
-      .then(response => {
-        setEvent(response.data);
-      })
+    getEvent(eventId)
+      .then(response => setEvent(response.data))
       .catch(error => {
         if (error.response?.status === 404) {
           setErrorMessage("event not found, please double check event link");
@@ -31,9 +29,7 @@ const useFetchEvent = (
       });
   }, [eventId, ...refetchEvents]);
 
-
   return { event };
-
 };
 
 export default useFetchEvent;

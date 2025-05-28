@@ -1,4 +1,4 @@
-import { Event, UserId } from "../../../../types";
+import { Event, UserId } from "global/types";
 import { AvailabilitySlot, TimeData } from "./types";
 
 export const generateTimeData = (earliestTime: string, latestTime: string): TimeData => {
@@ -55,5 +55,13 @@ export const getUserAvailability = (userId: UserId, event: Event) => {
       .map(([timeSlot]) => timeSlot)
       .sort()
   );
-}
+};
+
+export const getNumAvailableUsers = (event: Event, slot: AvailabilitySlot): number => {
+  return (event.availabilities[slot.id] ?? []).length;
+};
+
+export const getNumUsers = (event: Event): number => {
+  return Object.keys(event.users).length
+};
 
