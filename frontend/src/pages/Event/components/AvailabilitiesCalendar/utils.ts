@@ -23,27 +23,6 @@ export const generateTimeData = (earliestTime: string, latestTime: string): Time
   return { hours, timeSlots };
 };
 
-export const getTimeSlotBackgroundColor = (
-  isSelectionMode: boolean,
-  slotIsSelected: boolean,
-  availableUsers: number,
-  totalUsers: number,
-): string => {
-  if (isSelectionMode) {
-    return slotIsSelected ? 'rgb(34, 197, 94)' : 'rgb(254, 202, 202)';
-  }
-
-  if (availableUsers === 0) return "transparent";
-
-  const proportion = availableUsers / totalUsers;
-  const red = Math.round(255 - (255 - 34) * proportion);
-  const green = Math.round(255 - (255 - 197) * proportion);
-  const blue = Math.round(255 - (255 - 94) * proportion);
-
-  return `rgb(${red}, ${green}, ${blue})`;
-};
-
-
 export const isUserAvailable = (userId: UserId, slot: AvailabilitySlot, event: Event): boolean => {
   return event.availabilities[slot.id]?.includes(userId) ?? false;
 };

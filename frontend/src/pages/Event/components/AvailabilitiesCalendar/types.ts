@@ -5,6 +5,15 @@ export interface TimeData {
   timeSlots: string[];
 }
 
+export interface SelectionHandler {
+  getTimeSlotBackgroundColor: (slot: AvailabilitySlot) => string;
+  startSelection: (slot: AvailabilitySlot) => void;
+  moveSelection: (slot: AvailabilitySlot) => void;
+  endSelection: () => void;
+  leaveSelectionArea: () => void;
+  cancelSelection: () => void;
+}
+
 interface IAvailabilitySlot extends Slot {
   row: number;
   col: number;

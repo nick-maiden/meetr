@@ -1,18 +1,12 @@
 import React from "react";
-import { SelectionContext, UserContext } from "../contexts";
-import { Event } from "../../../../../global/types";
-import { addAvailability } from "src/global/api";
-import { errorCodeMap } from "src/global/err";
-import { AppContext } from "global/contexts";
 
-const NameInputModal = ({ event }: { event: Event} ) => {
-  const {
-    userName,
-    setUserName,
-    setIsSaving,
-  } = React.useContext(UserContext);
-  const { slotSelection, cancelSetUserAvailability } = React.useContext(SelectionContext);
-  const { setErrorMessage } = React.useContext(AppContext);
+interface Props {
+  onConfirm: (name: string) => void;
+  onCancel: () => void;
+}
+
+const NameInputModal: React.FC<Props> = ({ onConfirm }) => {
+  const [userName, setUserName] = React.useState("");
   const [hasConfirmedName, setHasConfirmedName] = React.useState(false);
 
   return (
@@ -34,21 +28,9 @@ const NameInputModal = ({ event }: { event: Event} ) => {
               disabled={userName.length === 0}
               onClick={() => {
                 setHasConfirmedName(true);
-                const availability = {
-                  name: userName,
-                  availability: Array.from(slotSelection.getSlots())
-                };
-                addAvailability(event.id, availability)
-                  .then(cancelSetUserAvailability)
-                  .catch((err) => {
-                    setUserName("");
-                    setErrorMessage(errorCodeMap[err.response?.data] ?? "unexpected error, please try again later");
-                  })
-                  .finally(() => {
-                    (document.getElementById('name_input_modal') as HTMLDialogElement)?.close();
-                    setIsSaving(false);
-                  });
-                }}
+                onConfirm(userName);
+                setUserName("");
+              }}
             >
               {hasConfirmedName ?
                 <span className="loading loading-spinner"></span> :

@@ -2,30 +2,20 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
 import { AvailabilitySlot } from '../types';
-import { Event } from '../../../../../global/types';
-import { SelectionContext, UserContext } from '../contexts';
-import { getUserAvailability, isUserAvailable } from '../utils';
+import { Event, UserId } from 'global/types';
+import { isUserAvailable } from '../utils';
 
 interface Props {
   event: Event;
   hoveredSlot: AvailabilitySlot | null;
+  onEditAvailability: (userId: UserId) => void;
 }
 
 const RespondentsList: React.FC<Props> = ({
   event,
   hoveredSlot,
+  onEditAvailability
 }) => {
-  const { setUserId } = React.useContext(UserContext);
-  const {
-    slotSelection,
-    setIsSelectionMode
-  } = React.useContext(SelectionContext);
-
-  const editUserAvailability = (userId: string) => {
-    setUserId(userId);
-    slotSelection.setSlots(getUserAvailability(userId, event));
-    setIsSelectionMode(true);
-  };
 
   return (
     <div className="bg-base-200 p-4 rounded-lg overflow-y-auto no-scrollbar max-h-[70vh]">
@@ -41,7 +31,7 @@ const RespondentsList: React.FC<Props> = ({
         ) : (
           Object.values(event.users).map((user) => {
             const isAvailable = hoveredSlot
-              ? isUserAvailable(user.id,hoveredSlot, event)
+              ? isUserAvailable(user.id, hoveredSlot, event)
               : true;
             return (
               <li key={user.id}>
@@ -53,7 +43,7 @@ const RespondentsList: React.FC<Props> = ({
                   ${!isAvailable && hoveredSlot ? 'line-through text-gray-500' : ''}
                 `}>
                   <p className="truncate">{user.name}</p>
-                  <button onClick={() => editUserAvailability(user.id)}>
+                  <button onClick={() => onEditAvailability(user.id)}>
                     <FontAwesomeIcon icon={faPenToSquare} />
                   </button>
                 </div>

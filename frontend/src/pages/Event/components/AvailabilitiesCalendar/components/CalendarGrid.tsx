@@ -1,30 +1,20 @@
 import React from "react";
-import { AvailabilitySlot } from "../types";
+import { AvailabilitySlot, SelectionHandler } from "../types";
 import DayHeadings from "./DayHeadings";
-import { getNumAvailableUsers, getNumUsers, getTimeSlotBackgroundColor } from "../utils";
-import { SelectionContext } from "../contexts";
-import { Event } from "global/types";
 
 interface Props {
-  event: Event;
   hours: string[];
   displayDates: string[];
   timeSlots: string[];
-  setHoveredSlot: React.Dispatch<React.SetStateAction<AvailabilitySlot | null>>;
+  selectionHandler: SelectionHandler;
 }
 
 const CalendarGrid: React.FC<Props> = ({
-  event,
   hours,
   displayDates,
   timeSlots,
-  setHoveredSlot
+  selectionHandler
 }) => {
-  const {
-    isSelectionMode,
-    slotSelection
-  } = React.useContext(SelectionContext);
-
   return (
     <div className="overflow-x-auto">
       <table className="table-auto table-compact w-full min-w-[190px]">
@@ -47,12 +37,7 @@ const CalendarGrid: React.FC<Props> = ({
                         const time = timeSlots[row];
                         const slot = new AvailabilitySlot(date, time, row, col);
                         const border = quarter === 1 ? "border-b border-dotted border-neutral" : "";
-                        const backgroundColor = getTimeSlotBackgroundColor(
-                          isSelectionMode,
-                          slotSelection.contains(slot),
-                          getNumAvailableUsers(event, slot),
-                          getNumUsers(event)
-                        );
+                        const backgroundColor = selectionHandler.getTimeSlotBackgroundColor(slot);
                         return (
                           <div
                             key={`${date}-${hour}-${quarter}`}
@@ -60,14 +45,12 @@ const CalendarGrid: React.FC<Props> = ({
                             style={{ backgroundColor }}
                             onPointerDown={(e) => {
                               e.preventDefault();
-                              if (isSelectionMode) slotSelection.start(slot);
+                              selectionHandler.startSelection(slot);
                               e.currentTarget.releasePointerCapture(e.pointerId)
                             }}
-                            onPointerEnter={() => {
-                              isSelectionMode ? slotSelection.move(slot) : setHoveredSlot(slot);
-                            }}
-                            onPointerUp={() => slotSelection.end()}
-                            onPointerLeave={() => !isSelectionMode && setHoveredSlot(null)}
+                            onPointerEnter={() => selectionHandler.moveSelection(slot)}
+                            onPointerUp={selectionHandler.endSelection}
+                            onPointerLeave={selectionHandler.leaveSelectionArea}
                           />
                         );
                       })}

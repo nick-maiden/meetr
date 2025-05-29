@@ -5,11 +5,10 @@ import NameInputModal from "./components/NameInputModal";
 import useSelectTimes from "./hooks/useSelectTimes";
 import Paginator from "./components/Paginator";
 import CalendarGrid from "./components/CalendarGrid";
-import { AvailabilitySlot } from "./types";
-import { SelectionContext, UserContext } from "./contexts";
 import { Event } from "global/types";
-import useUserContext from "./hooks/useUserContext";
 import useDisplayData from "./hooks/useDisplayData";
+import useSelectionHandlers from "./hooks/useSelectionHandlers";
+import useAvailabilityEditor from "./hooks/useAvailabilityEditor";
 
 interface Props {
   isSelectionMode: boolean;
@@ -22,7 +21,6 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
   setIsSelectionMode,
   event
 }) => {
-  const [hoveredSlot, setHoveredSlot] = React.useState<AvailabilitySlot | null>(null);
   const {
     currentPage,
     setCurrentPage,
@@ -31,38 +29,57 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
     totalPages,
     displayDates
   } = useDisplayData(event);
+
   const { slotSelection } = useSelectTimes(displayDates, timeSlots);
-  const userContext = useUserContext();
+  const { hoveredSlot, selectionHandler } = useSelectionHandlers(event, slotSelection);
+  const {
+    isSaving,
+    onConfirmAvailability,
+    onConfirmName,
+    onCancelAddAvailability,
+    onEditAvailability
+  } = useAvailabilityEditor(
+    event,
+    slotSelection,
+    setIsSelectionMode,
+    selectionHandler.cancelSelection
+  );
 
   return (
-    <SelectionContext.Provider value={{ isSelectionMode, setIsSelectionMode, slotSelection }}>
-      <UserContext.Provider value={userContext}>
-        <NameInputModal event={event}/>
-        <div className="space-y-4">
-          <div className="flex gap-6">
+    <>
+      <NameInputModal
+        onConfirm={onConfirmName}
+        onCancel={onCancelAddAvailability}
+      />
+      <div className="space-y-4">
+        <div className="flex gap-6">
 
-            <div className="flex-grow">
-              {totalPages > 1 && <Paginator {...{ currentPage, setCurrentPage, totalPages }}/>}
-              <CalendarGrid {...{
-                event,
-                hours,
-                displayDates,
-                timeSlots,
-                setHoveredSlot
-              }}/>
-            </div>
-
-            <div className="sm:w-48 w-32 sticky top-0 self-start">
-              {isSelectionMode
-                ? <ConfirmAvailabilitySelection event={event}/>
-                : <RespondentsList {...{ event, hoveredSlot }}/>
-              }
-            </div>
-
+          <div className="flex-grow">
+            {totalPages > 1 && <Paginator {...{ currentPage, setCurrentPage, totalPages }}/>}
+            <CalendarGrid {...{
+              event,
+              hours,
+              displayDates,
+              timeSlots,
+              selectionHandler
+            }}/>
           </div>
+
+          <div className="sm:w-48 w-32 sticky top-0 self-start">
+            {isSelectionMode ? (
+              <ConfirmAvailabilitySelection
+                handleConfirm={onConfirmAvailability}
+                handleCancel={selectionHandler.cancelSelection}
+                isSaving={isSaving}
+              />
+            ) : (
+              <RespondentsList {...{ event, hoveredSlot, onEditAvailability }}/>
+            )}
+          </div>
+
         </div>
-      </UserContext.Provider>
-    </SelectionContext.Provider>
+      </div>
+    </>
   );
 };
 
