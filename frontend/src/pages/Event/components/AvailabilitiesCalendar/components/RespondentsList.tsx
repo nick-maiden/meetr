@@ -1,38 +1,38 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
-import { User } from '../../../types';
+import { AvailabilitySlot } from '../types';
+import { Event, UserId } from 'global/types';
+import { isUserAvailable } from '../utils';
 
-interface RespondentsListProps {
-  users: { [userId: string]: User };
-  hoveredSlot: string | null;
-  isUserAvailable: (userId: string, date: Date, time: string) => boolean;
-  onEditAvailability: (userId: string) => void;
+interface Props {
+  event: Event;
+  hoveredSlot: AvailabilitySlot | null;
+  onEditAvailability: (userId: UserId) => void;
 }
 
-export const RespondentsList: React.FC<RespondentsListProps> = ({
-  users,
+const RespondentsList: React.FC<Props> = ({
+  event,
   hoveredSlot,
-  isUserAvailable,
   onEditAvailability
 }) => {
+
   return (
     <div className="bg-base-200 p-4 rounded-lg overflow-y-auto no-scrollbar max-h-[70vh]">
       <h2 className="font-bold md:text-2xl sm:text-xl text-md">respondents</h2>
+
       <div className="divider mt-2"></div>
+
       <ul className="sm:space-y-2 space-y-1.5">
-        {Object.values(users).length === 0 ? (
-          <p className="font-bold text-gray-500 text-sm">
-            no respondents yet 😢
+        {Object.values(event.users).length === 0 ? (
+          <p className="font-bold text-gray-500 sm:text-sm text-xs text-center">
+            none (yet...)
           </p>
         ) : (
-          Object.values(users).map((user) => {
-            const isAvailable = hoveredSlot ?
-              isUserAvailable(
-                user.id,
-                new Date(hoveredSlot.split('-').slice(0, 3).join('-')),
-                hoveredSlot.split('-').slice(3).join('-')
-              ) : true;
+          Object.values(event.users).map((user) => {
+            const isAvailable = hoveredSlot
+              ? isUserAvailable(user.id, hoveredSlot, event)
+              : true;
             return (
               <li key={user.id}>
                 <div className={`
@@ -55,3 +55,6 @@ export const RespondentsList: React.FC<RespondentsListProps> = ({
     </div>
   );
 };
+
+export default RespondentsList;
+

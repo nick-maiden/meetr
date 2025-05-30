@@ -15,6 +15,7 @@ module Types
   , Event(..)
   , UserAvailability(..)
   , UpdateAvailabilityRequest(..)
+  , EventInput(..)
   , EventResponse(..)
   , ErrorCodes(..)
   , BaseErrors(..)
@@ -84,6 +85,13 @@ data UpdateAvailabilityRequest = UpdateAvailabilityRequest {
   availability :: [TimeSlot]
 } deriving (Show, Generic)
 
+data EventInput = EventInput
+  { name            :: T.Text
+  , dates           :: [T.Text]
+  , earliestTime    :: T.Text
+  , latestTime      :: T.Text
+  } deriving (Show, Generic)
+
 data EventResponse = EventResponse
   { id              :: EventId
   , name            :: T.Text
@@ -134,6 +142,8 @@ instance A.ToJSON User
 instance A.FromJSON User
 instance A.ToJSON Event
 instance A.FromJSON Event
+instance A.ToJSON EventInput
+instance A.FromJSON EventInput
 instance A.ToJSON EventResponse
 instance A.FromJSON EventResponse
 instance A.FromJSON UserAvailability
@@ -146,6 +156,7 @@ instance A.FromJSON UpdateAvailabilityRequest
 
 $(deriveSafeCopy 0 'base ''User)
 $(deriveSafeCopy 0 'base ''Event)
+$(deriveSafeCopy 0 'base ''EventInput)
 $(deriveSafeCopy 0 'base ''BaseErrors)
 $(deriveSafeCopy 0 'base ''AddAvailabilityError)
 $(deriveSafeCopy 0 'base ''UpdateAvailabilityError)

@@ -1,34 +1,33 @@
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom';
-import PageList from './PageList.jsx';
-import { Context } from './util/context.js';
-import './App.css'
-import ErrorPopup from './components/ErrorPopup.js';
+import PageList from './PageList.js';
+import { AppContext } from 'global/contexts.js';
+import ErrorPopup from 'src/components/ErrorPopup.js';
 
 const App = () => {
   const [errorMessage, setErrorMessage] = React.useState("");
   const [theme, setTheme] = React.useState<"light" | "dark">(() => {
     const savedTheme = localStorage.getItem("theme");
-    return savedTheme === "dark" ? "dark" : "light";
+    return savedTheme === "light" ? "light" : "dark";
   });
 
   React.useEffect(() => {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-
   return (
     <>
-      <Context.Provider value={{ theme, setTheme, errorMessage, setErrorMessage }}>
-        <html data-theme={theme == "light" ? "retro" : "dracula"}>
+      <html data-theme={theme == "light" ? "retro" : "dracula"}>
+        <AppContext.Provider value={{ theme, setTheme, errorMessage, setErrorMessage }}>
           {errorMessage && <ErrorPopup />}
           <BrowserRouter>
             <PageList />
           </BrowserRouter>
-        </html>
-      </Context.Provider>
+        </AppContext.Provider>
+      </html>
     </>
   );
 };
 
 export default App;
+

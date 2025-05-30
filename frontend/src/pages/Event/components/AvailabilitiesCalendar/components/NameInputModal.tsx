@@ -1,22 +1,14 @@
 import React from "react";
 
-interface NameInputModalProps {
-  userName: string;
-  onNameChange: (name: string) => void;
-  onSave: () => void;
-  onClose: () => void;
-  hasConfirmedName: boolean;
-  setHasConfirmedName: React.Dispatch<React.SetStateAction<boolean>>;
+interface Props {
+  onConfirm: (name: string) => void;
+  onCancel: () => void;
 }
 
-export const NameInputModal: React.FC<NameInputModalProps> = ({
-  userName,
-  onNameChange,
-  onSave,
-  onClose,
-  hasConfirmedName,
-  setHasConfirmedName
-}) => {
+const NameInputModal: React.FC<Props> = ({ onConfirm, onCancel }) => {
+  const [userName, setUserName] = React.useState("");
+  const [awaitingConfirmation, setAwaitingConfirmation] = React.useState(false);
+
   return (
     <dialog id="name_input_modal" className="modal">
       <div className="modal-box">
@@ -29,17 +21,19 @@ export const NameInputModal: React.FC<NameInputModalProps> = ({
               className="input input-bordered w-full"
               autoFocus
               value={userName}
-              onChange={(e) => onNameChange(e.target.value)}
+              onChange={(e) => setUserName(e.target.value)}
             />
             <button
               className="btn btn-secondary self-end w-[30%] text-lg"
               disabled={userName.length === 0}
               onClick={() => {
-                setHasConfirmedName(true);
-                onSave();
+                setAwaitingConfirmation(true);
+                onConfirm(userName);
+                setAwaitingConfirmation(false);
+                setUserName("");
               }}
             >
-              {hasConfirmedName ?
+              {awaitingConfirmation ?
                 <span className="loading loading-spinner"></span> :
                 <>continue</>
               }
@@ -48,9 +42,19 @@ export const NameInputModal: React.FC<NameInputModalProps> = ({
         </article>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button onClick={onClose}>close</button>
+        <button
+          onClick={() => {
+            onCancel();
+            setUserName("");
+            setAwaitingConfirmation(false);
+          }}
+        >
+          close
+        </button>
       </form>
     </dialog>
   );
 };
+
+export default NameInputModal;
 

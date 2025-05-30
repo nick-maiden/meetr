@@ -1,11 +1,13 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 
 module Db
   ( DB(..)
   , initialDBState
   , GetEvent(..)
-  , InsertNewEvent(..)
+  , CreateEvent(..)
   , AddAvailability(..)
   , UpdateAvailability(..)
   ) where
@@ -25,13 +27,14 @@ import Types
   , UpdateAvailabilityError(..)
   , UserId
   , EventId
+  , EventInput(..)
+  , Event(..)
   , TimeSlot
   )
-import qualified Types as E (Event(..))
 import Util (maybeToEither, boolToEither)
 
 data DB = DB {
-  _events :: Map.Map EventId E.Event
+  _events :: Map.Map EventId Event
 } deriving (Typeable)
 
 $(deriveSafeCopy 0 'base ''DB)
@@ -40,18 +43,26 @@ $(makeLenses ''DB)
 initialDBState :: DB
 initialDBState = DB Map.empty
 
-getEvent :: EventId -> Query DB (Maybe E.Event)
+getEvent :: EventId -> Query DB (Maybe Event)
 getEvent eventId = asks (Map.lookup eventId . _events)
 
-insertNewEvent :: E.Event -> EventId -> Update DB ()
-insertNewEvent event eventId = do
+createEvent :: EventInput -> EventId -> Update DB ()
+createEvent eventInput eventId = do
+  let event = Event {
+    name = eventInput.name,
+    users = mempty,
+    dates = eventInput.dates,
+    earliestTime = eventInput.earliestTime,
+    latestTime = eventInput.latestTime,
+    availabilities = mempty
+  }
   events %= Map.insert eventId event
 
-doAddAvailability :: UserId -> [TimeSlot] -> E.Event -> E.Event
+doAddAvailability :: UserId -> [TimeSlot] -> Event -> Event
 doAddAvailability userId ts event = event {
-  E.availabilities = foldr (\t acc ->
+  availabilities = foldr (\t acc ->
       Map.insertWith (++) t [userId] acc
-    ) (E.availabilities event) ts
+    ) event.availabilities ts
 }
 
 addAvailability :: EventId -> UserId -> T.Text -> [TimeSlot] -> Update DB (Either AddAvailabilityError ())
@@ -59,7 +70,7 @@ addAvailability eventId userId userName ts = do
   mEvent <- use (events . at eventId)
   case do
     event <- maybeToEither (AddAvailabilityCommon EventNotFound) mEvent
-    _     <- boolToEither UsernameTaken $ not $ any (\u -> name u == userName) (Map.elems (E.users event))
+    _     <- boolToEither UsernameTaken $ not $ any (\u -> u.name == userName) (Map.elems event.users)
     return $ Right ()
    of
     Left err  -> return $ Left err
@@ -68,10 +79,10 @@ addAvailability eventId userId userName ts = do
       return $ Right ()
   where
     doAddUser userId event = event {
-      E.users = Map.insert userId User {
-        Types.id = userId,
+      users = Map.insert userId User {
+        id = userId,
         name = userName
-      } (E.users event)
+      } event.users
     }
 
 updateAvailability :: EventId -> UserId -> [TimeSlot] -> Update DB (Either UpdateAvailabilityError ())
@@ -79,7 +90,7 @@ updateAvailability eventId userId ts = do
   mEvent <- use (events . at eventId)
   case do
     event <- maybeToEither (UpdateAvailabilityCommon EventNotFound) mEvent
-    _     <- maybeToEither UserNotFound (Map.lookup userId (E.users event))
+    _     <- maybeToEither UserNotFound (Map.lookup userId event.users)
     return $ Right ()
    of
     Left err  -> return $ Left err
@@ -88,8 +99,8 @@ updateAvailability eventId userId ts = do
       return $ Right ()
   where
     clearAvailability event = event {
-      E.availabilities = Map.map (filter (/= userId)) (E.availabilities event)
+      availabilities = Map.map (filter (/= userId)) event.availabilities
     }
 
-$(makeAcidic ''DB ['insertNewEvent, 'getEvent, 'addAvailability, 'updateAvailability])
+$(makeAcidic ''DB ['createEvent, 'getEvent, 'addAvailability, 'updateAvailability])
 

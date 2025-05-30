@@ -1,8 +1,8 @@
 import React from "react";
-import { Context } from "../util/context";
+import { AppContext } from "global/contexts";
 
 const ErrorPopup = () => {
-  const { errorMessage, setErrorMessage } = React.useContext(Context);
+  const { errorMessage, setErrorMessage } = React.useContext(AppContext);
 
   return (
     <>
