@@ -17,7 +17,7 @@ import Types
 import Db
   ( initialDBState
   , GetEvent(..)
-  , InsertNewEvent(..)
+  , CreateEvent(..)
   , AddAvailability(..)
   , UpdateAvailability(..)
   )
@@ -64,10 +64,10 @@ main = do
         Nothing -> status status404 >> json (errEventNotFound errorCodes)
 
     post "/events" $ do
-      event <- jsonData
+      eventInput <- jsonData
       uuid <- liftIO UUID4.nextRandom
       let eventId = uuidToText uuid
-      liftIO $ update acid (InsertNewEvent event eventId)
+      liftIO $ update acid (CreateEvent eventInput eventId)
       status status201
       json $ A.object ["eventId" A..= eventId]
 
