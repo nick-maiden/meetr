@@ -1,6 +1,27 @@
 import { Event, UserId } from "global/types";
 import { AvailabilitySlot, TimeData } from "./types";
 
+export const isUserAvailable = (userId: UserId, slot: AvailabilitySlot, event: Event): boolean => {
+  return event.availabilities[slot.id]?.includes(userId) ?? false;
+};
+
+export const getNumAvailableUsers = (event: Event, slot: AvailabilitySlot): number => {
+  return (event.availabilities[slot.id] ?? []).length;
+};
+
+export const getNumUsers = (event: Event): number => {
+  return Object.keys(event.users).length
+};
+
+export const getUserAvailability = (userId: UserId, event: Event) => {
+  return new Set(
+    Object.entries(event.availabilities)
+      .filter(([_, userIds]) => userIds.includes(userId))
+      .map(([timeSlot]) => timeSlot)
+      .sort()
+  );
+};
+
 export const generateTimeData = (earliestTime: string, latestTime: string): TimeData => {
   const hours: string[] = [];
   const timeSlots: string[] = [];
@@ -21,26 +42,5 @@ export const generateTimeData = (earliestTime: string, latestTime: string): Time
   }
 
   return { hours, timeSlots };
-};
-
-export const isUserAvailable = (userId: UserId, slot: AvailabilitySlot, event: Event): boolean => {
-  return event.availabilities[slot.id]?.includes(userId) ?? false;
-};
-
-export const getUserAvailability = (userId: UserId, event: Event) => {
-  return new Set(
-    Object.entries(event.availabilities)
-      .filter(([_, userIds]) => userIds.includes(userId))
-      .map(([timeSlot]) => timeSlot)
-      .sort()
-  );
-};
-
-export const getNumAvailableUsers = (event: Event, slot: AvailabilitySlot): number => {
-  return (event.availabilities[slot.id] ?? []).length;
-};
-
-export const getNumUsers = (event: Event): number => {
-  return Object.keys(event.users).length
 };
 

@@ -6,9 +6,10 @@ import useSelectTimes from "./hooks/useSelectTimes";
 import Paginator from "./components/Paginator";
 import CalendarGrid from "./components/CalendarGrid";
 import { Event } from "global/types";
-import useDisplayData from "./hooks/useDisplayData";
 import useSelectionHandlers from "./hooks/useSelectionHandlers";
 import useAvailabilityEditor from "./hooks/useAvailabilityEditor";
+import useResponsiveDatesPerPage from "./hooks/useResponsiveDatesPerPage";
+import { generateTimeData } from "./utils";
 
 interface Props {
   isSelectionMode: boolean;
@@ -21,15 +22,11 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
   setIsSelectionMode,
   event
 }) => {
-  const {
-    currentPage,
-    setCurrentPage,
-    hours,
-    timeSlots,
-    totalPages,
-    displayDates
-  } = useDisplayData(event);
-
+  const [currentPage, setCurrentPage] = React.useState(0);
+  const datesPerPage = useResponsiveDatesPerPage();
+  const { hours, timeSlots } = generateTimeData(event.earliestTime, event.latestTime);
+  const totalPages = Math.ceil(event.dates.length / datesPerPage);
+  const displayDates = event.dates.slice(currentPage * datesPerPage, (currentPage + 1) * datesPerPage);
   const { slotSelection } = useSelectTimes(displayDates, timeSlots);
   const { hoveredSlot, selectionHandler } = useSelectionHandlers(event, slotSelection);
   const {

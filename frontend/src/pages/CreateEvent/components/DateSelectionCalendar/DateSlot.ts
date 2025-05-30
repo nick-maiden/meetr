@@ -1,5 +1,5 @@
 import { Slot } from "src/hooks/useSlotSelection/types";
-import { NUM_COLS } from "./const";
+import { NUM_COLS } from "./constants";
 
 interface Position {
   row: number;

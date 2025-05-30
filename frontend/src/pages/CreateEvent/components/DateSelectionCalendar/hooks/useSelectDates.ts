@@ -1,7 +1,7 @@
 import React from "react";
 import { DateSlot } from "../DateSlot";
 import { SlotSelection, Slots } from "src/hooks/useSlotSelection/types";
-import { NUM_COLS } from "../const";
+import { NUM_COLS } from "../constants";
 import useSlotSelection from "src/hooks/useSlotSelection/useSlotSelection";
 
 interface useSelectDatesReturn {

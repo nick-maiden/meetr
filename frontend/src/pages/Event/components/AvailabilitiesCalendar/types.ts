@@ -7,11 +7,11 @@ export interface TimeData {
 
 export interface SelectionHandler {
   getTimeSlotBackgroundColor: (slot: AvailabilitySlot) => string;
-  startSelection: (slot: AvailabilitySlot) => void;
-  moveSelection: (slot: AvailabilitySlot) => void;
-  endSelection: () => void;
-  leaveSelectionArea: () => void;
-  cancelSelection: () => void;
+  startSelection:             (slot: AvailabilitySlot) => void;
+  moveSelection:              (slot: AvailabilitySlot) => void;
+  endSelection:               () => void;
+  leaveSelectionArea:         () => void;
+  cancelSelection:            () => void;
 }
 
 interface IAvailabilitySlot extends Slot {

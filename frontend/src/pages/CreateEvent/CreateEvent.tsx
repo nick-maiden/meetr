@@ -1,17 +1,38 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import DateSelectionCalendar from "./components/DateSelectionCalendar/DateSelectionCalendar";
 import Navbar from "src/components/Navbar";
 import SelectBox from "./components/SelectBox";
-import useCreateEvent from "./hooks/useCreateEvent";
+import useTimeRangeSelector from "./hooks/useTimeRangeSelector";
+import { convertTo24Hour } from "./utils";
+import { createEvent } from "src/global/api";
+import { AppContext } from "src/global/contexts";
 
 const CreateEvent = () => {
-  const {
-    name, setName,
-    setDates,
-    timeRangeSelector,
-   isCreating,
-    canCreateEvent,
-    createEvent
-  } = useCreateEvent();
+  const [name, setName] = React.useState('');
+  const [dates, setDates] = React.useState<string[]>([]);
+  const [isCreating, setIsCreating] = React.useState(false);
+  const timeRangeSelector = useTimeRangeSelector();
+  const earliestTime = timeRangeSelector.earliest.value;
+  const latestTime = timeRangeSelector.latest.value;
+  const navigate = useNavigate();
+  const { setErrorMessage } = React.useContext(AppContext);
+
+  const canCreateEvent = () => Boolean(dates.length && name && earliestTime && latestTime);
+
+  const onCreate = (): void => {
+    setIsCreating(true);
+    const newEvent = {
+      name,
+      earliestTime: convertTo24Hour(earliestTime!),
+      latestTime: convertTo24Hour(latestTime!),
+      dates
+    };
+    createEvent(newEvent)
+      .then(res => navigate(`/events/${res.data.eventId}`))
+      .catch(() => setErrorMessage('unable to create event, please try again later'))
+      .finally(() => setIsCreating(false));
+  };
 
   return (
     <div className="flex flex-col w-screen h-screen sm:px-10 px-5">
@@ -35,13 +56,13 @@ const CreateEvent = () => {
         <article className="prose mt-10">
           <h2>what dates might work?</h2>
         </article>
-        <p className="text-sm text-gray-500 font-bold mt-2">  click and drag to select</p>
+        <p className="text-sm text-gray-500 font-bold mt-2">click and drag to select</p>
 
         <DateSelectionCalendar
           className="mx-auto mt-6"
           setDates={setDates}
         />
-isCreating
+
         <article className="prose mt-10">
           <h2>what times might work?</h2>
         </article>
@@ -55,11 +76,11 @@ isCreating
         <button
           className="btn btn-secondary text-xl mt-14 mb-10"
           disabled={!canCreateEvent()}
-          onClick={createEvent}
+          onClick={onCreate}
         >
-          {isCreating ?
-            <span className="loading loading-spinner"></span> :
-            <>create event</>
+          {isCreating
+            ? <span className="loading loading-spinner"></span>
+            : <>create event</>
           }
         </button>
       </div>

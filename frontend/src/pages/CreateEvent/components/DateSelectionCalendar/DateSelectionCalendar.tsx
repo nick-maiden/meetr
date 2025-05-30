@@ -2,7 +2,7 @@ import React from 'react';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { generateCalendarDays, generateCalendarWeeks } from './helpers';
 import useSelectDates from './hooks/useSelectDates';
-import { DAYS, MONTHS } from './const';
+import { DAYS, MONTHS } from './constants';
 import { DateSlot } from './DateSlot';
 
 interface Props {

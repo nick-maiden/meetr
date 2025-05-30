@@ -2,7 +2,7 @@ import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLink } from '@fortawesome/free-solid-svg-icons';
 import { useParams } from "react-router-dom";
-import Navbar from "../../components/Navbar"
+import Navbar from "src/components/Navbar"
 import useFetchEvent from "./hooks/useFetchEvent";
 import AvailabilitiesCalendar from "./components/AvailabilitiesCalendar/AvailabilitiesCalendar";
 import { EventId } from "src/global/types";
