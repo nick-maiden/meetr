@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import DateSelectionCalendar from "./components/DateSelectionCalendar/DateSelectionCalendar";
-import Navbar from "src/components/Navbar";
 import SelectBox from "./components/SelectBox";
 import useTimeRangeSelector from "./hooks/useTimeRangeSelector";
 import { convertTo24Hour } from "./utils";
