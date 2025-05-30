@@ -25,8 +25,8 @@ const RespondentsList: React.FC<Props> = ({
 
       <ul className="sm:space-y-2 space-y-1.5">
         {Object.values(event.users).length === 0 ? (
-          <p className="font-bold text-gray-500 text-sm">
-            no respondents yet 😢
+          <p className="font-bold text-gray-500 sm:text-sm text-xs text-center">
+            none (yet...)
           </p>
         ) : (
           Object.values(event.users).map((user) => {

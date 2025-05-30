@@ -28,12 +28,17 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
   const totalPages = Math.ceil(event.dates.length / datesPerPage);
   const displayDates = event.dates.slice(currentPage * datesPerPage, (currentPage + 1) * datesPerPage);
   const { slotSelection } = useSelectTimes(displayDates, timeSlots);
-  const { hoveredSlot, selectionHandler } = useSelectionHandlers(event, slotSelection);
+  const { hoveredSlot, selectionHandler } = useSelectionHandlers(
+    event,
+    slotSelection,
+    isSelectionMode,
+    setIsSelectionMode
+  );
   const {
     isSaving,
     onConfirmAvailability,
     onConfirmName,
-    onCancelAddAvailability,
+    onCancelConfirmName,
     onEditAvailability
   } = useAvailabilityEditor(
     event,
@@ -46,7 +51,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
     <>
       <NameInputModal
         onConfirm={onConfirmName}
-        onCancel={onCancelAddAvailability}
+        onCancel={onCancelConfirmName}
       />
       <div className="space-y-4">
         <div className="flex gap-6">
@@ -54,7 +59,6 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
           <div className="flex-grow">
             {totalPages > 1 && <Paginator {...{ currentPage, setCurrentPage, totalPages }}/>}
             <CalendarGrid {...{
-              event,
               hours,
               displayDates,
               timeSlots,
@@ -62,11 +66,11 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
             }}/>
           </div>
 
-          <div className="sm:w-48 w-32 sticky top-0 self-start">
+          <div className="md:w-48 sm:w-40 w-32 sticky top-0 self-start">
             {isSelectionMode ? (
               <ConfirmAvailabilitySelection
-                handleConfirm={onConfirmAvailability}
-                handleCancel={selectionHandler.cancelSelection}
+                onConfirm={onConfirmAvailability}
+                onCancel={selectionHandler.cancelSelection}
                 isSaving={isSaving}
               />
             ) : (

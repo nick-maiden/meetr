@@ -7,6 +7,7 @@ import useTimeRangeSelector from "./hooks/useTimeRangeSelector";
 import { convertTo24Hour } from "./utils";
 import { createEvent } from "src/global/api";
 import { AppContext } from "src/global/contexts";
+import PageWrapper from "src/components/PageWrapper";
 
 const CreateEvent = () => {
   const [name, setName] = React.useState('');
@@ -35,56 +36,52 @@ const CreateEvent = () => {
   };
 
   return (
-    <div className="flex flex-col w-screen h-screen sm:px-10 px-5">
-      <Navbar />
+    <PageWrapper innerContainerClassName="lg:px-[20%] md:px-[10%] px-2">
+      <article className="prose">
+        <h2>event name</h2>
+      </article>
 
-      <div className="flex flex-col overflow-auto no-scrollbar sm:px-[20%] px-2 sm:mt-8 mt-6">
-        <article className="prose">
-          <h2>event name</h2>
-        </article>
-
-        <label className="mx-auto sm:mt-6 mt-4">
-          <input
-            type="text"
-            placeholder="..."
-            className="input input-bordered text-xl font-bold text-center"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
-        </label>
-
-        <article className="prose mt-10">
-          <h2>what dates might work?</h2>
-        </article>
-        <p className="text-sm text-gray-500 font-bold mt-2">click and drag to select</p>
-
-        <DateSelectionCalendar
-          className="mx-auto mt-6"
-          setDates={setDates}
+      <label className="mx-auto sm:mt-6 mt-4">
+        <input
+          type="text"
+          placeholder="..."
+          className="input input-bordered text-xl font-bold text-center"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
         />
+      </label>
 
-        <article className="prose mt-10">
-          <h2>what times might work?</h2>
-        </article>
+      <article className="prose mt-10">
+        <h2>what dates might work?</h2>
+      </article>
+      <p className="text-sm text-gray-500 font-bold mt-2">click and drag to select</p>
 
-        <div className="flex justify-around mt-6">
-          <SelectBox {...timeRangeSelector.earliest} />
-          <div className="divider divider-horizontal"></div>
-          <SelectBox {...timeRangeSelector.latest} />
-        </div>
+      <DateSelectionCalendar
+        className="mx-auto mt-6"
+        setDates={setDates}
+      />
 
-        <button
-          className="btn btn-secondary text-xl mt-14 mb-10"
-          disabled={!canCreateEvent()}
-          onClick={onCreate}
-        >
-          {isCreating
-            ? <span className="loading loading-spinner"></span>
-            : <>create event</>
-          }
-        </button>
+      <article className="prose mt-10">
+        <h2>what times might work?</h2>
+      </article>
+
+      <div className="flex justify-around mt-6">
+        <SelectBox {...timeRangeSelector.earliest} />
+        <div className="divider divider-horizontal"></div>
+        <SelectBox {...timeRangeSelector.latest} />
       </div>
-    </div>
+
+      <button
+        className="btn btn-secondary text-xl mt-14 mb-10"
+        disabled={!canCreateEvent()}
+        onClick={onCreate}
+      >
+        {isCreating
+          ? <span className="loading loading-spinner"></span>
+          : <>create event</>
+        }
+      </button>
+    </PageWrapper>
   )
 };
 

@@ -5,9 +5,9 @@ interface Props {
   onCancel: () => void;
 }
 
-const NameInputModal: React.FC<Props> = ({ onConfirm }) => {
+const NameInputModal: React.FC<Props> = ({ onConfirm, onCancel }) => {
   const [userName, setUserName] = React.useState("");
-  const [hasConfirmedName, setHasConfirmedName] = React.useState(false);
+  const [awaitingConfirmation, setAwaitingConfirmation] = React.useState(false);
 
   return (
     <dialog id="name_input_modal" className="modal">
@@ -27,12 +27,13 @@ const NameInputModal: React.FC<Props> = ({ onConfirm }) => {
               className="btn btn-secondary self-end w-[30%] text-lg"
               disabled={userName.length === 0}
               onClick={() => {
-                setHasConfirmedName(true);
+                setAwaitingConfirmation(true);
                 onConfirm(userName);
+                setAwaitingConfirmation(false);
                 setUserName("");
               }}
             >
-              {hasConfirmedName ?
+              {awaitingConfirmation ?
                 <span className="loading loading-spinner"></span> :
                 <>continue</>
               }
@@ -43,8 +44,9 @@ const NameInputModal: React.FC<Props> = ({ onConfirm }) => {
       <form method="dialog" className="modal-backdrop">
         <button
           onClick={() => {
-            setIsSaving(false);
+            onCancel();
             setUserName("");
+            setAwaitingConfirmation(false);
           }}
         >
           close

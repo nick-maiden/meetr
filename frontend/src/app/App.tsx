@@ -8,7 +8,7 @@ const App = () => {
   const [errorMessage, setErrorMessage] = React.useState("");
   const [theme, setTheme] = React.useState<"light" | "dark">(() => {
     const savedTheme = localStorage.getItem("theme");
-    return savedTheme === "dark" ? "dark" : "light";
+    return savedTheme === "light" ? "light" : "dark";
   });
 
   React.useEffect(() => {
@@ -30,3 +30,4 @@ const App = () => {
 };
 
 export default App;
+

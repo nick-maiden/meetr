@@ -20,9 +20,10 @@ interface UseSelectionHandlersReturn {
 
 const useSelectionHandlers = (
   event: Event,
-  slotSelection: SlotSelection<AvailabilitySlot>
+  slotSelection: SlotSelection<AvailabilitySlot>,
+  isSelectionMode: boolean,
+  setIsSelectionMode: React.Dispatch<React.SetStateAction<boolean>>
 ): UseSelectionHandlersReturn => {
-  const [isSelectionMode, setIsSelectionMode] = React.useState(false);
   const [hoveredSlot, setHoveredSlot] = React.useState<AvailabilitySlot | null>(null);
 
   const getTimeSlotBackgroundColor = (slot: AvailabilitySlot): string => {

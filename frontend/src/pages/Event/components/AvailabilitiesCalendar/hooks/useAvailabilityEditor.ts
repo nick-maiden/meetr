@@ -11,7 +11,7 @@ interface UseAvailabilityEditorReturn {
   isSaving: boolean;
   onConfirmAvailability: () => void;
   onConfirmName: (name: string) => void;
-  onCancelAddAvailability: () => void;
+  onCancelConfirmName: () => void;
   onEditAvailability: (userId: UserId) => void;
 }
 
@@ -36,7 +36,10 @@ const useAvailabilityEditor = (
         userId,
         {availability: Array.from(slotSelection.getSlots())}
       );
+      setUserId(null);
+      cancelSelection();
     }
+    setIsSaving(false);
   };
 
   const onConfirmName = (name: string): void => {
@@ -55,7 +58,7 @@ const useAvailabilityEditor = (
       });
   };
 
-  const onCancelAddAvailability = (): void => setIsSaving(false);
+  const onCancelConfirmName = (): void => setIsSaving(false);
 
   const onEditAvailability = (userId: string): void => {
     setUserId(userId);
@@ -67,7 +70,7 @@ const useAvailabilityEditor = (
     isSaving,
     onConfirmAvailability,
     onConfirmName,
-    onCancelAddAvailability,
+    onCancelConfirmName,
     onEditAvailability
   };
 };
