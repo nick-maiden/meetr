@@ -5,6 +5,7 @@ interface TimeRangeSelectorValue {
   value: string | undefined;
   setValue: React.Dispatch<React.SetStateAction<string | undefined>>;
   options: string[];
+  title: string;
 };
 
 interface UseTimeRangeSelectorReturn {
@@ -38,12 +39,14 @@ const useTimeRangeSelector = (): UseTimeRangeSelectorReturn => {
     earliest: {
       value: earliestTime,
       setValue: setEarliestTime,
-      options: earliestOptions
+      options: earliestOptions,
+      title: 'no earlier than',
     },
     latest: {
       value: latestTime,
       setValue: setLatestTime,
-      options: latestOptions
+      options: latestOptions,
+      title: 'no later than',
     }
   };
 };

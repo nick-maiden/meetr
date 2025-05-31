@@ -36,7 +36,7 @@ const CreateEvent = () => {
 
   return (
     <PageWrapper innerContainerClassName="lg:px-[20%] md:px-[10%] px-2">
-      <article className="prose">
+      <article className="prose text-lg">
         <h2>event name</h2>
       </article>
 
@@ -71,7 +71,7 @@ const CreateEvent = () => {
       </div>
 
       <button
-        className="btn btn-secondary text-xl mt-14 mb-10"
+        className="btn btn-secondary text-xl mt-14"
         disabled={!canCreateEvent()}
         onClick={onCreate}
       >

@@ -20,7 +20,7 @@ const PageWrapper: React.FC<Props> = ({
         no-scrollbar
         sm:mt-8
         mt-6
-        pb-12
+        pb-8
         ${innerContainerClassName}
         `}
       >
