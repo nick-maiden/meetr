@@ -62,7 +62,8 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
               hours,
               displayDates,
               timeSlots,
-              selectionHandler
+              selectionHandler,
+              isSelectionMode
             }}/>
           </div>
 

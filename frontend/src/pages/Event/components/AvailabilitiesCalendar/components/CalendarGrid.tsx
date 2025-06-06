@@ -7,23 +7,26 @@ interface Props {
   displayDates: string[];
   timeSlots: string[];
   selectionHandler: SelectionHandler;
+  isSelectionMode: boolean;
 }
 
 const CalendarGrid: React.FC<Props> = ({
   hours,
   displayDates,
   timeSlots,
-  selectionHandler
+  selectionHandler,
+  isSelectionMode
 }) => {
+  const scrollMode = isSelectionMode ? "touch-none" : "";
   return (
     <div className="overflow-x-auto">
-      <table className="table-auto table-compact w-full min-w-[190px]">
+      <table className={`table-auto table-compact w-full min-w-[190px] ${scrollMode}`}>
         <DayHeadings dates={displayDates.map(d => new Date(d))} />
         <tbody>
           {hours.map((hour, hourIndex) => (
             <React.Fragment key={`${hour}`}>
               <tr>
-                <td className="font-bold text-right p-0 sm:pr-2 pr-1 text-sm select-none">
+                <td className="font-bold text-right p-0 sm:pr-2 pr-1 text-sm">
                   {hour}
                 </td>
                 {displayDates.map((date, col) => (
