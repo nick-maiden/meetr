@@ -1,9 +1,9 @@
 import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faLink } from '@fortawesome/free-solid-svg-icons';
+import { faShare } from '@fortawesome/free-solid-svg-icons';
 import { useParams } from "react-router-dom";
 import useFetchEvent from "./hooks/useFetchEvent";
-import AvailabilitiesCalendar from "./components/AvailabilitiesCalendar/AvailabilitiesCalendar";
+import EventAvailability from "./components/EventAvailability/EventAvailability";
 import { EventId } from "src/global/types";
 import PageWrapper from "src/components/PageWrapper";
 
@@ -33,36 +33,21 @@ const Event = () => {
           </div>
         </div>
       }
-      <PageWrapper innerContainerClassName="md:px-[10%] sm:px-[5%] px-1">
-        <div className="flex justify-between items-center sm:mb-8 mb-5">
-          <article className="prose">
-            <h1 className="md:text-4xl sm:text-3xl text-2xl">
-              {event?.name}
-            </h1>
-          </article>
-
-          <div className="flex gap-1 sm:gap-3">
-
-            <button
-              className="btn btn-outline btn-xs sm:btn-sm md:btn-md md:text-lg"
-              onClick={copyLink}
-            >
-              <p className="hidden sm:block">copy link</p>
-              <FontAwesomeIcon icon={faLink} size="lg"/>
-            </button>
-
-            <button
-              className="btn btn-secondary btn-xs sm:btn-sm md:btn-md md:text-lg"
-              onClick={() => setIsSelectionMode(true)}
-              disabled={isSelectionMode}
-            >
-              add availability
-            </button>
-          </div>
+      <PageWrapper innerContainerClassName="md:px-[10%] sm:px-[5%]">
+        <div className="flex justify-between items-center mb-8 ">
+          <h1 className="lg:text-3xl md:text-2xl text-xl">
+            {event?.name}
+          </h1>
+          <button
+            className="btn btn-outline btn-sm lg:btn-md lg:text-lg"
+            onClick={copyLink}
+          >
+            <p className="sm:block hidden">copy link</p>
+            <FontAwesomeIcon icon={faShare} size="lg"/>
+          </button>
         </div>
-
         {event ? (
-          <AvailabilitiesCalendar
+          <EventAvailability
             isSelectionMode={isSelectionMode}
             setIsSelectionMode={setIsSelectionMode}
             event={event}

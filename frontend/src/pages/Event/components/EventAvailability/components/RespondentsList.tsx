@@ -18,15 +18,15 @@ const RespondentsList: React.FC<Props> = ({
 }) => {
 
   return (
-    <div className="bg-base-200 p-4 rounded-lg overflow-y-auto no-scrollbar max-h-[70vh]">
-      <h2 className="font-bold md:text-2xl sm:text-xl text-md">respondents</h2>
+    <div className="bg-base-200 sm:p-4 p-3 rounded-lg overflow-y-auto no-scrollbar max-h-[70vh]">
+      <h2 className="lg:text-2xl sm:text-xl text-lg">people</h2>
 
       <div className="divider mt-2"></div>
 
       <ul className="sm:space-y-2 space-y-1.5">
         {Object.values(event.users).length === 0 ? (
-          <p className="font-bold text-gray-500 sm:text-sm text-xs text-center">
-            none (yet...)
+          <p className="text-gray-500 sm:text-sm text-xs text-center">
+            none (yet)
           </p>
         ) : (
           Object.values(event.users).map((user) => {
@@ -39,7 +39,7 @@ const RespondentsList: React.FC<Props> = ({
                   flex justify-between
                   hover:pl-1
                   transition-[padding,text-decoration,color] duration-500 ease-in-out hover:ease-out
-                  w-full font-bold md:text-base sm:text-sm text-xs
+                  w-full lg:text-base md:text-sm text-xs
                   ${!isAvailable && hoveredSlot ? 'line-through text-gray-500' : ''}
                 `}>
                   <p className="truncate">{user.name}</p>

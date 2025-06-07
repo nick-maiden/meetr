@@ -17,7 +17,7 @@ const Paginator: React.FC<Props> = ({ currentPage, setCurrentPage, totalPages}) 
       >
         <ChevronLeft className="h-4 w-4" />
       </button>
-      <span className="font-bold md:text-xl sm:text-lg text-md">
+      <span className="md:text-xl sm:text-lg text-md">
         page {currentPage + 1} of {totalPages}
       </span>
       <button

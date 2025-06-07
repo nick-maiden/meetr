@@ -40,13 +40,13 @@ const useTimeRangeSelector = (): UseTimeRangeSelectorReturn => {
       value: earliestTime,
       setValue: setEarliestTime,
       options: earliestOptions,
-      title: 'no earlier than',
+      title: 'earliest',
     },
     latest: {
       value: latestTime,
       setValue: setLatestTime,
       options: latestOptions,
-      title: 'no later than',
+      title: 'latest',
     }
   };
 };

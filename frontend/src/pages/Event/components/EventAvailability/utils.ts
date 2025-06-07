@@ -29,7 +29,7 @@ export const generateTimeData = (earliestTime: string, latestTime: string): Time
   const startHour = parseInt(earliestTime.split(':')[0]);
   const endHour = parseInt(latestTime.split(':')[0]);
 
-  for (let hour = startHour; hour < endHour; hour++) {
+  for (let hour = startHour; hour <= endHour; hour++) {
     const hour12 = hour % 12 || 12;
     const ampm = hour < 12 ? 'am' : 'pm';
     hours.push(`${hour12}${ampm}`);
