@@ -17,8 +17,8 @@ const DayHeadings: React.FC<Props> = ({ dates }) => {
           }).split(", ");
           return (
             <th key={i} className="text-center border-b border-neutral">
-              <div className="text-xs text-neutral-500">{monthDay}</div>
-              <div className="sm:text-lg text-md">{weekday}</div>
+              <div className="text-xs text-neutral-500">{monthDay.toLowerCase()}</div>
+              <div className="font-normal sm:text-xl text-lg">{weekday.toLowerCase()}</div>
             </th>
           );
         })}

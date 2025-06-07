@@ -1,4 +1,5 @@
 import React from "react";
+import Typewriter from 'typewriter-effect';
 import { useNavigate } from "react-router-dom";
 import DateSelectionCalendar from "./components/DateSelectionCalendar/DateSelectionCalendar";
 import SelectBox from "./components/SelectBox";
@@ -36,24 +37,32 @@ const CreateEvent = () => {
 
   return (
     <PageWrapper innerContainerClassName="lg:px-[20%] md:px-[10%] px-2">
-      <article className="prose text-lg">
-        <h2>event name</h2>
+      <div className="inline-block px-4 py-2 mx-auto bg-base-200 rounded-lg">
+        <h3 className="sm:text-2xl text-lg">
+          <Typewriter onInit={(tw) => tw.typeString('create event.').start()} />
+        </h3>
+      </div>
+
+      <article className="prose mt-6">
+        <h3 className="sm:text-2xl text-xl">event name</h3>
       </article>
 
       <label className="mx-auto sm:mt-6 mt-4">
         <input
           type="text"
           placeholder="..."
-          className="input input-bordered text-xl font-bold text-center"
+          className="input input-bordered sm:text-xl text-lg text-center w-[300px]"
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
       </label>
 
       <article className="prose mt-10">
-        <h2>what dates might work?</h2>
+        <h3 className="sm:text-2xl text-xl">what dates might work?</h3>
       </article>
-      <p className="text-sm text-gray-500 font-bold mt-2">click and drag to select</p>
+      <p className="sm:text-sm text-xs text-gray-500 font-bold mt-2">
+        click and drag to select
+      </p>
 
       <DateSelectionCalendar
         className="mx-auto mt-6"
@@ -61,7 +70,7 @@ const CreateEvent = () => {
       />
 
       <article className="prose mt-10">
-        <h2>what times might work?</h2>
+        <h3 className="sm:text-2xl text-xl">what times might work?</h3>
       </article>
 
       <div className="flex justify-around mt-6">
@@ -70,16 +79,28 @@ const CreateEvent = () => {
         <SelectBox {...timeRangeSelector.latest} />
       </div>
 
-      <button
-        className="btn btn-secondary text-xl mt-14"
-        disabled={!canCreateEvent()}
-        onClick={onCreate}
-      >
-        {isCreating
-          ? <span className="loading loading-spinner"></span>
-          : <>create event</>
-        }
-      </button>
+      <div
+        className={`${!canCreateEvent() && "tooltip"} mt-12`}
+        data-tip={
+        !canCreateEvent() &&
+          `event missing: ${[
+            !name && "a name",
+            !dates.length && "dates", 
+            !earliestTime && "earliest time",
+            !latestTime && "latest time"
+          ].filter(Boolean).join(", ")}`
+      }>
+        <button
+          className="btn btn-secondary text-xl w-full"
+          disabled={!canCreateEvent()}
+          onClick={onCreate}
+        >
+          {isCreating
+            ? <span className="loading loading-spinner"></span>
+            : <>create event</>
+          }
+        </button>
+      </div>
     </PageWrapper>
   )
 };

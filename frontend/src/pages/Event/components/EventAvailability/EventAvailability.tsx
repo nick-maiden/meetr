@@ -17,7 +17,7 @@ interface Props {
   event: Event;
 }
 
-const AvailabilitiesCalendar: React.FC<Props> = ({
+const EventAvailability: React.FC<Props> = ({
   isSelectionMode,
   setIsSelectionMode,
   event
@@ -54,8 +54,7 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
         onCancel={onCancelConfirmName}
       />
       <div className="space-y-4">
-        <div className="flex gap-6">
-
+        <div className="flex sm:gap-6 gap-4">
           <div className="flex-grow">
             {totalPages > 1 && <Paginator {...{ currentPage, setCurrentPage, totalPages }}/>}
             <CalendarGrid {...{
@@ -66,8 +65,15 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
               isSelectionMode
             }}/>
           </div>
+          <div className="flex flex-col gap-2 lg:w-48 md:w-40 sm:w-32 w-24 sticky top-0 self-start">
+            <button
+              className="btn btn-secondary btn-md md:text-base text-xs w-full"
+              onClick={() => setIsSelectionMode(true)}
+              disabled={isSelectionMode}
+            >
+              add availability
+            </button>
 
-          <div className="md:w-48 sm:w-40 w-32 sticky top-0 self-start">
             {isSelectionMode ? (
               <ConfirmAvailabilitySelection
                 onConfirm={onConfirmAvailability}
@@ -78,12 +84,11 @@ const AvailabilitiesCalendar: React.FC<Props> = ({
               <RespondentsList {...{ event, hoveredSlot, onEditAvailability }}/>
             )}
           </div>
-
         </div>
       </div>
     </>
   );
 };
 
-export default AvailabilitiesCalendar;
+export default EventAvailability;
 
