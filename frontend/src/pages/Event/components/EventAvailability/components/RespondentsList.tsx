@@ -4,6 +4,7 @@ import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
 import { AvailabilitySlot } from '../types';
 import { Event, UserId } from 'global/types';
 import { isUserAvailable } from '../utils';
+import Heading from 'src/components/Heading';
 
 interface Props {
   event: Event;
@@ -19,7 +20,7 @@ const RespondentsList: React.FC<Props> = ({
 
   return (
     <div className="bg-base-200 sm:p-4 p-3 rounded-lg overflow-y-auto no-scrollbar max-h-[70vh]">
-      <h2 className="lg:text-2xl sm:text-xl text-lg">people</h2>
+      <Heading size='sm'>people</Heading>
 
       <div className="divider mt-2"></div>
 

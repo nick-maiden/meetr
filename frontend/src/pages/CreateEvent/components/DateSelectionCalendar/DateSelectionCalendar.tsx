@@ -37,7 +37,7 @@ const DateSelectionCalendar: React.FC<Props> = ({ className, setDates }) => {
           <ChevronLeft className="h-4 w-4" />
         </button>
         <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-lg">
             {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
           </h2>
         </div>

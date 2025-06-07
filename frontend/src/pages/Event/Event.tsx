@@ -6,6 +6,7 @@ import useFetchEvent from "./hooks/useFetchEvent";
 import EventAvailability from "./components/EventAvailability/EventAvailability";
 import { EventId } from "src/global/types";
 import PageWrapper from "src/components/PageWrapper";
+import Heading from "src/components/Heading";
 
 const Event = () => {
   const { eventId } = useParams<EventId>();
@@ -33,11 +34,10 @@ const Event = () => {
           </div>
         </div>
       }
+
       <PageWrapper innerContainerClassName="md:px-[10%] sm:px-[5%]">
         <div className="flex justify-between items-center mb-8 ">
-          <h1 className="lg:text-3xl md:text-2xl text-xl">
-            {event?.name}
-          </h1>
+          <Heading>{event?.name}</Heading>
           <button
             className="btn btn-outline btn-sm lg:btn-md lg:text-lg"
             onClick={copyLink}
@@ -46,6 +46,7 @@ const Event = () => {
             <FontAwesomeIcon icon={faShare} size="lg"/>
           </button>
         </div>
+
         {event ? (
           <EventAvailability
             isSelectionMode={isSelectionMode}

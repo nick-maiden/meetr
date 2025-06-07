@@ -1,6 +1,6 @@
 import React from "react";
 import Typewriter from 'typewriter-effect';
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DateSelectionCalendar from "./components/DateSelectionCalendar/DateSelectionCalendar";
 import SelectBox from "./components/SelectBox";
 import useTimeRangeSelector from "./hooks/useTimeRangeSelector";
@@ -8,6 +8,8 @@ import { convertTo24Hour } from "./utils";
 import { createEvent } from "src/global/api";
 import { AppContext } from "src/global/contexts";
 import PageWrapper from "src/components/PageWrapper";
+import Heading from "src/components/Heading";
+import SubText from "src/components/SubText";
 
 const CreateEvent = () => {
   const [name, setName] = React.useState('');
@@ -38,14 +40,13 @@ const CreateEvent = () => {
   return (
     <PageWrapper innerContainerClassName="lg:px-[20%] md:px-[10%] px-2">
       <div className="inline-block px-4 py-2 mx-auto bg-base-200 rounded-lg">
-        <h3 className="sm:text-2xl text-lg">
+        <h3 className="sm:text-xl text-lg">
           <Typewriter onInit={(tw) => tw.typeString('create event.').start()} />
         </h3>
       </div>
 
-      <article className="prose mt-6">
-        <h3 className="sm:text-2xl text-xl">event name</h3>
-      </article>
+      <Heading size="lg" className="mt-10">event name</Heading>
+      <SubText>stuck? <span className="link">here's one</span></SubText>
 
       <label className="mx-auto sm:mt-6 mt-4">
         <input
@@ -57,23 +58,17 @@ const CreateEvent = () => {
         />
       </label>
 
-      <article className="prose mt-10">
-        <h3 className="sm:text-2xl text-xl">what dates might work?</h3>
-      </article>
-      <p className="sm:text-sm text-xs text-gray-500 font-bold mt-2">
-        click and drag to select
-      </p>
+      <Heading className="mt-10">what dates might work?</Heading>
+      <SubText>click and drag to select</SubText>
 
       <DateSelectionCalendar
-        className="mx-auto mt-6"
+        className="mx-auto sm:mt-6 mt-4"
         setDates={setDates}
       />
 
-      <article className="prose mt-10">
-        <h3 className="sm:text-2xl text-xl">what times might work?</h3>
-      </article>
+      <Heading className="mt-10">what times might work?</Heading>
 
-      <div className="flex justify-around mt-6">
+      <div className="flex justify-around sm:mt-6 mt-4">
         <SelectBox {...timeRangeSelector.earliest} />
         <div className="divider divider-horizontal"></div>
         <SelectBox {...timeRangeSelector.latest} />
