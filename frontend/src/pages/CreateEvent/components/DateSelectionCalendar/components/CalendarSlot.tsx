@@ -11,7 +11,7 @@ const CalendarSlot: React.FC<Props> = ({ slot, slotSelection }) => {
   return (
     <td key={slot.day} className="p-0">
       <button
-        className={`btn btn-circle md:w-12 md:h-12 w-9 h-9 min-h-0 relative mb-1 ${
+        className={`btn btn-circle md:w-12 md:h-12 w-9 h-9 min-h-0 relative mb-1 font-normal ${
             slotSelection.contains(slot)
             ? 'btn-secondary text-secondary-content'
             : 'btn-ghost'

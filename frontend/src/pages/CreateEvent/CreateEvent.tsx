@@ -73,13 +73,13 @@ const CreateEvent = () => {
       <div className="flex gap-2 sm:mt-16 mt-10">
         <Heading>what times might work?</Heading>
         <div
-          className="tooltip tooltip-accent text-left right-24"
+          className="tooltip tooltip-accent text-left right-28"
           data-tip="
           earliest: earliest the event can start
           latest:   latest it can finish"
         >
           <FontAwesomeIcon
-            className="relative left-24 lg:top-1 top-0 lg:text-base md:text-sm text-xs"
+            className="relative left-28 lg:top-1 top-0 lg:text-base md:text-sm text-xs"
             icon={faCircleInfo}
           />
         </div>
