@@ -1,4 +1,5 @@
 import React from "react";
+import Heading from "src/components/Heading";
 
 interface Props {
   onConfirm: (name: string) => void;
@@ -13,7 +14,7 @@ const NameInputModal: React.FC<Props> = ({ onConfirm, onCancel }) => {
     <dialog id="name_input_modal" className="modal">
       <div className="modal-box">
         <article className="prose">
-          <h2 className="font-bold text-3xl">save availability</h2>
+          <Heading size="lg">save availability</Heading>
           <div className="flex flex-col gap-y-4">
             <input
               type="text"
@@ -24,7 +25,7 @@ const NameInputModal: React.FC<Props> = ({ onConfirm, onCancel }) => {
               onChange={(e) => setUserName(e.target.value)}
             />
             <button
-              className="btn btn-secondary self-end w-[30%] text-lg"
+              className="btn btn-secondary self-end w-[120px] text-base"
               disabled={userName.length === 0}
               onClick={() => {
                 setAwaitingConfirmation(true);

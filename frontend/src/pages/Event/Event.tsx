@@ -39,7 +39,7 @@ const Event = () => {
         <div className="flex justify-between items-center mb-8 ">
           <Heading>{event?.name}</Heading>
           <button
-            className="btn btn-outline btn-sm lg:btn-md lg:text-lg"
+            className="btn sm:btn-md btn-sm md:text-base btn-outline"
             onClick={copyLink}
           >
             <p className="sm:block hidden">copy link</p>

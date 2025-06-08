@@ -1,10 +1,12 @@
 import React from "react";
 import Typewriter from 'typewriter-effect';
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import DateSelectionCalendar from "./components/DateSelectionCalendar/DateSelectionCalendar";
 import SelectBox from "./components/SelectBox";
 import useTimeRangeSelector from "./hooks/useTimeRangeSelector";
-import { convertTo24Hour } from "./utils";
+import { convertTo24Hour, generateName } from "./utils";
 import { createEvent } from "src/global/api";
 import { AppContext } from "src/global/contexts";
 import PageWrapper from "src/components/PageWrapper";
@@ -37,6 +39,8 @@ const CreateEvent = () => {
       .finally(() => setIsCreating(false));
   };
 
+  const setRandomName = (): void => setName(generateName());
+
   return (
     <PageWrapper innerContainerClassName="lg:px-[20%] md:px-[10%] px-2">
       <div className="inline-block px-4 py-2 mx-auto bg-base-200 rounded-lg">
@@ -45,20 +49,20 @@ const CreateEvent = () => {
         </h3>
       </div>
 
-      <Heading size="lg" className="mt-10">event name</Heading>
-      <SubText>stuck? <span className="link">here's one</span></SubText>
+      <Heading className="mt-10">event name</Heading>
+      <SubText>stuck? <span className="link" onClick={setRandomName}>try this</span></SubText>
 
       <label className="mx-auto sm:mt-6 mt-4">
         <input
           type="text"
           placeholder="..."
-          className="input input-bordered sm:text-xl text-lg text-center w-[300px]"
+          className="input input-bordered sm:text-base text-sm text-center w-[320px]"
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
       </label>
 
-      <Heading className="mt-10">what dates might work?</Heading>
+      <Heading className="sm:mt-16 mt-10">what dates might work?</Heading>
       <SubText>click and drag to select</SubText>
 
       <DateSelectionCalendar
@@ -66,7 +70,20 @@ const CreateEvent = () => {
         setDates={setDates}
       />
 
-      <Heading className="mt-10">what times might work?</Heading>
+      <div className="flex gap-2 sm:mt-16 mt-10">
+        <Heading>what times might work?</Heading>
+        <div
+          className="tooltip tooltip-accent text-left right-24"
+          data-tip="
+          earliest: earliest the event can start
+          latest:   latest it can finish"
+        >
+          <FontAwesomeIcon
+            className="relative left-24 lg:top-1 top-0 lg:text-base md:text-sm text-xs"
+            icon={faCircleInfo}
+          />
+        </div>
+      </div>
 
       <div className="flex justify-around sm:mt-6 mt-4">
         <SelectBox {...timeRangeSelector.earliest} />
@@ -75,12 +92,12 @@ const CreateEvent = () => {
       </div>
 
       <div
-        className={`${!canCreateEvent() && "tooltip"} mt-12`}
+        className={`${!canCreateEvent() && "tooltip tooltip-accent"} mt-12`}
         data-tip={
         !canCreateEvent() &&
           `event missing: ${[
             !name && "a name",
-            !dates.length && "dates", 
+            !dates.length && "dates",
             !earliestTime && "earliest time",
             !latestTime && "latest time"
           ].filter(Boolean).join(", ")}`
