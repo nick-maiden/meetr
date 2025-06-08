@@ -10,7 +10,7 @@ interface Props {
 const SelectBox: React.FC<Props> = ({ value, setValue, options, title }) => {
   return (
     <select
-      className="select select-bordered no-scrollbar font-bold"
+      className="select select-bordered no-scrollbar"
       value={value}
       onChange={(event) => setValue(event.target.value)}
     >
